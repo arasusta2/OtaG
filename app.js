@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTurkishBackground();
     initThemeAndSound();
     initTabs();
+    initScrollTools();
     initOkeyTable();
     initTavlaTable();
     initKemankesAndEbru();
@@ -24,6 +25,35 @@ function showToast(message, icon = '🇹🇷') {
     toast.classList.add('show');
     clearTimeout(toast._timer);
     toast._timer = setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+function initScrollTools() {
+    const progress = document.getElementById('scrollProgressBar');
+    const backToTop = document.getElementById('backToTop');
+    let framePending = false;
+
+    const update = () => {
+        const root = document.documentElement;
+        const maxScroll = Math.max(1, root.scrollHeight - window.innerHeight);
+        const progressRatio = Math.min(1, Math.max(0, window.scrollY / maxScroll));
+        if (progress) progress.style.transform = `scaleX(${progressRatio})`;
+        if (backToTop) backToTop.classList.toggle('visible', window.scrollY > 420);
+        framePending = false;
+    };
+
+    window.addEventListener('scroll', () => {
+        if (framePending) return;
+        framePending = true;
+        requestAnimationFrame(update);
+    }, { passive: true });
+    window.addEventListener('resize', update);
+    if (backToTop) {
+        backToTop.addEventListener('click', () => {
+            const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+        });
+    }
+    update();
 }
 
 /* ========================================================
@@ -440,7 +470,7 @@ function initGokturkTranslator() {
         '𐱃': 't', '𐱅': 't', '𐰲': 'ç/c', '𐰢': 'm',
         '𐰯': 'p/f', '𐱁': 'ş', '𐰔': 'z', '𐰖': 'y',
         '𐰘': 'y', '𐰶': 'k/h', '𐰸': 'ok/uk',
-        '𐰵': 'ök/ük', '𐰨': 'nç', '𐰪': 'ny',
+        '𐰵': 'ök/ük', '𐰰': 'k', '𐰨': 'nç', '𐰪': 'ny',
         '𐰡': 'lt/ld', '𐰦': 'nt/nd', '𐰭': 'ng'
     };
 
@@ -476,6 +506,10 @@ function initGokturkTranslator() {
     }
 
     function toLatin(str) {
+        const historicalPhrase = (window.gokturkHistoricPhrases || []).find(item =>
+            item.gokturk.trim() === str.trim()
+        );
+        if (historicalPhrase) return historicalPhrase.tr;
         return [...str].map(ch => {
             if (ch === ':') return ' ';
             if (ch === '𐰼' || ch === '𐰶') return runicToLatin[ch];

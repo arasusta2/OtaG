@@ -14,5 +14,7 @@ Bu paket, mevcut statik OTAĞ uygulamasının güncellenmiş dosyalarını içer
 - Ebru teknesinde damla, serpme, biz, tarak, gelgit ve motif araçları; fırça/yayılım ayarı, geri al ve PNG indirme
 - Kemankeş'te puta, hareketli hedef ve menzil talimleri; kuvvet, rüzgâr ve mobil nişan desteği
 - Göktürk tamgalarına yaklaşık ses aktarımı ve tamgalardan yaklaşık Latin okuma
+- Cam etkili sabit bölüm menüsü, hareketli arka plan ışıkları, yumuşak sayfa/kart geçişleri, okuma ilerlemesi ve başa dön düğmesi
+- Klavye odağı, içerik atlama bağlantısı, dar ekran düzeni ve azaltılmış hareket tercihi desteği
 
 Göktürkçe aracı tarihî dile anlamsal çeviri yapmaz. Serbest metin sonuçları yaklaşık harf/ses aktarımıdır; tanınan bazı Orhun ifadeleri tarihî örnek sözlükten gösterilir.

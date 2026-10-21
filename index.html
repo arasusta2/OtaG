@@ -12,8 +12,11 @@
 </head>
 <body>
 
+    <a class="skip-link" href="#tab-okey">İçeriğe geç</a>
     <!-- Selçuklu Sekiz Köşeli Yıldızı & Altın Zerrecikleri Tuvali -->
     <canvas id="bgCanvas"></canvas>
+    <div class="scroll-progress" aria-hidden="true"><span id="scrollProgressBar"></span></div>
+    <button id="backToTop" class="back-to-top" type="button" aria-label="Sayfanın başına dön">↑</button>
 
     <div class="portal-wrapper">
         <!-- Başlık & Saray Sancağı -->
@@ -34,7 +37,7 @@
         </header>
 
         <!-- Navigasyon Çubuğu -->
-        <nav class="portal-nav">
+        <nav class="portal-nav" aria-label="Uygulama bölümleri">
             <button class="nav-btn active" data-tab="tab-okey">🀄 Kıraathane Okeyi</button>
             <button class="nav-btn" data-tab="tab-tavla">🎲 Şark Tavlası</button>
             <button class="nav-btn" data-tab="tab-kemankes">🏹 Kemankeş Okçuluğu</button>
