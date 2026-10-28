@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTools();
     initOkeyTable();
     initTavlaTable();
+    initMangala();
     initKemankesAndEbru();
     initInstruments();
     initGokturkTranslator();
@@ -212,6 +213,22 @@ function initOkeyTable() {
     window.okeyInstance = new window.OkeyGame();
     window.okeyInstance.startNewGame();
 
+    // Klasik Okey / 101 Okey geçişi
+    document.querySelectorAll('[data-okey-mode]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mode = btn.dataset.okeyMode;
+            if (window.okeyInstance.gameMode === mode) return;
+            window.okeyInstance.setGameMode(mode);
+            if (mode === '101-esli') {
+                showToast('Eşli 101 masası kuruldu: ortağınız Mehmet Usta, takım puanı 1010 hedefinde!', '🤝');
+            } else {
+                showToast(mode === '101'
+                    ? '101 Okey masası kuruldu: 21 taş, 101 puan açılışı ve animasyonlu el açma!'
+                    : 'Klasik Okey masası kuruldu: 14 taşla perleri tamamla.', '🀄');
+            }
+        });
+    });
+
     const closeModalBtn = document.getElementById('btnCloseOkeyWin');
     const okeyModal = document.getElementById('okeyWinModal');
     if (closeModalBtn && okeyModal) {
@@ -243,6 +260,81 @@ function initTavlaTable() {
             );
         });
     }
+
+    // Tavlada kendi lafını yazma
+    const chatInput = document.getElementById('tavlaChatInput');
+    const btnChat = document.getElementById('btnTavlaChat');
+    const btnRandomChat = document.getElementById('btnTavlaChatRandom');
+    const randomTavlaLines = [
+        "Zar senden yana dönerse hatırlatırsın bu lafı!",
+        "Bu masada pul kırılır, laf kırılmaz!",
+        "Hele bir zar at da görelim kim konuşuyor.",
+        "Kıraathane ahalisi duydu, artık oynamak zorundasın!",
+        "Lafın büyüğü masada değil, zarda konuşulur.",
+        "Bakalım senin zarın mı, benim pulum mu güçlü?"
+    ];
+
+    const sendTavlaChat = () => {
+        if (!chatInput || !window.tavlaInstance) return;
+        const text = chatInput.value.trim();
+        if (!text) {
+            showToast('Laf atmak için önce bir şey yaz.', '💬');
+            return;
+        }
+        window.tavlaInstance.say(text);
+        chatInput.value = '';
+    };
+
+    if (btnChat) btnChat.addEventListener('click', sendTavlaChat);
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendTavlaChat();
+            }
+        });
+    }
+    if (btnRandomChat && chatInput) {
+        btnRandomChat.addEventListener('click', () => {
+            chatInput.value = randomTavlaLines[Math.floor(Math.random() * randomTavlaLines.length)];
+            chatInput.focus();
+        });
+    }
+}
+
+/* ========================================================
+   5B. MANGALA MASASI (UNESCO KÖÇÜRME)
+   ======================================================== */
+function initMangala() {
+    window.mangalaInstance = new window.MangalaGame('mangalaContainer');
+
+    const modal = document.getElementById('mangalaRulesModal');
+    const openRules = () => {
+        if (modal) modal.classList.add('show');
+    };
+    const closeRules = () => {
+        if (modal) modal.classList.remove('show');
+    };
+
+    const btnTop = document.getElementById('btnMangalaRulesTop');
+    if (btnTop) btnTop.addEventListener('click', openRules);
+
+    ['btnCloseMangalaRules', 'btnCloseMangalaRulesBottom'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', closeRules);
+    });
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeRules();
+        });
+    }
+
+    const resultModal = document.getElementById('mangalaResultModal');
+    if (resultModal) {
+        resultModal.addEventListener('click', (e) => {
+            if (e.target === resultModal) resultModal.classList.remove('show');
+        });
+    }
 }
 
 /* ========================================================
@@ -252,11 +344,22 @@ function initKemankesAndEbru() {
     window.kemankesInstance = new window.KemankesGame('kemankesCanvas');
     window.ebruInstance = new window.EbruStudio('ebruCanvas');
 
+    const kemankesModeInfo = {
+        puta: '🎯 Puta talimi: Sabit hedefin gözünü vur, komboyu büyüt.',
+        hareketli: '🌀 Hareketli hedef: Puta aşağı yukarı salınır; zamanlamayı yakala.',
+        menzil: '📏 Menzil atışı: 5 okla en uzağa at; Tozkoparan’ın 846 m rekorunu geç.',
+        kus: '🕊️ Uçan kuş avı: 8 okla soldan süzülen kuşu vur; göğüsten vuruş çift puan.',
+        firtina: '🌪️ Fırtına talimi: Rüzgâr sertleşir ve ani yön değiştirir; kuvveti ona göre ayarla.'
+    };
+
     document.querySelectorAll('[data-kemankes-mode]').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('[data-kemankes-mode]').forEach(x => x.classList.remove('active'));
             btn.classList.add('active');
-            if (window.kemankesInstance) window.kemankesInstance.setMode(btn.dataset.kemankesMode);
+            const mode = btn.dataset.kemankesMode;
+            if (window.kemankesInstance) window.kemankesInstance.setMode(mode);
+            const desc = document.getElementById('kemankesModeDesc');
+            if (desc) desc.textContent = kemankesModeInfo[mode] || '';
             showToast(`${btn.textContent.trim()} başladı. Rüzgârı ve kuvveti hesaba kat!`, '🏹');
         });
     });
@@ -265,9 +368,25 @@ function initKemankesAndEbru() {
     if (startKemankesBtn) {
         startKemankesBtn.addEventListener('click', () => {
             window.kemankesInstance.start();
-            showToast('Ya Hak! Puta Talimi Başladı!', '🏹');
+            const mode = window.kemankesInstance.mode;
+            const label = (kemankesModeInfo[mode] || 'Talim').split(':')[0];
+            showToast(`Ya Hak! ${label} başladı!`, '🏹');
         });
     }
+
+    const ebruToolNames = {
+        drop: 'Damla', spray: 'Serpme', biz: 'Biz', comb: 'Tarak',
+        tulip: 'Lale', rose: 'Gül', carnation: 'Karanfil', bulbul: 'Bülbül yuvası',
+        ring: 'Halka', daisy: 'Papatya'
+    };
+
+    const refreshEbruTip = () => {
+        const tip = document.getElementById('ebruTip');
+        if (!tip || !window.ebruInstance) return;
+        const studio = window.ebruInstance;
+        const colorName = (document.querySelector('.ebru-color-btn.active') || {}).title || 'Renk';
+        tip.textContent = `Araç: ${ebruToolNames[studio.currentTool] || studio.currentTool} · Fırça: ${studio.brushSize} · ${colorName}`;
+    };
 
     const ebruColors = document.querySelectorAll('.ebru-color-btn');
     ebruColors.forEach(c => {
@@ -275,6 +394,7 @@ function initKemankesAndEbru() {
             ebruColors.forEach(x => x.classList.remove('active'));
             c.classList.add('active');
             window.ebruInstance.currentColor = c.dataset.color;
+            refreshEbruTip();
         });
     });
 
@@ -287,12 +407,13 @@ function initKemankesAndEbru() {
             btn.classList.add('active');
             studio.currentTool = btn.dataset.ebruTool;
             studio.isCombing = studio.currentTool === 'biz';
-            const motifs = ['tulip', 'rose', 'carnation', 'bulbul'];
+            const motifs = ['tulip', 'rose', 'carnation', 'bulbul', 'ring', 'daisy'];
             if (motifs.includes(studio.currentTool)) {
                 studio.applyTool(studio.canvas.width / 2, studio.canvas.height / 2);
                 studio.saveState();
                 showToast(`${btn.textContent.trim()} motifi tekneye işlendi.`, '🎨');
             }
+            refreshEbruTip();
         });
     });
 
@@ -302,6 +423,7 @@ function initKemankesAndEbru() {
         ebruBrush.addEventListener('input', () => {
             window.ebruInstance.brushSize = Number(ebruBrush.value);
             if (ebruBrushValue) ebruBrushValue.textContent = ebruBrush.value;
+            refreshEbruTip();
         });
     }
     const gallSlider = document.getElementById('ebruGallRatio');
@@ -335,10 +457,12 @@ function initKemankesAndEbru() {
     const btnPrintEbru = document.getElementById('btnPrintEbru');
     if (btnPrintEbru) {
         btnPrintEbru.addEventListener('click', () => {
-            window.ebruInstance.downloadPaper();
+            window.ebruInstance.printOnPaper();
             showToast('Ebru kağıdı mühürlenip cihazınıza indirildi!', '📜');
         });
     }
+
+    refreshEbruTip();
 }
 
 /* ========================================================
@@ -448,6 +572,191 @@ function initInstruments() {
             showToast('Nihavend Longa Tınıları Çalınıyor...', '🪕');
         });
     }
+
+    /* ---- Yeni çalgılar: kemençe, tambur, ud, kaval, zurna ---- */
+    const instrumentNotes = {
+        kemence: { 'Sol': 392.00, 'La': 440.00, 'Si': 493.88, 'Do': 523.25, 'Re': 587.33 },
+        tambur: { 'Alt': 293.66, 'Orta': 220.00, 'Üst': 146.83 },
+        ud: { 'Re': 293.66, 'Mi': 329.63, 'Sol': 392.00, 'La': 440.00 },
+        zurna: { 'La': 440.00, 'Si': 493.88, 'Do#': 554.37, 'Re': 587.33, 'Mi': 659.25 },
+        kaval: { 'Re': 293.66, 'Mi': 329.63, 'Fa': 349.23, 'Sol': 392.00, 'La': 440.00, 'Si♭': 466.16 }
+    };
+
+    document.querySelectorAll('[data-inst]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const inst = btn.dataset.inst;
+            const note = btn.dataset.note;
+            const freq = instrumentNotes[inst] && instrumentNotes[inst][note];
+            if (!freq || !window.turkishSound) return;
+
+            if (inst === 'kemence') window.turkishSound.playKemence(freq, 1.4);
+            else if (inst === 'tambur') window.turkishSound.playTambur(freq, 1.5);
+            else if (inst === 'ud') window.turkishSound.playUd(freq, 1.2);
+            else if (inst === 'zurna') window.turkishSound.playZurna(freq, 0.9);
+            else if (inst === 'kaval') window.turkishSound.playKaval(freq, 1.1);
+
+            btn.classList.add('active');
+            setTimeout(() => btn.classList.remove('active'), 220);
+        });
+    });
+
+    const btnDavulDum = document.getElementById('btnDavulDum');
+    const btnDavulTek = document.getElementById('btnDavulTek');
+    const btnDefZil = document.getElementById('btnDefZil');
+    if (btnDavulDum) btnDavulDum.addEventListener('click', () => window.turkishSound && window.turkishSound.playDavul(true));
+    if (btnDavulTek) btnDavulTek.addEventListener('click', () => window.turkishSound && window.turkishSound.playDavul(false));
+    if (btnDefZil) btnDefZil.addEventListener('click', () => window.turkishSound && window.turkishSound.playDef());
+
+    /* ---- Hazır repertuvar: kısa taksim ve türkü icraları ---- */
+    const repertoire = {
+        segah: {
+            title: 'Segah Taksim',
+            notes: [
+                { f: 440, d: 520, i: 'ney' }, { f: 466, d: 340, i: 'ney' }, { f: 493, d: 600, i: 'ney' },
+                { f: 523, d: 380, i: 'ney' }, { f: 587, d: 520, i: 'ney' }, { f: 622, d: 340, i: 'kanun' },
+                { f: 587, d: 320, i: 'kanun' }, { f: 523, d: 520, i: 'ney' }, { f: 493, d: 340, i: 'ney' },
+                { f: 466, d: 380, i: 'ney' }, { f: 440, d: 900, i: 'ney' }
+            ]
+        },
+        hicaz: {
+            title: 'Hicaz Saz Semaisi',
+            notes: [
+                { f: 440, d: 260, i: 'tambur' }, { f: 466, d: 260, i: 'tambur' }, { f: 554, d: 380, i: 'kemence' },
+                { f: 587, d: 300, i: 'kemence' }, { f: 659, d: 460, i: 'kemence' }, { f: 698, d: 260, i: 'tambur' },
+                { f: 659, d: 260, i: 'tambur' }, { f: 587, d: 360, i: 'ud' }, { f: 554, d: 360, i: 'ud' },
+                { f: 466, d: 300, i: 'kemence' }, { f: 440, d: 780, i: 'kemence' }
+            ]
+        },
+        nihavend: {
+            title: 'Nihavend Longa',
+            notes: [
+                { f: 293, d: 220, i: 'kanun' }, { f: 329, d: 220, i: 'kanun' }, { f: 349, d: 260, i: 'ud' },
+                { f: 392, d: 260, i: 'ud' }, { f: 440, d: 300, i: 'kanun' }, { f: 466, d: 260, i: 'kanun' },
+                { f: 523, d: 320, i: 'kanun' }, { f: 587, d: 420, i: 'ud' }, { f: 523, d: 220, i: 'ud' },
+                { f: 466, d: 240, i: 'kanun' }, { f: 440, d: 300, i: 'kanun' }, { f: 392, d: 260, i: 'ud' },
+                { f: 349, d: 640, i: 'ud' }
+            ]
+        },
+        rumeli: {
+            title: 'Rumeli Horonu',
+            notes: [
+                { f: 587, d: 180, i: 'zurna' }, { f: 659, d: 180, i: 'zurna' }, { f: 698, d: 220, i: 'zurna' },
+                { f: 784, d: 260, i: 'zurna' }, { f: 698, d: 160, i: 'zurna' }, { f: 659, d: 180, i: 'zurna' },
+                { f: 587, d: 300, i: 'zurna' }, { f: 523, d: 180, i: 'zurna' }, { f: 587, d: 180, i: 'zurna' },
+                { f: 659, d: 360, i: 'zurna' }, { f: 784, d: 420, i: 'zurna' }
+            ],
+            drums: [0, 360, 720, 1080, 1440, 1800, 2160, 2520]
+        },
+        anadolu: {
+            title: 'Anadolu Oyun Havası',
+            notes: [
+                { f: 392, d: 260, i: 'kaval' }, { f: 440, d: 220, i: 'kaval' }, { f: 494, d: 260, i: 'baglama' },
+                { f: 523, d: 220, i: 'baglama' }, { f: 587, d: 300, i: 'kaval' }, { f: 523, d: 220, i: 'kaval' },
+                { f: 494, d: 240, i: 'baglama' }, { f: 440, d: 220, i: 'baglama' }, { f: 392, d: 320, i: 'kaval' },
+                { f: 440, d: 220, i: 'kaval' }, { f: 494, d: 260, i: 'baglama' }, { f: 587, d: 500, i: 'kaval' }
+            ],
+            drums: [0, 480, 960, 1440, 1920, 2400]
+        },
+        mevlevi: {
+            title: 'Mevlevi Peşrevi',
+            notes: [
+                { f: 196, d: 700, i: 'ney' }, { f: 220, d: 520, i: 'ney' }, { f: 261, d: 620, i: 'ney' },
+                { f: 293, d: 520, i: 'ney' }, { f: 349, d: 700, i: 'ney' }, { f: 329, d: 420, i: 'ney' },
+                { f: 293, d: 620, i: 'ney' }, { f: 261, d: 420, i: 'ney' }, { f: 220, d: 900, i: 'ney' }
+            ],
+            drums: [0, 900, 1800, 2700]
+        },
+        cankkale: {
+            title: 'Çanakkale Türküsü',
+            notes: [
+                { f: 392, d: 420, i: 'kemence' }, { f: 440, d: 300, i: 'kemence' }, { f: 494, d: 420, i: 'kemence' },
+                { f: 523, d: 300, i: 'ud' }, { f: 494, d: 360, i: 'ud' }, { f: 440, d: 420, i: 'kemence' },
+                { f: 392, d: 300, i: 'kemence' }, { f: 349, d: 380, i: 'ud' }, { f: 392, d: 360, i: 'ud' },
+                { f: 440, d: 700, i: 'kemence' }
+            ]
+        },
+        uzunince: {
+            title: 'Uzun İnce Bir Yoldayım',
+            notes: [
+                { f: 220, d: 420, i: 'baglama' }, { f: 247, d: 260, i: 'baglama' }, { f: 262, d: 320, i: 'baglama' },
+                { f: 294, d: 420, i: 'baglama' }, { f: 330, d: 300, i: 'kaval' }, { f: 349, d: 380, i: 'kaval' },
+                { f: 392, d: 420, i: 'baglama' }, { f: 349, d: 300, i: 'baglama' }, { f: 330, d: 300, i: 'kaval' },
+                { f: 294, d: 340, i: 'kaval' }, { f: 262, d: 360, i: 'baglama' }, { f: 220, d: 760, i: 'baglama' }
+            ]
+        }
+    };
+
+    let repertoireTimers = [];
+    let activePieceBtn = null;
+    const nowEl = document.getElementById('repertoireNow');
+
+    const stopRepertoire = (silent = false) => {
+        repertoireTimers.forEach(id => clearTimeout(id));
+        repertoireTimers = [];
+        if (activePieceBtn) activePieceBtn.classList.remove('playing');
+        activePieceBtn = null;
+        if (nowEl) {
+            nowEl.textContent = silent ? 'Bir eser seçin; meşkhane kürsüsü sizin.' : 'İcra durduruldu. Sazlar kılıfına girdi.';
+        }
+    };
+
+    const playInstrumentNote = (note) => {
+        const s = window.turkishSound;
+        if (!s) return;
+        if (note.i === 'ney') s.playNey(note.f, Math.max(0.35, note.d / 1000 * 1.25));
+        else if (note.i === 'kanun') s.playKanun(note.f, note.d / 1000);
+        else if (note.i === 'baglama') s.playBaglama(note.f, note.d / 1000 * 1.1);
+        else if (note.i === 'tambur') s.playTambur(note.f, note.d / 1000 * 1.25);
+        else if (note.i === 'kemence') s.playKemence(note.f, note.d / 1000 * 1.3);
+        else if (note.i === 'ud') s.playUd(note.f, note.d / 1000);
+        else if (note.i === 'zurna') s.playZurna(note.f, note.d / 1000);
+        else if (note.i === 'kaval') s.playKaval(note.f, note.d / 1000 * 1.1);
+    };
+
+    const playPiece = (id) => {
+        const piece = repertoire[id];
+        if (!piece) return;
+        stopRepertoire(true);
+
+        const btn = document.querySelector(`[data-piece="${id}"]`);
+        if (btn) {
+            activePieceBtn = btn;
+            btn.classList.add('playing');
+        }
+        if (nowEl) nowEl.textContent = `🎶 ${piece.title} icra ediliyor…`;
+
+        let elapsed = 0;
+        piece.notes.forEach(note => {
+            const timer = setTimeout(() => playInstrumentNote(note), elapsed);
+            repertoireTimers.push(timer);
+            elapsed += note.d;
+        });
+
+        if (piece.drums) {
+            piece.drums.forEach((t, idx) => {
+                const timer = setTimeout(() => {
+                    if (!window.turkishSound) return;
+                    if (idx % 2 === 0) window.turkishSound.playDavul(true);
+                    else window.turkishSound.playDef();
+                }, t);
+                repertoireTimers.push(timer);
+            });
+        }
+
+        const endTimer = setTimeout(() => {
+            if (nowEl) nowEl.textContent = `✅ ${piece.title} tamamlandı. Bir başka eser seçebilirsiniz.`;
+            if (activePieceBtn) activePieceBtn.classList.remove('playing');
+            activePieceBtn = null;
+        }, elapsed + 400);
+        repertoireTimers.push(endTimer);
+        showToast(`${piece.title} icra ediliyor...`, '🎼');
+    };
+
+    document.querySelectorAll('[data-piece]').forEach(btn => {
+        btn.addEventListener('click', () => playPiece(btn.dataset.piece));
+    });
+    const btnStop = document.getElementById('btnStopRepertoire');
+    if (btnStop) btnStop.addEventListener('click', () => stopRepertoire(false));
 }
 
 /* ========================================================
@@ -572,56 +881,96 @@ function initAnatoliaAtlas() {
     const regionSites = document.getElementById('regionSites');
     const regionFood = document.getElementById('regionFood');
     const regionCulture = document.getElementById('regionCulture');
+    const regionStats = document.getElementById('regionStats');
+    const regionRoutes = document.getElementById('regionRoutes');
+    const regionCrafts = document.getElementById('regionCrafts');
+    const regionMusic = document.getElementById('regionMusic');
+    const regionFestivals = document.getElementById('regionFestivals');
 
     const regionsData = {
         marmara: {
             title: "Marmara Bölgesi — Tarihin ve Medeniyetlerin Başkenti",
-            desc: "Üç imparatorluğa başkentlik yapmış payitaht İstanbul, Osmanlı'nın ilk başkentleri Bursa ve Edirne ile kadim bir tarih beşiği.",
-            sites: "Ayasofya-i Kebir Camii, Topkapı Sarayı, Selimiye Camii, Bursa Ulu Camii, Truva Antik Kenti, Galata Kulesi",
-            food: "Bursa İskender Kebabı, Edirne Ciğeri, Çanakkale Peynir Helvası, Tekirdağ Köftesi, Kemalpaşa Tatlısı",
-            culture: "Kırkpınar Yağlı Güreşleri, İznik Çinisi, Karagöz & Hacivat Gölge Oyunu, Boğaz Kültürü"
+            desc: "Üç imparatorluğa başkentlik yapmış payitaht İstanbul, Osmanlı'nın ilk başkentleri Bursa ve Edirne ile kadim bir tarih beşiği. Boğaz'ın iki yakasını birleştiren bu coğrafya, sanayi ve ticaretin de kalbidir.",
+            stats: [{ label: 'Yüzölçümü', value: '67.000 km²' }, { label: 'Nüfus', value: '~24 milyon' }, { label: 'İl', value: '11' }, { label: 'İklim', value: 'Geçiş iklimi' }],
+            sites: "Ayasofya-i Kebir Camii, Topkapı Sarayı, Selimiye Camii, Bursa Ulu Camii, Truva Antik Kenti, Galata Kulesi, Süleymaniye",
+            food: "Bursa İskender Kebabı, Edirne Ciğeri, Çanakkale Peynir Helvası, Tekirdağ Köftesi, Kemalpaşa Tatlısı, İnegöl Köftesi",
+            culture: "Kırkpınar Yağlı Güreşleri, İznik Çinisi, Karagöz & Hacivat Gölge Oyunu, Boğaz Kültürü, Yahya Kemal'in İstanbul'u",
+            routes: "İstanbul Tarihi Yarımada → Bursa Cumalıkızık → Edirne Selimiye → Gelibolu Yarımadası → Bozcaada",
+            crafts: "İznik Çinisi, Hereke Halısı, Edirnekâri, Sedefkârlık, Bursa ipek dokuma",
+            music: "Karagöz & Hacivat, Kanto, Roman Havası, Boğaz Faslı, Mehter geleneği",
+            festivals: "Kırkpınar Yağlı Güreşleri (Haziran), İstanbul Caz Festivali, Bursa Festivali, Bozcaada Bağbozumu"
         },
         ege: {
             title: "Ege Bölgesi — Zeytin Dalı ve Antik Bilgeliğin Diyarı",
-            desc: "Efes'ten Hierapolis'e uzanan felsefe ve mimarlık mirası, masmavi koylar ve bin yıllık asırlık zeytin ağaçları.",
-            sites: "Efes Antik Kenti, Pamukkale Travertenleri, Meryem Ana Evi, Bergama Akropolü, Şirince, Sardes Antik Kenti",
-            food: "İzmir Boyozu & Kumrusu, Ege Ot Kavurmaları, Aydın İnciri, Zeytinyağlı Enginar, Çökertme Kebabı",
-            culture: "Zeybek & Efe Kültürü, Çömlekçilik (Menemen), Yörük Şenlikleri, Bağbozumu"
+            desc: "Efes'ten Hierapolis'e uzanan felsefe ve mimarlık mirası, masmavi koylar ve bin yıllık asırlık zeytin ağaçları. Ege, aynı zamanda zeytinyağı, bağ ve efe kültürünün toprağıdır.",
+            stats: [{ label: 'Yüzölçümü', value: '85.000 km²' }, { label: 'Nüfus', value: '~10,5 milyon' }, { label: 'İl', value: '8' }, { label: 'İklim', value: 'Akdeniz iklimi' }],
+            sites: "Efes Antik Kenti, Pamukkale Travertenleri, Meryem Ana Evi, Bergama Akropolü, Şirince, Sardes, Assos, Aphrodisias",
+            food: "İzmir Boyozu & Kumrusu, Ege Ot Kavurmaları, Aydın İnciri, Zeytinyağlı Enginar, Çökertme Kebabı, Tire Köftesi",
+            culture: "Zeybek & Efe Kültürü, Çömlekçilik (Menemen), Yörük Şenlikleri, Bağbozumu, Ege türküleri",
+            routes: "İzmir Kemeraltı → Efes → Şirince → Pamukkale → Bergama → Assos → Alaçatı",
+            crafts: "Menemen çömleği, Tire işi, Kula halısı, zeytinyağı sabunu, Bergama dokuma",
+            music: "Zeybek, Efe oyunu, semah, Ege türküleri, İzmir kanto geleneği",
+            festivals: "Alaçatı Ot Festivali (Nisan), Bergama Kermesi, İzmir Enternasyonal Fuarı, Pamukkale Festivali"
         },
         akdeniz: {
             title: "Akdeniz Bölgesi — Torosların Heybeti ve Turkuaz Sahiller",
-            desc: "Likya Yolu, Aspendos Tiyatrosu ve Toros Dağları'nın yayla kültürüyle harmanlanan narenciye ve turkuaz diyarı.",
-            sites: "Aspendos Antik Tiyatrosu, Alanya Kalesi, Cennet-Cehennem Obrukları, Patara Meclis Binası, Olympos",
-            food: "Antakya Künefesi & Tepsi Kebabı, Adana Kebabı, Mersin Tantunisi, Maraş Dondurması, Piyaz",
-            culture: "Yörük Yaylacılığı, Taş İşçiliği, Toros Türkmen Ağıtları, Narenciye Hasadı"
+            desc: "Likya Yolu, Aspendos Tiyatrosu ve Toros Dağları'nın yayla kültürüyle harmanlanan narenciye ve turkuaz diyarı. Antakya'nın mutfağı, Adana'nın kebap kültürü ve Maraş'ın dondurması bu bölgenin imzasıdır.",
+            stats: [{ label: 'Yüzölçümü', value: '122.000 km²' }, { label: 'Nüfus', value: '~10,8 milyon' }, { label: 'İl', value: '8' }, { label: 'İklim', value: 'Akdeniz iklimi' }],
+            sites: "Aspendos Antik Tiyatrosu, Alanya Kalesi, Cennet-Cehennem Obrukları, Patara Meclis Binası, Olympos, Antakya Mozaik Müzesi, Anemurium",
+            food: "Antakya Künefesi & Tepsi Kebabı, Adana Kebabı, Mersin Tantunisi, Maraş Dondurması, Piyaz, Hatay sürkü",
+            culture: "Yörük Yaylacılığı, Taş İşçiliği, Toros Türkmen Ağıtları, Narenciye Hasadı, Likya yürüyüş kültürü",
+            routes: "Antalya Kaleiçi → Aspendos → Olympos → Patara → Kaş → Antakya → Adana",
+            crafts: "Antakya ipeği, Silifke el dokuması, Burdur bakır işi, Hatay mozaik, Alanya kestane sepeti",
+            music: "Teke zortlatması, Antalya türküleri, Hatay gazelleri, Toros ağıtları, Adana şarkıları",
+            festivals: "Antalya Altın Portakal Film Festivali, Adana Portakal Çiçeği, Hatay Medeniyetler Korosu, Kaş Festivali"
         },
         icanadolu: {
             title: "İç Anadolu Bölgesi — Bozkırın Kalbi ve Selçuklu Payitahtı",
-            desc: "Mevlana'nın hoşgörü çağrısı, peri bacalarıyla Kapadokya, Çatalhöyük ve Cumhuriyet'in temellerinin atıldığı Ankara.",
-            sites: "Anıtkabir, Mevlana Türbesi, Kapadokya & Göreme, Çatalhöyük, Divriği Ulu Camii, Hacı Bektaş Dergahı",
-            food: "Kayseri Mantısı & Pastırması, Konya Etliekmeği, Ankara Tavası, Sivrihisar Sarması, Yozgat Testi Kebabı",
-            culture: "Sema Törenleri (Mevlevi), Aşık Veysel Geleneği, Seğmen Alayı, Çini ve Kilim Dokuma"
+            desc: "Mevlana'nın hoşgörü çağrısı, peri bacalarıyla Kapadokya, Çatalhöyük ve Cumhuriyet'in temellerinin atıldığı Ankara. Bozkır, buğday ve bozlak; İç Anadolu'nun üç kelimelik hikâyesidir.",
+            stats: [{ label: 'Yüzölçümü', value: '151.000 km²' }, { label: 'Nüfus', value: '~13 milyon' }, { label: 'İl', value: '13' }, { label: 'İklim', value: 'Karasal iklim' }],
+            sites: "Anıtkabir, Mevlana Türbesi, Kapadokya & Göreme, Çatalhöyük, Divriği Ulu Camii, Hacı Bektaş Dergahı, Ahlat Selçuklu Mezarlığı",
+            food: "Kayseri Mantısı & Pastırması, Konya Etliekmeği, Ankara Tavası, Sivrihisar Sarması, Yozgat Testi Kebabı, Kırşehir Çullama",
+            culture: "Sema Törenleri (Mevlevi), Aşık Veysel Geleneği, Seğmen Alayı, Çini ve Kilim Dokuma, bozlak",
+            routes: "Ankara Anıtkabir → Konya Mevlana → Kapadokya → Kayseri → Sivas → Divriği",
+            crafts: "Kırşehir onyx taşı, Konya çinisi, Sivas halısı, Kayseri bakırcılığı, Yozgat kilimi",
+            music: "Mevlevi sema musikisi, bozlak, aşık geleneği, seğmen havası, Konya türküleri",
+            festivals: "Mevlana Şeb-i Arus (Aralık), Hacı Bektaş Anma, Kayseri Pastırma Festivali, Kapadokya Balon Şenliği"
         },
         karadeniz: {
             title: "Karadeniz Bölgesi — Zümrüt Yaylalar ve Dalgaların Şarkısı",
-            desc: "Kaçkar Dağları, yeşilin binbir tonu, horon ritmi ve sarp kayalıklara kurulu asırlık Sümela Manastırı.",
-            sites: "Sümela Manastırı, Safranbolu Evleri, Ayder Yaylası, Bandırma Vapuru (Samsun), Amasya Kral Kaya Mezarları",
-            food: "Karadeniz Pidesi, Muhlama / Kuymak, Hamsi Buğulama, Akçaabat Köftesi, Laz Böreği, Karalahana Sarması",
-            culture: "Kemençe & Tulum Eşliğinde Horon, Yayla Göçleri, Ahşap Konak Mimarisi, Çay & Fındık İmecesi"
+            desc: "Kaçkar Dağları, yeşilin binbir tonu, horon ritmi ve sarp kayalıklara kurulu asırlık Sümela Manastırı. Çay, fındık ve yayla göçleri bölgenin hayat damarıdır.",
+            stats: [{ label: 'Yüzölçümü', value: '143.000 km²' }, { label: 'Nüfus', value: '~8 milyon' }, { label: 'İl', value: '18' }, { label: 'İklim', value: 'Karadeniz iklimi' }],
+            sites: "Sümela Manastırı, Safranbolu Evleri, Ayder Yaylası, Bandırma Vapuru (Samsun), Amasya Kral Kaya Mezarları, Uzungöl, Zilkale",
+            food: "Karadeniz Pidesi, Muhlama / Kuymak, Hamsi Buğulama, Akçaabat Köftesi, Laz Böreği, Karalahana Sarması, fındık",
+            culture: "Kemençe & Tulum Eşliğinde Horon, Yayla Göçleri, Ahşap Konak Mimarisi, Çay & Fındık İmecesi, atma türkü",
+            routes: "Samsun → Amasya → Safranbolu → Kastamonu → Trabzon → Ayder → Sümela → Uzungöl",
+            crafts: "Trabzon telkârisi, keşan dokuma, bakırcılık, ahşap oymacılığı, sepet örücülüğü",
+            music: "Horon, kemençe, tulum, atma türkü, Karadeniz ağıtları",
+            festivals: "Ayder Yayla Şenliği (Haziran), Kadırga Yayla Festivali, Altın Fındık, Sümela Ayinleri"
         },
         dogu: {
             title: "Doğu Anadolu Bölgesi — Anadolu'nun Zirvesi ve İpek Yolu Kapısı",
-            desc: "Ani Harabeleri, İshak Paşa Sarayı ve heybetli Ağrı Dağı ile bin yıldır Anadolu'ya açılan ulu kapımız.",
-            sites: "İshak Paşa Sarayı, Ani Ören Yeri, Akdamar Kilisesi, Erzurum Çifte Minareli Medrese, Nemrut Krater Gölü, Harput Kalesi",
-            food: "Erzurum Cağ Kebabı, Van Kahvaltısı & Otlu Peynir, Kars Kaşarı & Kaz Eti, Malatya Kayısısı, Ağrı Abdigör",
-            culture: "Dadaş Barı Oyunu, Aşıklık ve Atışma Geleneği, Kars Gravyeri Üretimi, Cirit Sporu"
+            desc: "Ani Harabeleri, İshak Paşa Sarayı ve heybetli Ağrı Dağı ile bin yıldır Anadolu'ya açılan ulu kapımız. Sert kışlar, yayla kültürü ve aşıklık geleneği bölgenin karakteridir.",
+            stats: [{ label: 'Yüzölçümü', value: '165.000 km²' }, { label: 'Nüfus', value: '~6 milyon' }, { label: 'İl', value: '14' }, { label: 'İklim', value: 'Sert karasal' }],
+            sites: "İshak Paşa Sarayı, Ani Ören Yeri, Akdamar Kilisesi, Erzurum Çifte Minareli Medrese, Nemrut Krater Gölü, Harput Kalesi, Ağrı Dağı",
+            food: "Erzurum Cağ Kebabı, Van Kahvaltısı & Otlu Peynir, Kars Kaşarı & Kaz Eti, Malatya Kayısısı, Ağrı Abdigör, Kemah Tuzlaması",
+            culture: "Dadaş Barı Oyunu, Aşıklık ve Atışma Geleneği, Kars Gravyeri Üretimi, Cirit Sporu, dengbêj",
+            routes: "Erzurum → Kars Ani → Van Akdamar → Ağrı Dağı → Malatya → Elazığ Harput",
+            crafts: "Erzurum oltu taşı, Van kilimi, Kars halısı, Malatya bakırcılığı, Ağrı dokuma",
+            music: "Dadaş barı, aşık atışması, dengbêj, cirit havası, Erzurum türküleri",
+            festivals: "Erzurum Kış Festivali (Ocak), Van Akdamar Ayini, Kars Kaşar Festivali, Malatya Kayısı Festivali"
         },
         guneydogu: {
             title: "Güneydoğu Anadolu Bölgesi — Medeniyetin Sıfır Noktası ve Mezopotamya",
-            desc: "Tarihin yeniden yazıldığı Göbeklitepe, Nemrut Dağı'nın dev heykelleri ve kadim sarı kalker taş konaklar.",
-            sites: "Göbeklitepe, Nemrut Dağı Tümülüsü, Mardin Taş Konakları & Deyrulzafaran, Halfeti, Balıklıgöl, Zeugma",
-            food: "Gaziantep Baklavası & Ali Nazik, Urfa Sıra Gecesi Çiğ Köftesi, Diyarbakır Ciğeri, Mardin İrok & Semsek",
-            culture: "Sıra Geceleri, Bakırcılık & Sedefkarlık Sanatı, Dengbêjlik Geleneği, Halay Ritmi"
+            desc: "Tarihin yeniden yazıldığı Göbeklitepe, Nemrut Dağı'nın dev heykelleri ve kadim sarı kalker taş konaklar. Fırat boyunca uzanan bu topraklar, mutfağı ve sıra geceleriyle ünlüdür.",
+            stats: [{ label: 'Yüzölçümü', value: '76.000 km²' }, { label: 'Nüfus', value: '~8,5 milyon' }, { label: 'İl', value: '9' }, { label: 'İklim', value: 'Karasal / Akdeniz' }],
+            sites: "Göbeklitepe, Nemrut Dağı Tümülüsü, Mardin Taş Konakları & Deyrulzafaran, Halfeti, Balıklıgöl, Zeugma, Diyarbakır Surları",
+            food: "Gaziantep Baklavası & Ali Nazik, Urfa Sıra Gecesi Çiğ Köftesi, Diyarbakır Ciğeri, Mardin İrok & Semsek, Antep fıstığı",
+            culture: "Sıra Geceleri, Bakırcılık & Sedefkarlık Sanatı, Dengbêjlik Geleneği, Halay Ritmi, iğne oyası",
+            routes: "Gaziantep → Halfeti → Göbeklitepe → Mardin → Deyrulzafaran → Diyarbakır → Nemrut Dağı",
+            crafts: "Gaziantep bakırcılığı, Mardin telkârisi, Urfa iğne oyası, Diyarbakır dokuması, Antep fıstığı işleme",
+            music: "Sıra gecesi, dengbêj, halay, gazel, Urfa türküleri",
+            festivals: "Gaziantep Gastronomi Festivali, Göbeklitepe Şenlikleri, Mardin Kültür Sanat Festivali, Diyarbakır Sur Festivali"
         }
     };
 
@@ -632,12 +981,21 @@ function initAnatoliaAtlas() {
             btn.classList.add('active');
 
             const data = regionsData[regKey];
-            if (data && regionTitle && regionDesc && regionSites && regionFood) {
-                regionTitle.textContent = data.title;
-                regionDesc.textContent = data.desc;
-                regionSites.textContent = data.sites;
-                regionFood.textContent = data.food;
+            if (data) {
+                if (regionTitle) regionTitle.textContent = data.title;
+                if (regionDesc) regionDesc.textContent = data.desc;
+                if (regionSites) regionSites.textContent = data.sites;
+                if (regionFood) regionFood.textContent = data.food;
                 if (regionCulture) regionCulture.textContent = data.culture;
+                if (regionRoutes) regionRoutes.textContent = data.routes;
+                if (regionCrafts) regionCrafts.textContent = data.crafts;
+                if (regionMusic) regionMusic.textContent = data.music;
+                if (regionFestivals) regionFestivals.textContent = data.festivals;
+                if (regionStats && data.stats) {
+                    regionStats.innerHTML = data.stats
+                        .map(stat => `<span class="region-stat-chip"><strong>${stat.label}</strong> ${stat.value}</span>`)
+                        .join('');
+                }
             }
 
             if (window.turkishSound) window.turkishSound.playClick();

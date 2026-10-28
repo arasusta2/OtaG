@@ -298,6 +298,241 @@ class TurkishSoundEngine {
         });
     }
 
+    // Mızraplı teller: tambur (uzun sap, parlak tını)
+    playTambur(freq = 220, duration = 1.2) {
+        if (this.isMuted || !this.init()) return;
+
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const shimmer = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(freq, now);
+            shimmer.type = "triangle";
+            shimmer.frequency.setValueAtTime(freq * 2.01, now);
+
+            filter.type = "lowpass";
+            filter.Q.value = 2.4;
+            filter.frequency.setValueAtTime(3600, now);
+            filter.frequency.exponentialRampToValueAtTime(420, now + duration);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(this.masterVolume * 0.52, now + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(filter);
+            shimmer.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            shimmer.start(now);
+            osc.stop(now + duration + 0.02);
+            shimmer.stop(now + duration + 0.02);
+        } catch (err) {
+            console.warn("Tambur sesi oynatılamadı:", err);
+        }
+    }
+
+    // Ud: yumuşak, yuvarlak mızrap tınısı
+    playUd(freq = 293.66, duration = 1.0) {
+        if (this.isMuted || !this.init()) return;
+
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const body = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, now);
+            body.type = "sine";
+            body.frequency.setValueAtTime(freq / 2, now);
+
+            filter.type = "bandpass";
+            filter.frequency.setValueAtTime(freq * 2.4, now);
+            filter.Q.value = 1.6;
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(this.masterVolume * 0.58, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(filter);
+            body.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            body.start(now);
+            osc.stop(now + duration + 0.02);
+            body.stop(now + duration + 0.02);
+        } catch (err) {
+            console.warn("Ud sesi oynatılamadı:", err);
+        }
+    }
+
+    // Kemençe: yaylı, buruk ve titrek tını
+    playKemence(freq = 392, duration = 1.3) {
+        if (this.isMuted || !this.init()) return;
+
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+            const lfo = this.ctx.createOscillator();
+            const lfoGain = this.ctx.createGain();
+
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(freq, now);
+            filter.type = "lowpass";
+            filter.frequency.setValueAtTime(2100, now);
+
+            lfo.frequency.setValueAtTime(6.4, now);
+            lfoGain.gain.setValueAtTime(freq * 0.012, now);
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(this.masterVolume * 0.48, now + 0.14);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            lfo.start(now);
+            osc.start(now);
+            lfo.stop(now + duration);
+            osc.stop(now + duration);
+        } catch (err) {
+            console.warn("Kemençe sesi oynatılamadı:", err);
+        }
+    }
+
+    // Zurna: keskin, davetkâr nefes
+    playZurna(freq = 440, duration = 0.8) {
+        if (this.isMuted || !this.init()) return;
+
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+            const lfo = this.ctx.createOscillator();
+            const lfoGain = this.ctx.createGain();
+
+            osc.type = "square";
+            osc.frequency.setValueAtTime(freq, now);
+            filter.type = "bandpass";
+            filter.frequency.setValueAtTime(freq * 2.2, now);
+            filter.Q.value = 2.2;
+
+            lfo.frequency.setValueAtTime(7.2, now);
+            lfoGain.gain.setValueAtTime(freq * 0.015, now);
+            lfo.connect(lfoGain);
+            lfoGain.connect(osc.frequency);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(this.masterVolume * 0.34, now + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            lfo.start(now);
+            osc.start(now);
+            lfo.stop(now + duration);
+            osc.stop(now + duration);
+        } catch (err) {
+            console.warn("Zurna sesi oynatılamadı:", err);
+        }
+    }
+
+    // Davul: düm (tok) ve tek (çevik) vuruşları
+    playDavul(isDum = true) {
+        this.playTone({
+            type: "sine",
+            frequency: isDum ? 72 : 190,
+            endFrequency: isDum ? 32 : 70,
+            duration: isDum ? 0.34 : 0.14,
+            volume: isDum ? 0.95 : 0.55
+        });
+        if (!isDum) {
+            this.playTone({
+                type: "triangle",
+                frequency: 520,
+                endFrequency: 120,
+                duration: 0.09,
+                volume: 0.28,
+                delay: 0.015
+            });
+        }
+    }
+
+    // Def / bendir: kasnak zili ve deri tıkırtısı
+    playDef() {
+        this.playTone({
+            type: "triangle",
+            frequency: 1180,
+            endFrequency: 620,
+            duration: 0.12,
+            volume: 0.3
+        });
+        this.playTone({
+            type: "sine",
+            frequency: 180,
+            endFrequency: 90,
+            duration: 0.18,
+            volume: 0.36,
+            delay: 0.01
+        });
+    }
+
+    // Kaval: nefesli, boşluklu çoban tınısı
+    playKaval(freq = 440, duration = 1.0) {
+        if (this.isMuted || !this.init()) return;
+
+        try {
+            const now = this.ctx.currentTime;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+            const vibrato = this.ctx.createOscillator();
+            const vibratoGain = this.ctx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(freq, now);
+            vibrato.frequency.setValueAtTime(4.6, now);
+            vibratoGain.gain.setValueAtTime(freq * 0.008, now);
+            vibrato.connect(vibratoGain);
+            vibratoGain.connect(osc.frequency);
+
+            filter.type = "lowpass";
+            filter.frequency.setValueAtTime(2400, now);
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(this.masterVolume * 0.5, now + 0.09);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            vibrato.start(now);
+            osc.start(now);
+            vibrato.stop(now + duration);
+            osc.stop(now + duration);
+        } catch (err) {
+            console.warn("Kaval sesi oynatılamadı:", err);
+        }
+    }
+
     // Ebru damlası
     playDrop() {
         if (this.isMuted || !this.init()) return;

@@ -68,6 +68,7 @@ class TavlaGame {
         this.isAiPlaying = false;
         this.gameOver = false;
 
+        this.hideChatBubble();
         this.updateHUD("🎲 Yeni oyun başladı! 'Zar At' butonuna tıklayarak ilk hamlenizi yapın.");
         this.render();
     }
@@ -488,6 +489,41 @@ class TavlaGame {
         } else {
             this.updateHUD("😔 Rakip tüm pullarını önce topladı. Tavla tahtasını koltuğunun altına alma vakti!");
         }
+    }
+
+    say(text) {
+        const message = (text || '').trim();
+        if (!message) return;
+        this.showChatBubble(`Siz: "${message}"`, 'player');
+        if (window.turkishSound) window.turkishSound.playClick();
+
+        if (this.chatReplyTimeout) clearTimeout(this.chatReplyTimeout);
+        this.chatReplyTimeout = setTimeout(() => {
+            const replies = [
+                "Lafın büyüğü masada değil, zarda konuşulur!",
+                "Sen taşını oyna, ben cevabımı zarla veririm.",
+                "Bu tavla masasında racon kesilmez, pul kırılır!",
+                "Hele bir zar at da görelim bakalım kim konuşuyor.",
+                "Kıraathane ahalisi duydu bunu, şimdi oynamak zorundasın!",
+                "Lafını aldım, sıra pulunu görmeye geldi.",
+                "Zar senden yana dönerse hatırlatırsın bu lafı."
+            ];
+            const reply = replies[Math.floor(Math.random() * replies.length)];
+            this.showChatBubble(`Bilgisayar: "${reply}"`, 'bot');
+            if (window.turkishSound) window.turkishSound.playCheckerMove();
+        }, 1250);
+    }
+
+    showChatBubble(text, who = 'player') {
+        const bubble = document.getElementById('tavlaChatBubble');
+        if (!bubble) return;
+        bubble.textContent = text;
+        bubble.className = `tavla-chat-bubble show ${who}`;
+    }
+
+    hideChatBubble() {
+        const bubble = document.getElementById('tavlaChatBubble');
+        if (bubble) bubble.className = 'tavla-chat-bubble';
     }
 
     updateHUD(msg) {
@@ -1160,6 +1196,27 @@ class OkeyGame {
         this.turn = 0; // 0: Oyuncu, 1: Ali Dayı, 2: Mehmet Usta, 3: Hasan Amca
         this.currentChatCategory = 'all';
 
+        // Oyun türü: 'klasik' (14 taş) veya '101' (21 taş)
+        this.gameMode = 'klasik';
+        this.opened101 = false;
+        this.openedMelds = [];
+        this.lastBill = null;
+
+        // Kıraathane sipariş / hesap defteri
+        this.tabItems = [];
+        this.tabTotal = 0;
+
+        // Turnuva skoru ve el geçmişi
+        this.matchTarget = 1010;
+        this.matchScores = { player: 0, ali: 0, mehmet: 0, hasan: 0 };
+        this.teamScores = { biz: 0, onlar: 0 };
+        this.handHistory = [];
+        this.handNumber = 0;
+        this.matchChampion = null;
+        this.handRecordedForGame = false;
+        this.storageKey = 'otag_okey_match_v1';
+        this.loadMatchState();
+
         this.initElements();
     }
 
@@ -1205,6 +1262,32 @@ class OkeyGame {
         this.chatPhrasesList = document.getElementById('chatPhrasesList');
         this.chatSearchInput = document.getElementById('chatSearchInput');
 
+        // Sipariş & hesap elemanları
+        this.tabItemsEl = document.getElementById('okeyTabItems');
+        this.tabTotalEl = document.getElementById('okeyTabTotal');
+        this.menuEl = document.getElementById('okeyMenu');
+
+        // Skor geçmişi elemanları
+        this.scoreCardsEl = document.getElementById('okeyScoreCards');
+        this.scoreHistoryEl = document.getElementById('okeyScoreHistory');
+        this.scoreNoteEl = document.getElementById('okeyScoreNote');
+        this.matchTargetEl = document.getElementById('okeyMatchTarget');
+        this.dockHandValueEl = document.getElementById('okeyDockHandValue');
+        this.dockTargetEl = document.getElementById('okeyDockTarget');
+        this.dockScoreEl = document.getElementById('okeyDockScore');
+        this.openBoardEl = document.getElementById('okeyOpenBoard');
+        this.openedMeldsEl = document.getElementById('okeyOpenedMelds');
+        this.lastDiscardEl = document.getElementById('okeyLastDiscard');
+        this.selectedPreviewEl = document.getElementById('okeySelectedPreview');
+        this.selectedPreviewTileEl = document.getElementById('okeySelectedTile');
+        this.selectedPreviewTextEl = document.getElementById('okeySelectedText');
+
+        // 101 açılış modalı
+        this.openModal = document.getElementById('okeyOpenModal');
+        this.openMeldsEl = document.getElementById('okeyOpenMelds');
+        this.openTitleEl = document.getElementById('okeyOpenTitle');
+        this.openDescEl = document.getElementById('okeyOpenDesc');
+
         // Düğmeler
         const btnDrawDeck = document.getElementById('btnDrawDeck');
         const btnDrawSide = document.getElementById('btnDrawSide');
@@ -1217,6 +1300,13 @@ class OkeyGame {
         const btnRandomShout = document.getElementById('btnRandomShout');
         const btnCloseOkeyChat = document.getElementById('btnCloseOkeyChat');
         const btnChatRandom = document.getElementById('btnChatRandom');
+        const btnOpen101 = document.getElementById('btnOpen101');
+        const btnOpenPairs101 = document.getElementById('btnOpenPairs101');
+        const btnCloseOkeyOpen = document.getElementById('btnCloseOkeyOpen');
+        const btnOkeyCustomChat = document.getElementById('btnOkeyCustomChat');
+        const btnOkeyCustomRandom = document.getElementById('btnOkeyCustomRandom');
+        const customChatInput = document.getElementById('okeyCustomChatInput');
+        this.customChatInput = customChatInput;
 
         if (btnDrawDeck) btnDrawDeck.addEventListener('click', () => this.playerDrawFromDeck());
         if (this.centerDeckEl) this.centerDeckEl.addEventListener('click', (e) => {
@@ -1285,6 +1375,178 @@ class OkeyGame {
                 this.renderChatPhrases(query, this.currentChatCategory);
             });
         });
+
+        // 101 Okey düğmeleri ve açılış modalı
+        if (btnOpen101) btnOpen101.addEventListener('click', () => this.openHand101(false));
+        if (btnOpenPairs101) btnOpenPairs101.addEventListener('click', () => this.openHand101(true));
+        if (btnCloseOkeyOpen && this.openModal) {
+            btnCloseOkeyOpen.addEventListener('click', () => this.openModal.classList.remove('show'));
+        }
+
+        // Serbest laf yazma kutusu (klasik ve 101'de aynı)
+        const sendCustomChat = () => {
+            if (!customChatInput) return;
+            const text = customChatInput.value.trim();
+            if (!text) {
+                this.setStatus('Laf atmak için önce kutuya bir şey yazın.');
+                return;
+            }
+            this.playerSay(text);
+            customChatInput.value = '';
+        };
+        if (btnOkeyCustomChat) btnOkeyCustomChat.addEventListener('click', sendCustomChat);
+        if (customChatInput) {
+            customChatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    sendCustomChat();
+                }
+            });
+        }
+        if (btnOkeyCustomRandom && customChatInput) {
+            btnOkeyCustomRandom.addEventListener('click', () => {
+                const item = OKEY_PHRASES_200[Math.floor(Math.random() * OKEY_PHRASES_200.length)];
+                customChatInput.value = item.text;
+                customChatInput.focus();
+                if (window.turkishSound) window.turkishSound.playTileClick();
+            });
+        }
+
+        const btnClearSelected = document.getElementById('btnClearSelected');
+        if (btnClearSelected) {
+            btnClearSelected.addEventListener('click', () => {
+                this.selectedSlotIndex = null;
+                this.renderPlayerRack();
+                this.setStatus('Taş seçimi temizlendi. Yeni bir taşa dokunabilirsiniz.');
+            });
+        }
+
+        // Menüden sipariş verme
+        if (this.menuEl) {
+            this.menuEl.querySelectorAll('[data-order]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    this.orderItem(btn.dataset.order, Number(btn.dataset.price), 'Siz');
+                });
+            });
+        }
+
+        // Skor sıfırlama
+        const btnResetScore = document.getElementById('btnResetOkeyScore');
+        if (btnResetScore) {
+            btnResetScore.addEventListener('click', () => {
+                this.resetMatch();
+                if (window.showToast) window.showToast('Turnuva skoru ve el geçmişi sıfırlandı.', '🧹');
+            });
+        }
+
+        this.updateModeUI();
+        this.renderScoreboard();
+    }
+
+    /* ========================================================
+       OYUN TÜRÜ: KLASİK OKEY / 101 OKEY
+       ======================================================== */
+    setGameMode(mode) {
+        if (!['klasik', '101', '101-esli'].includes(mode)) return;
+        const changed = this.gameMode !== mode;
+        this.gameMode = mode;
+        if (changed) this.resetMatch();
+        this.updateModeUI();
+        this.startNewGame();
+    }
+
+    is101Mode() {
+        return this.gameMode === '101' || this.gameMode === '101-esli';
+    }
+
+    isTeamMode() {
+        return this.gameMode === '101-esli';
+    }
+
+    teamKey(key) {
+        return (key === 'player' || key === 'mehmet') ? 'biz' : 'onlar';
+    }
+
+    getTeamLabel(team) {
+        return team === 'biz'
+            ? 'Biz (Siz + Mehmet Usta)'
+            : 'Onlar (Ali Dayı + Hasan Amca)';
+    }
+
+    updateModeUI() {
+        const is101 = this.is101Mode();
+        const isTeam = this.isTeamMode();
+        document.querySelectorAll('[data-okey-mode]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.okeyMode === this.gameMode);
+        });
+        const note = document.getElementById('okeyModeNote');
+        if (note) {
+            if (isTeam) {
+                note.textContent = '101 Eşli: Mehmet Usta ortağınız, Ali Dayı ve Hasan Amca rakip takım. Açılış 101 puan / 7 çift; takım puanları 1010 hedefine kadar birikir.';
+            } else if (is101) {
+                note.textContent = '101 Okey: 21 taşla perleri kur; açılış 101 puan veya 7 çift. Bitişte kalan 21 taşın tamamı per olmalı; el açılırken perler animasyonla serilir.';
+            } else {
+                note.textContent = 'Klasik kıraathane okeyi: 14 taşla perleri tamamla, 15. taşı atarak bitir.';
+            }
+        }
+        const finishBtn = document.getElementById('btnFinishOkey');
+        if (finishBtn) {
+            finishBtn.textContent = isTeam
+                ? '🏆 BİTTİM! (Eşli 101\'i Bitir)'
+                : (is101 ? '🏆 BİTTİM! (101 Elini Bitir)' : '🏆 BİTTİM! (Okey Aç)');
+        }
+        const openBtn = document.getElementById('btnOpen101');
+        if (openBtn) {
+            openBtn.hidden = !is101;
+            openBtn.disabled = this.opened101;
+            openBtn.textContent = this.opened101 ? '✅ Açıldı' : (isTeam ? '🤝 Seri Aç' : '🀄 Seri Aç');
+        }
+        const openPairsBtn = document.getElementById('btnOpenPairs101');
+        if (openPairsBtn) {
+            openPairsBtn.hidden = !is101;
+            openPairsBtn.disabled = this.opened101;
+            openPairsBtn.textContent = this.opened101 ? '✅ Açıldı' : '👥 Çift Aç';
+        }
+        const railNote = document.getElementById('okeyRailNote');
+        if (railNote) {
+            railNote.textContent = isTeam
+                ? 'Eşli 101: Seri Aç (101 puan) veya Çift Aç (7 çift) ile takımına kapı aç.'
+                : (is101
+                    ? '101: Seri Aç (101 puan) veya Çift Aç (7 çift). Taş İşle ile seçili taşı at.'
+                    : 'Klasik oyunda 14 taşı perle ve 15. taşı atarak bitir.');
+        }
+        if (this.scoreNoteEl) {
+            this.scoreNoteEl.textContent = isTeam
+                ? 'Ortaklı 101 turnuvası: el kazanan takım 101 + rakip takımın kalan taş puanını alır. İlk 1010 puana ulaşan takım şampiyon olur.'
+                : (is101
+                    ? '101 turnuvası: kazanan 101 + rakiplerin kalan taş puanını alır; her el geçmişe kaydedilir. İlk 1010 puana ulaşan şampiyon olur.'
+                    : 'Klasik masada her el bir galibiyet olarak geçmişe yazılır. Skoru sıfırlayıp yeni bir seri başlatabilirsiniz.');
+        }
+        if (this.matchTargetEl) {
+            this.matchTargetEl.textContent = is101 ? '1010 puan' : 'El sayısı';
+        }
+        this.renderScoreboard();
+        this.updateDockStats();
+    }
+
+    updateDockStats() {
+        if (!this.dockHandValueEl && !this.dockTargetEl && !this.dockScoreEl) return;
+        const is101 = this.is101Mode();
+        if (this.dockHandValueEl) {
+            const handValue = this.playerRack
+                .filter(Boolean)
+                .reduce((sum, tile) => sum + this.tileScore(tile), 0);
+            this.dockHandValueEl.textContent = handValue;
+        }
+        if (this.dockTargetEl) {
+            const myScore = this.isTeamMode() ? this.teamScores.biz : this.matchScores.player;
+            this.dockTargetEl.textContent = is101 ? Math.max(0, this.matchTarget - myScore) : '';
+            const targetWrap = this.dockTargetEl.closest('.okey-dock-target');
+            if (targetWrap) targetWrap.style.display = is101 ? '' : 'none';
+        }
+        if (this.dockScoreEl) {
+            this.dockScoreEl.textContent = this.isTeamMode() ? this.teamScores.biz : this.matchScores.player;
+        }
     }
 
     openChatModal() {
@@ -1406,6 +1668,9 @@ class OkeyGame {
         if (this.botTimeout) clearTimeout(this.botTimeout);
         this.gameOver = false;
         this.deck = this.createDeck();
+        const is101 = this.is101Mode();
+        const isTeam = this.isTeamMode();
+        const handSize = is101 ? 21 : 14;
 
         // Gösterge Taşı Belirle (Sahte okey gösterge olamaz)
         let indIdx = 0;
@@ -1422,30 +1687,379 @@ class OkeyGame {
         // 2 Katlı Istakayı sıfırla
         this.playerRack = new Array(28).fill(null);
 
-        // Taşları Dağıt: Oyuncuya 14 taş
-        const dealt = this.deck.splice(0, 14);
-        for (let i = 0; i < 14; i++) {
+        // Taşları Dağıt
+        const dealt = this.deck.splice(0, handSize);
+        for (let i = 0; i < handSize; i++) {
             this.playerRack[i] = dealt[i];
         }
 
-        // Botlara 14'er gerçek taş dağıt
-        this.bots[0].hand = this.deck.splice(0, 14); // Ali Dayı
-        this.bots[1].hand = this.deck.splice(0, 14); // Mehmet Usta
-        this.bots[2].hand = this.deck.splice(0, 14); // Hasan Amca
+        // Botlara gerçek taş dağıt
+        this.bots[0].hand = this.deck.splice(0, handSize); // Ali Dayı
+        this.bots[1].hand = this.deck.splice(0, handSize); // Mehmet Usta
+        this.bots[2].hand = this.deck.splice(0, handSize); // Hasan Amca
+        this.bots.forEach(bot => { bot.opened101 = false; });
+
+        // 101 Okey'de başlayan oyuncu 22. taşı çeker
+        if (is101 && this.deck.length > 0) {
+            this.playerRack[handSize] = this.deck.pop();
+        }
 
         // Iskartaları Temizle
         this.discards = { player: [], ali: [], mehmet: [], hasan: [] };
 
         this.turn = 0;
-        this.hasDrawn = false;
+        this.hasDrawn = is101;
         this.selectedSlotIndex = null;
         this.draggedSlotIndex = null;
+        this.opened101 = false;
+        this.openedMelds = [];
+        this.lastDiscard = null;
+        this.renderOpenedMelds();
+        this.renderLastDiscard();
+        this.handRecordedForGame = false;
+        this.tabItems = [];
+        this.tabTotal = 0;
+        this.renderTab();
+        this.clearBill();
+        this.updateModeUI();
+        if (this.openModal) this.openModal.classList.remove('show');
 
         // Oyuncu elini serilere göre şık bir şekilde diz
         this.sortPlayerHandRuns();
         this.updateAllUI();
-        this.setStatus("Oyun başladı! Sıra sizde: Desteden veya Hasan Amca'nın attığı taşa tıklayarak taş çekin.");
+        this.renderScoreboard();
+        this.setStatus(isTeam
+            ? 'Eşli 101 başladı! Ortağınız Mehmet Usta. 22 taşınız var; “Eli Aç (Eşli 101)” ile perleri açıp takımınıza puan kazandırın.'
+            : (is101
+                ? '101 Okey başladı! 22 taşınız var. Perleri kurup “Eli Aç (101)” ile açabilir veya bir taş atabilirsiniz.'
+                : "Oyun başladı! Sıra sizde: Desteden veya Hasan Amca'nın attığı taşa tıklayarak taş çekin."));
         if (window.turkishSound) window.turkishSound.playTileDraw();
+    }
+
+    /* ========================================================
+       KIRAATHANE SİPARİŞ & HESAP DEFTERİ
+       ======================================================== */
+    orderItem(name, price, by, options = {}) {
+        if (!name || !Number.isFinite(price)) return;
+        const item = {
+            name,
+            price,
+            by: by || 'Siz',
+            forPlayer: Boolean(options.forPlayer),
+            note: options.note || ''
+        };
+        this.tabItems.push(item);
+        this.tabTotal += price;
+        this.renderTab();
+
+        if (by === 'Siz') {
+            if (this.playerBubbleEl) {
+                this.playerBubbleEl.textContent = `Siz: "Çaycı! ${name} söyledim, masaya gelsin!"`;
+                this.playerBubbleEl.classList.add('show');
+                if (this.playerBubbleTimeout) clearTimeout(this.playerBubbleTimeout);
+                this.playerBubbleTimeout = setTimeout(() => this.playerBubbleEl.classList.remove('show'), 3000);
+            }
+            this.setStatus(`☕ Masaya ${name} söylediniz (${price} ₺). Afiyet olsun!`);
+        }
+        if (window.turkishSound) window.turkishSound.playTileClick();
+    }
+
+    botMaybeOrder(bot, bubble) {
+        if (Math.random() > 0.3) return;
+        const menu = [
+            { name: 'Çay', price: 15 },
+            { name: 'Türk Kahvesi', price: 40 },
+            { name: 'Ihlamur', price: 20 },
+            { name: 'Simit', price: 12 },
+            { name: 'Gazoz', price: 25 },
+            { name: 'Kurabiye', price: 18 }
+        ];
+        const item = menu[Math.floor(Math.random() * menu.length)];
+        const treatsPlayer = Math.random() < 0.42;
+        this.orderItem(item.name, item.price, bot.name, { forPlayer: treatsPlayer });
+
+        const text = treatsPlayer
+            ? `Bu ${item.name} benden sana, afiyet olsun!`
+            : `Çaycı, bize bir ${item.name} söyle!`;
+        if (bubble) {
+            bubble.textContent = `${bot.name}: "${text}"`;
+            bubble.classList.add('show');
+            setTimeout(() => bubble.classList.remove('show'), 2600);
+        }
+        if (window.showToast) {
+            window.showToast(`${bot.name} ${treatsPlayer ? 'size' : 'masaya'} ${item.name} ısmarladı! (${item.price} ₺)`, treatsPlayer ? '🎁' : '☕');
+        }
+    }
+
+    renderTab() {
+        if (this.tabTotalEl) this.tabTotalEl.textContent = `${this.tabTotal} ₺`;
+        if (!this.tabItemsEl) return;
+
+        if (this.tabItems.length === 0) {
+            this.tabItemsEl.innerHTML = '<span class="service-empty">Henüz sipariş yok. Masaya ilk çayı siz söyleyin!</span>';
+            return;
+        }
+
+        const groups = new Map();
+        for (const item of this.tabItems) {
+            const key = `${item.name}|${item.price}`;
+            if (!groups.has(key)) {
+                groups.set(key, { name: item.name, price: item.price, count: 0, by: new Set(), treats: 0 });
+            }
+            const group = groups.get(key);
+            group.count += 1;
+            group.by.add(item.by);
+            if (item.forPlayer) group.treats += 1;
+        }
+
+        this.tabItemsEl.innerHTML = Array.from(groups.values()).map(group => {
+            const byText = Array.from(group.by).join(', ');
+            const treatText = group.treats > 0 ? ` · ${group.treats} ikram` : '';
+            return `<div class="service-tab-line">
+                <span class="service-line-name">${group.count}× ${group.name}<small>${byText}${treatText}</small></span>
+                <span class="service-line-price">${group.count * group.price} ₺</span>
+            </div>`;
+        }).join('');
+    }
+
+    renderBill(winnerName, winnerAvatar, playerWon) {
+        const billEl = document.getElementById('okeyModalBill');
+        this.lastBill = { winnerName, winnerAvatar, playerWon, total: this.tabTotal, items: this.tabItems.slice() };
+        if (!billEl) return;
+
+        const groups = new Map();
+        for (const item of this.tabItems) {
+            const key = `${item.name}|${item.price}`;
+            if (!groups.has(key)) groups.set(key, { name: item.name, price: item.price, count: 0 });
+            groups.get(key).count += 1;
+        }
+        const lines = Array.from(groups.values())
+            .map(g => `<span class="bill-line">${g.count}× ${g.name} <strong>${g.count * g.price} ₺</strong></span>`)
+            .join('');
+
+        const payText = this.tabTotal > 0
+            ? (playerWon
+                ? (this.isTeamMode()
+                    ? 'Hesabı kazanan takım (siz ve ortağınız) ödedi. Kıraathane raconu budur!'
+                    : 'Hesabı kazanan olarak siz ödediniz. Kıraathane raconu budur!')
+                : `Hesabı kazanan ${winnerName} ödedi. Çaylar onlardan!`)
+            : 'Bu elde hesap kabarmadı; masa temiz.';
+
+        billEl.innerHTML = `
+            <div class="bill-head">
+                <span class="bill-winner-icon">${winnerAvatar || '🏆'}</span>
+                <div>
+                    <span class="bill-kicker">KAZANANIN MASASI</span>
+                    <strong class="bill-winner-name">${winnerName}</strong>
+                </div>
+                <span class="bill-total">${this.tabTotal} ₺</span>
+            </div>
+            <div class="bill-lines">${lines || '<span class="bill-empty">Sipariş yok</span>'}</div>
+            <div class="bill-pay-note">🧾 ${payText}</div>
+        `;
+        billEl.classList.add('show');
+    }
+
+    clearBill() {
+        const billEl = document.getElementById('okeyModalBill');
+        if (billEl) {
+            billEl.classList.remove('show');
+            billEl.innerHTML = '';
+        }
+        this.lastBill = null;
+    }
+
+    /* ========================================================
+       TURNUVA SKORU, EŞLİ TAKIM PUANI VE EL GEÇMİŞİ
+       ======================================================== */
+    resetMatch() {
+        this.matchScores = { player: 0, ali: 0, mehmet: 0, hasan: 0 };
+        this.teamScores = { biz: 0, onlar: 0 };
+        this.handHistory = [];
+        this.handNumber = 0;
+        this.matchChampion = null;
+        this.updateModeUI();
+        this.saveMatchState();
+    }
+
+    saveMatchState() {
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify({
+                mode: this.gameMode,
+                matchScores: this.matchScores,
+                teamScores: this.teamScores,
+                handHistory: this.handHistory,
+                handNumber: this.handNumber,
+                matchChampion: this.matchChampion
+            }));
+        } catch (err) {
+            // Yerel kayıt kapalıysa oyun akışı devam eder.
+        }
+    }
+
+    loadMatchState() {
+        try {
+            const raw = localStorage.getItem(this.storageKey);
+            if (!raw) return;
+            const saved = JSON.parse(raw);
+            if (!saved || typeof saved !== 'object') return;
+
+            if (['klasik', '101', '101-esli'].includes(saved.mode)) {
+                this.gameMode = saved.mode;
+            }
+            if (saved.matchScores) {
+                for (const key of ['player', 'ali', 'mehmet', 'hasan']) {
+                    if (Number.isFinite(saved.matchScores[key])) this.matchScores[key] = saved.matchScores[key];
+                }
+            }
+            if (saved.teamScores) {
+                for (const key of ['biz', 'onlar']) {
+                    if (Number.isFinite(saved.teamScores[key])) this.teamScores[key] = saved.teamScores[key];
+                }
+            }
+            if (Array.isArray(saved.handHistory)) {
+                this.handHistory = saved.handHistory.slice(0, 12);
+            }
+            if (Number.isFinite(saved.handNumber)) this.handNumber = saved.handNumber;
+            if (typeof saved.matchChampion === 'string') this.matchChampion = saved.matchChampion;
+        } catch (err) {
+            // Bozuk yerel kayıt oyunu engellemesin.
+        }
+    }
+
+    remainingPoints(key) {
+        if (key === 'player') {
+            return this.playerRack.filter(Boolean).reduce((sum, tile) => sum + this.tileScore(tile), 0);
+        }
+        const bot = this.bots.find(item => item.id === key);
+        if (!bot) return 0;
+        return bot.hand.reduce((sum, tile) => sum + this.tileScore(tile), 0);
+    }
+
+    recordHandResult(winnerKey, winResult = {}) {
+        if (this.handRecordedForGame) return;
+        this.handRecordedForGame = true;
+        this.handNumber++;
+
+        const isTeam = this.isTeamMode();
+        const is101 = this.is101Mode();
+        const allKeys = ['player', 'ali', 'mehmet', 'hasan'];
+        const winnerTeam = this.teamKey(winnerKey);
+        const loserKeys = isTeam
+            ? allKeys.filter(key => this.teamKey(key) !== winnerTeam)
+            : allKeys.filter(key => key !== winnerKey);
+
+        const remaining = loserKeys.map(key => ({ key, points: this.remainingPoints(key) }));
+        const totalLoss = remaining.reduce((sum, item) => sum + item.points, 0);
+        const bot = this.bots.find(item => item.id === winnerKey);
+        const winnerLabel = isTeam
+            ? this.getTeamLabel(winnerTeam)
+            : (winnerKey === 'player' ? 'Siz' : (bot ? bot.name : winnerKey));
+
+        let gained = 1;
+        if (is101) {
+            gained = 101 + totalLoss;
+            if (isTeam) {
+                this.teamScores[winnerTeam] += gained;
+                const otherTeam = winnerTeam === 'biz' ? 'onlar' : 'biz';
+                this.teamScores[otherTeam] -= totalLoss;
+            } else {
+                this.matchScores[winnerKey] += gained;
+                for (const item of remaining) {
+                    this.matchScores[item.key] -= item.points;
+                }
+            }
+        } else {
+            this.matchScores[winnerKey] += 1;
+        }
+
+        const leaderScore = isTeam ? this.teamScores[winnerTeam] : this.matchScores[winnerKey];
+        if (is101 && leaderScore >= this.matchTarget && !this.matchChampion) {
+            this.matchChampion = winnerLabel;
+            if (window.showToast) window.showToast(`🏆 ${winnerLabel} ${this.matchTarget} puana ulaşıp turnuvayı kazandı!`, '🏆');
+        }
+
+        this.handHistory.unshift({
+            no: this.handNumber,
+            winner: winnerLabel,
+            mode: isTeam ? 'Eşli 101' : (is101 ? '101 Okey' : 'Klasik'),
+            points: gained,
+            remaining: totalLoss,
+            bill: this.tabTotal,
+            at: Date.now()
+        });
+        if (this.handHistory.length > 12) this.handHistory.pop();
+        this.renderScoreboard();
+        this.updateDockStats();
+        this.saveMatchState();
+    }
+
+    renderScoreboard() {
+        if (!this.scoreCardsEl && !this.scoreHistoryEl) return;
+        const isTeam = this.isTeamMode();
+        const is101 = this.is101Mode();
+
+        if (this.matchTargetEl) this.matchTargetEl.textContent = is101 ? `${this.matchTarget} puan` : 'El sayısı';
+
+        let cards = [];
+        if (isTeam) {
+            cards = [
+                { key: 'biz', name: 'Biz', sub: 'Siz + Mehmet Usta', value: this.teamScores.biz, icon: '🤝' },
+                { key: 'onlar', name: 'Onlar', sub: 'Ali Dayı + Hasan Amca', value: this.teamScores.onlar, icon: '🛡️' }
+            ];
+        } else {
+            cards = [
+                { key: 'player', name: 'Siz', sub: 'Güney', value: this.matchScores.player, icon: '🏹' },
+                { key: 'ali', name: 'Ali Dayı', sub: 'Doğu', value: this.matchScores.ali, icon: '🧔' },
+                { key: 'mehmet', name: 'Mehmet Usta', sub: 'Kuzey', value: this.matchScores.mehmet, icon: '👴' },
+                { key: 'hasan', name: 'Hasan Amca', sub: 'Batı', value: this.matchScores.hasan, icon: '🧓' }
+            ];
+        }
+
+        const maxValue = Math.max(...cards.map(card => card.value), 0);
+        if (this.scoreCardsEl) {
+            this.scoreCardsEl.innerHTML = cards.map(card => {
+                const leader = maxValue > 0 && card.value === maxValue;
+                const progress = is101
+                    ? Math.max(0, Math.min(100, (card.value / this.matchTarget) * 100))
+                    : Math.max(0, Math.min(100, card.value * 10));
+                return `<div class="score-card ${leader ? 'leader' : ''} ${card.value < 0 ? 'negative' : ''}">
+                    <span class="score-card-icon">${card.icon}</span>
+                    <div class="score-card-main">
+                        <span class="score-card-name">${card.name}</span>
+                        <span class="score-card-sub">${card.sub}</span>
+                    </div>
+                    <strong class="score-card-value">${card.value}</strong>
+                    <span class="score-card-unit">${is101 ? 'puan' : 'el'}</span>
+                    <div class="score-bar"><span style="width:${progress}%"></span></div>
+                </div>`;
+            }).join('');
+        }
+
+        if (this.scoreHistoryEl) {
+            if (this.handHistory.length === 0) {
+                this.scoreHistoryEl.innerHTML = '<span class="service-empty">Henüz oynanmış el yok. İlk elin kazananı buraya yazılacak.</span>';
+            } else {
+                this.scoreHistoryEl.innerHTML = this.handHistory.map(item => {
+                    const detail = is101
+                        ? `+${item.points} puan · rakip kalanı ${item.remaining}`
+                        : 'el galibiyeti';
+                    const bill = item.bill > 0 ? `<span class="history-bill">${item.bill} ₺</span>` : '';
+                    return `<div class="score-history-item">
+                        <span class="history-no">#${item.no}</span>
+                        <div class="history-main">
+                            <strong>${item.winner}</strong>
+                            <small>${item.mode} · ${detail}</small>
+                        </div>
+                        ${bill}
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        if (this.scoreNoteEl && this.matchChampion) {
+            this.scoreNoteEl.textContent = `🏆 Turnuva şampiyonu: ${this.matchChampion}. Skoru sıfırlayarak yeni bir seri başlatabilirsiniz.`;
+        }
     }
 
     isRealOkey(tile) {
@@ -1474,7 +2088,11 @@ class OkeyGame {
         }
         if (this.okeyInfoEl) {
             const colorNames = { kirmizi: 'Kırmızı', sari: 'Sarı', mavi: 'Mavi', siyah: 'Siyah' };
-            this.okeyInfoEl.innerHTML = `Okey Taşı: <strong class="tile-val-${this.okeyTile.color}">${colorNames[this.okeyTile.color]} ${this.okeyTile.num}</strong>`;
+            let info = `Okey Taşı: <strong class="tile-val-${this.okeyTile.color}">${colorNames[this.okeyTile.color]} ${this.okeyTile.num}</strong>`;
+            if (this.is101Mode()) {
+                info += `<br><span class="okey-mode-chip ${this.opened101 ? 'is-open' : ''}">${this.opened101 ? '🀄 El açık · 101' : (this.isTeamMode() ? '🤝 Eşli 101 · açılış 101 puan' : '💯 101 modu · açılış 101 puan')}</span>`;
+            }
+            this.okeyInfoEl.innerHTML = info;
         }
 
         // Deste Sayısı
@@ -1495,6 +2113,7 @@ class OkeyGame {
 
         // 2 Katlı Istakayı güncelle
         this.renderPlayerRack();
+        this.updateDockStats();
     }
 
     updateTurnVisuals() {
@@ -1612,6 +2231,30 @@ class OkeyGame {
                 this.istakaBottomEl.appendChild(slotEl);
             }
         }
+
+        this.updateSelectedPreview();
+    }
+
+    updateSelectedPreview() {
+        if (!this.selectedPreviewEl) return;
+        const tile = this.selectedSlotIndex !== null ? this.playerRack[this.selectedSlotIndex] : null;
+        if (!tile) {
+            this.selectedPreviewEl.hidden = true;
+            return;
+        }
+
+        const colorNames = { kirmizi: 'Kırmızı', sari: 'Sarı', mavi: 'Mavi', siyah: 'Siyah', sahte: 'Sahte Okey' };
+        const colorName = colorNames[tile.color] || 'Taş';
+        const isOkey = this.isRealOkey(tile);
+        this.selectedPreviewEl.hidden = false;
+        if (this.selectedPreviewTileEl) {
+            this.selectedPreviewTileEl.className = `selected-preview-tile color-${tile.color} ${isOkey ? 'is-okey' : ''}`;
+            this.selectedPreviewTileEl.textContent = tile.num;
+        }
+        if (this.selectedPreviewTextEl) {
+            const suffix = this.is101Mode() ? 'bitiş taşı' : 'atılacak taş';
+            this.selectedPreviewTextEl.textContent = `${colorName} ${tile.num} · ${suffix}`;
+        }
     }
 
     handleSlotClick(index) {
@@ -1721,6 +2364,8 @@ class OkeyGame {
 
         // Taş SİZİN ıskartanıza (sağınıza) düşer
         this.discards.player.push(discarded);
+        this.lastDiscard = { name: 'Siz', tile: discarded };
+        this.renderLastDiscard();
         if (window.turkishSound) window.turkishSound.playTileDiscard();
 
         this.updateAllUI();
@@ -1790,6 +2435,20 @@ class OkeyGame {
         if (window.turkishSound) window.turkishSound.playTileDraw();
         this.updateAllUI();
 
+        // 101 Okey: bot elini açabiliyor mu?
+        if (this.is101Mode() && !bot.opened101) {
+            const opening = this.findOpeningMelds(bot.hand);
+            if (opening) {
+                bot.opened101 = true;
+                if (bubble) {
+                    bubble.textContent = `${bot.name}: "Elimi açtım, ${opening.score} puan!"`;
+                    bubble.classList.add('show');
+                    setTimeout(() => bubble.classList.remove('show'), 2400);
+                }
+                if (window.showToast) window.showToast(`${bot.name} 101 puanla elini açtı!`, '🀄');
+            }
+        }
+
         // 2. Taş çektikten sonra: BOT KAZANDI MI KONTROL ET!
         this.botTimeout = setTimeout(() => {
             if (this.gameOver) return;
@@ -1810,6 +2469,9 @@ class OkeyGame {
             else if (botIdx === 1) this.discards.mehmet.push(discarded);
             else if (botIdx === 2) this.discards.hasan.push(discarded);
 
+            this.lastDiscard = { name: bot.name, tile: discarded };
+            this.renderLastDiscard();
+
             if (window.turkishSound) window.turkishSound.playTileDiscard();
             this.updateAllUI();
 
@@ -1821,8 +2483,11 @@ class OkeyGame {
                 setTimeout(() => bubble.classList.remove('show'), 2600);
             }
 
+            // Ara sıra masaya sipariş ver / oyuncuya ikram et
+            setTimeout(() => this.botMaybeOrder(bot, bubble), 700);
+
             // Bir sonraki bota veya oyuncuya geç
-            this.botTimeout = setTimeout(() => this.runBotTurn(botIdx + 1), 850);
+            this.botTimeout = setTimeout(() => this.runBotTurn(botIdx + 1), 1150);
         }, 750);
     }
 
@@ -1886,16 +2551,39 @@ class OkeyGame {
         const trophyEl = document.getElementById('okeyModalTrophy');
         const handEl = document.getElementById('okeyModalWinningHand');
 
-        if (trophyEl) trophyEl.textContent = bot.avatar;
-        if (titleEl) titleEl.textContent = `${bot.name.toUpperCase()} KAZANDI!`;
-        if (descEl) descEl.textContent = `${bot.name}: "BİTTİM BEYLER! Masanın galibi benim, çayları söyleyin!" diyerek elini açtı ve kazandı! ☕🎉`;
+        const isTeam = this.isTeamMode();
+        const winnerTeam = this.teamKey(bot.id);
+        const teamWon = isTeam && winnerTeam === 'biz';
+        const displayName = isTeam ? this.getTeamLabel(winnerTeam) : bot.name;
+        const displayAvatar = isTeam ? (teamWon ? '🤝' : '🛡️') : bot.avatar;
+
+        this.recordHandResult(bot.id, winResult);
+
+        if (trophyEl) trophyEl.textContent = displayAvatar;
+        if (titleEl) {
+            titleEl.textContent = isTeam
+                ? (teamWon ? `ORTAĞINIZ ${bot.name.toUpperCase()} BİTTİ — TAKIMINIZ KAZANDI!` : 'RAKİP TAKIM KAZANDI!')
+                : `${bot.name.toUpperCase()} KAZANDI!`;
+        }
+        if (descEl) {
+            if (isTeam) {
+                descEl.textContent = teamWon
+                    ? `Ortağınız ${bot.name} elini açtı; takımınız 101 puanı ve rakip kalanını hanesine yazdırdı. Hesap sizin tarafta. ☕🎉`
+                    : `${bot.name} ve ortağı Hasan Amca/Ali Dayı tarafı elini bitirdi. Bu elin hesabı rakip takımın hanesine yazıldı.`;
+            } else {
+                descEl.textContent = this.is101Mode()
+                    ? `${bot.name}: "Elimi açtım, ${winResult.score || 101} puan! Hesap da benden!" diyerek 101 okeyi bitirdi. ☕🎉`
+                    : `${bot.name}: "BİTTİM BEYLER! Masanın galibi benim, çayları söyleyin!" diyerek elini açtı ve kazandı! ☕🎉`;
+            }
+        }
 
         if (handEl && winResult.melds) {
             handEl.innerHTML = this.renderMeldsHTML(winResult.melds);
         }
+        this.renderBill(displayName, displayAvatar, teamWon);
 
         if (modal) modal.classList.add('show');
-        this.setStatus(`🏁 ${bot.name} elini tamamlayarak OKEYLE BİTTİ!`);
+        this.setStatus(`🏁 ${displayName} elini tamamlayarak OKEYLE BİTTİ!`);
     }
 
     handleDeckEmpty() {
@@ -1905,17 +2593,312 @@ class OkeyGame {
     }
 
     /* ========================================================
+       101 OKEY: AÇILIŞ, PER PUANI VE BİTİŞ DENETİMİ
+       ======================================================== */
+    tileScore(tile) {
+        if (!tile) return 0;
+        if (this.isRealOkey(tile)) return 13;
+        if (tile.isFake) return this.okeyTile.num;
+        return typeof tile.num === 'number' ? tile.num : 0;
+    }
+
+    tileBaseValue(tile) {
+        if (!tile) return 0;
+        if (tile.isFake) return this.okeyTile.num;
+        return typeof tile.num === 'number' ? tile.num : 0;
+    }
+
+    meldTileValues(meld) {
+        if (!meld || meld.length === 0) return [];
+        const wildcardFlags = meld.map(tile => this.isRealOkey(tile));
+        const regularValues = meld.map((tile, index) => wildcardFlags[index] ? null : this.tileBaseValue(tile));
+        const regularNums = regularValues.filter(value => value !== null);
+
+        if (meld.length === 2) {
+            const base = regularNums.length > 0 ? regularNums[0] : 13;
+            return meld.map((tile, index) => wildcardFlags[index] ? base : regularValues[index]);
+        }
+
+        // Aynı sayıdan oluşan per: okeyler de bu sayıyı temsil eder.
+        if (regularNums.length > 0 && regularNums.every(num => num === regularNums[0])) {
+            return meld.map(() => regularNums[0]);
+        }
+
+        // Seri: okey, durduğu sıradaki eksik sayıyı temsil eder.
+        const firstRegularIndex = regularValues.findIndex(value => value !== null);
+        if (firstRegularIndex === -1) return meld.map(() => 13);
+        const anchor = regularValues[firstRegularIndex];
+        return regularValues.map((value, index) => {
+            if (value !== null) return value;
+            return anchor + (index - firstRegularIndex);
+        });
+    }
+
+    meldValue(meld) {
+        return this.meldTileValues(meld).reduce((sum, value) => sum + value, 0);
+    }
+
+    meldScore(melds) {
+        return (melds || []).reduce((sum, meld) => sum + this.meldValue(meld), 0);
+    }
+
+    checkPairsCount(tiles, targetPairs = 7) {
+        const wildcards = tiles.filter(t => this.isRealOkey(t));
+        const regularMap = new Map();
+
+        for (const t of tiles) {
+            if (this.isRealOkey(t)) continue;
+            const eff = t.isFake ? { color: this.okeyTile.color, num: this.okeyTile.num } : t;
+            const key = `${eff.color}-${eff.num}`;
+            if (!regularMap.has(key)) regularMap.set(key, []);
+            regularMap.get(key).push(t);
+        }
+
+        const pairs = [];
+        const singles = [];
+        for (const [, group] of regularMap.entries()) {
+            for (let i = 0; i + 1 < group.length; i += 2) {
+                pairs.push([group[i], group[i + 1]]);
+            }
+            if (group.length % 2 === 1) singles.push(group[group.length - 1]);
+        }
+
+        if (wildcards.length < singles.length) return { valid: false, pairs: [] };
+        let wildIndex = 0;
+        for (const single of singles) {
+            pairs.push([single, wildcards[wildIndex++]]);
+        }
+        while (wildcards.length - wildIndex >= 2) {
+            pairs.push([wildcards[wildIndex], wildcards[wildIndex + 1]]);
+            wildIndex += 2;
+        }
+
+        if (pairs.length >= targetPairs) {
+            return { valid: true, pairs: pairs.slice(0, targetPairs) };
+        }
+        return { valid: false, pairs: [] };
+    }
+
+    findOpeningMelds(tiles, allowPairs = true) {
+        // 7 çift ile açılış 101 sayılır (klasik 101 kuralı)
+        if (allowPairs) {
+            const pairResult = this.checkPairsCount(tiles, 7);
+            if (pairResult.valid) {
+                return { melds: pairResult.pairs, score: 101, isPairs: true };
+            }
+        }
+
+        const standardized = tiles.map(t => {
+            const wildcard = this.isRealOkey(t);
+            if (t.isFake) {
+                return { id: t.id, color: this.okeyTile.color, num: this.okeyTile.num, isWildcard: false, raw: t };
+            }
+            return { id: t.id, color: t.color, num: t.num, isWildcard: wildcard, raw: t };
+        });
+        standardized.sort((a, b) => {
+            if (a.isWildcard !== b.isWildcard) return a.isWildcard ? 1 : -1;
+            if (a.color !== b.color) return a.color.localeCompare(b.color);
+            return a.num - b.num;
+        });
+
+        let best = null;
+        let fallback = null;
+        let nodes = 0;
+        const search = (pool, chosen, score) => {
+            if (nodes++ > 12000) return;
+            const tileCount = chosen.reduce((sum, group) => sum + group.length, 0);
+
+            if (score >= 101 && chosen.length > 0) {
+                const candidate = {
+                    melds: chosen.map(group => group.map(t => t.raw)),
+                    score,
+                    isPairs: false,
+                    tileCount
+                };
+                if (!fallback || score > fallback.score) fallback = candidate;
+
+                // Açılışta masaya inen taş sayısı 3'ün katı olmalı ki kalan el
+                // bir bitiş taşı + tam perler halinde tamamlanabilsin.
+                if (tileCount % 3 === 0) {
+                    if (!best || tileCount < best.tileCount || (tileCount === best.tileCount && score > best.score)) {
+                        best = candidate;
+                    }
+                }
+
+                if (best && tileCount >= best.tileCount) return;
+            }
+
+            if (pool.length < 3) return;
+
+            const first = pool[0];
+            const candidates = [
+                ...this.findCandidateColorGroups(pool, first),
+                ...this.findCandidateRuns(pool, first)
+            ];
+
+            const seen = new Set();
+            for (const candidate of candidates) {
+                if (!candidate.length) continue;
+                if (best && tileCount + candidate.length >= best.tileCount) continue;
+                const key = candidate.map(t => t.id).sort((a, b) => a - b).join('-');
+                if (seen.has(key)) continue;
+                seen.add(key);
+
+                const remaining = this.removeItemsFromPool(pool, candidate);
+                const gained = this.meldValue(candidate.map(t => t.raw));
+                search(remaining, [...chosen, candidate], score + gained);
+            }
+
+            // İlk taşı açılış dışında bırakma seçeneği (açılışta elin tamamı gerekmez)
+            if (!best || tileCount < best.tileCount) {
+                search(pool.slice(1), chosen, score);
+            }
+        };
+
+        search(standardized, [], 0);
+        return best || fallback;
+    }
+
+    validate101Tiles(tiles) {
+        if (!Array.isArray(tiles) || tiles.length === 0 || tiles.length % 3 !== 0) {
+            return { valid: false, melds: [], score: 0 };
+        }
+        const result = this.solvePartition(tiles);
+        if (!result.valid) return { valid: false, melds: [], score: 0 };
+        return { valid: true, melds: result.melds, score: this.meldScore(result.melds) };
+    }
+
+    check101Win(tiles) {
+        if (this.opened101) {
+            const openedTiles = this.openedMelds.flat();
+            if (tiles.length < 2) return { canWin: false };
+
+            for (let i = 0; i < tiles.length; i++) {
+                const discardCandidate = tiles[i];
+                const remaining = tiles.filter((_, idx) => idx !== i);
+                const allTiles = [...openedTiles, ...remaining];
+                if (allTiles.length !== 21) continue;
+
+                const result = this.validate101Tiles(allTiles);
+                if (!result.valid) continue;
+                return {
+                    canWin: true,
+                    discardTile: discardCandidate,
+                    melds: result.melds,
+                    score: result.score,
+                    isPairs: false
+                };
+            }
+            return { canWin: false };
+        }
+
+        if (tiles.length !== 22) return { canWin: false };
+
+        for (let i = 0; i < tiles.length; i++) {
+            const discardCandidate = tiles[i];
+            const remaining21 = tiles.filter((_, idx) => idx !== i);
+            const result = this.validate101Tiles(remaining21);
+            if (!result.valid) continue;
+            if (result.score >= 101) {
+                return {
+                    canWin: true,
+                    discardTile: discardCandidate,
+                    melds: result.melds,
+                    score: result.score,
+                    isPairs: false
+                };
+            }
+        }
+        return { canWin: false };
+    }
+
+    openHand101(onlyPairs = false) {
+        if (!this.is101Mode()) return;
+        if (this.gameOver) return;
+        if (this.turn !== 0) {
+            this.setStatus('Sıra sizde değilken el açamazsınız.');
+            return;
+        }
+        if (this.opened101) {
+            this.setStatus('Elinizi zaten açtınız. Şimdi bitiş taşını atın!');
+            return;
+        }
+
+        const tiles = this.playerRack.filter(t => t !== null);
+        if (tiles.length !== 22) {
+            this.setStatus('101 açılışı için 22 taşınız olmalı. Önce desteden taş çekin.');
+            return;
+        }
+
+        let opening = null;
+        if (onlyPairs) {
+            const pairResult = this.checkPairsCount(tiles, 7);
+            if (pairResult.valid) {
+                opening = { melds: pairResult.pairs, score: 101, isPairs: true };
+            }
+        } else {
+            opening = this.findOpeningMelds(tiles, false);
+        }
+        if (!opening) {
+            this.setStatus(onlyPairs
+                ? '❌ Çift açılışı için 7 geçerli çift gerekiyor.'
+                : '❌ Seri açılışı için 101 puanlık geçerli per yok. Perleri güçlendirip tekrar deneyin.');
+            if (window.showToast) {
+                window.showToast(onlyPairs
+                    ? 'Çift açılışı tutmadı: 7 çift gerekli.'
+                    : '101 açılışı tutmadı: 101 puanlık seri gerekli.', '🀄');
+            }
+            if (window.turkishSound) window.turkishSound.playTileDiscard();
+            return;
+        }
+
+        this.opened101 = true;
+        this.openedMelds = opening.melds;
+        this.removeMeldsFromRack(this.openedMelds);
+        this.compactPlayerRack();
+        this.renderOpenedMelds();
+        this.updateModeUI();
+        this.showOpeningModal(opening);
+        this.updateAllUI();
+        this.setStatus(`🀄 Elinizi açtınız! Açılış puanı: ${opening.score}${opening.isPairs ? ' (7 çift)' : ''}. Perler masada; şimdi bitiş taşını atın.`);
+        if (window.turkishSound) window.turkishSound.playOkeyWin();
+    }
+
+    showOpeningModal(opening) {
+        if (!this.openModal) return;
+        if (this.openTitleEl) this.openTitleEl.textContent = opening.isPairs ? '7 ÇİFT İLE EL AÇILDI!' : '101 PUANLA EL AÇILDI!';
+        if (this.openDescEl) {
+            this.openDescEl.textContent = opening.isPairs
+                ? 'Yedi çiftinizi masaya serdiniz. Şimdi kalan taşları perleyip bitiş taşını atın!'
+                : `Perleriniz masaya serildi. Açılış puanınız ${opening.score}. Şimdi bitiş taşını atın!`;
+        }
+        if (this.openMeldsEl) this.openMeldsEl.innerHTML = this.renderMeldsHTML(opening.melds);
+        this.openModal.classList.add('show');
+        if (window.showToast) window.showToast('Eli açtınız! Perler masaya serildi.', '🀄');
+    }
+
+    /* ========================================================
        GERÇEK PER DENETLEYİCİ VE EL BİTME ALGORİTMASI
        ======================================================== */
     checkWinCondition() {
+        const is101 = this.is101Mode();
         if (!this.hasDrawn) {
-            this.setStatus("Bitebilmek için önce desteden veya yandan taş çekip 15 taşa ulaşmalı ve bitiş taşını belirlemelisiniz!");
-            alert("Bitebilmek için önce bir taş çekmeli (15 taşa ulaşmalı) ve elinizi açmalısınız!");
+            this.setStatus(is101
+                ? 'Bitebilmek için önce desteden veya yandan taş çekip 22 taşa ulaşmalısınız!'
+                : 'Bitebilmek için önce desteden veya yandan taş çekip 15 taşa ulaşmalı ve bitiş taşını belirlemelisiniz!');
+            alert(is101
+                ? '101 okeyde bitebilmek için önce bir taş çekmeli (22 taşa ulaşmalı) ve bitiş taşını belirlemelisiniz!'
+                : 'Bitebilmek için önce bir taş çekmeli (15 taşa ulaşmalı) ve elinizi açmalısınız!');
             return;
         }
 
         const tilesOnRack = this.playerRack.filter(t => t !== null);
-        if (tilesOnRack.length < 15) {
+        const openedTileCount = this.opened101 ? this.openedMelds.flat().length : 0;
+        if (is101 && tilesOnRack.length + openedTileCount < 22) {
+            this.setStatus('101 okeyde bitebilmek için elinizde çekilmiş taşla birlikte 22 taş olmalıdır!');
+            return;
+        }
+        if (!is101 && tilesOnRack.length < 15) {
             this.setStatus("Bitebilmek için elinizde çekilmiş taşla birlikte 15 taş olmalıdır!");
             return;
         }
@@ -1960,40 +2943,117 @@ class OkeyGame {
             const handEl = document.getElementById('okeyModalWinningHand');
 
             const isOkeyDiscard = this.isRealOkey(winResult.discardTile);
-            const winTypeText = winResult.isPairs ? "7 ÇİFT İLE BİTTİNİZ!" : (isOkeyDiscard ? "OKEY ATARAK BİTTİNİZ! (ÇİFTE ZAFER)" : "BİTTİNİZ! (PERLER TAM)");
+            const isTeam = this.isTeamMode();
+            const winnerLabel = isTeam ? this.getTeamLabel('biz') : 'Siz';
+            const winTypeText = isTeam
+                ? `EŞLİ 101! ${winResult.score} PUANLA TAKIMINIZ BİTTİ!`
+                : (this.is101Mode()
+                    ? `101 OKEY! ${winResult.score} PUANLA BİTTİNİZ!`
+                    : (winResult.isPairs ? "7 ÇİFT İLE BİTTİNİZ!" : (isOkeyDiscard ? "OKEY ATARAK BİTTİNİZ! (ÇİFTE ZAFER)" : "BİTTİNİZ! (PERLER TAM)")));
 
-            if (trophyEl) trophyEl.textContent = "🏆";
+            this.recordHandResult('player', winResult);
+
+            if (trophyEl) trophyEl.textContent = isTeam ? '🤝' : "🏆";
             if (titleEl) titleEl.textContent = `TEBRİKLER! ${winTypeText}`;
-            if (descEl) descEl.textContent = `Muazzam bir oyun! 14 taşınızı kurallara uygun perlerle tamamladınız ve son taşı (${winResult.discardTile.num}) attınız! Ali Dayı, Mehmet Usta ve Hasan Amca çayları ısmarlıyor! ☕🎉`;
+            if (descEl) descEl.textContent = isTeam
+                ? `Ortağınız Mehmet Usta ile birlikte ${winResult.score} puanla eli bitirdiniz. Takım puanı ve hesap sizin hanenize yazıldı! ☕🎉`
+                : (this.is101Mode()
+                    ? `Muazzam bir 101 okey! 21 taşınızı perlere ayırıp ${winResult.score} puanla bitirdiniz. Hesap kazananın yanında! ☕🎉`
+                    : `Muazzam bir oyun! 14 taşınızı kurallara uygun perlerle tamamladınız ve son taşı (${winResult.discardTile.num}) attınız! Ali Dayı, Mehmet Usta ve Hasan Amca çayları ısmarlıyor! ☕🎉`);
 
             if (handEl && winResult.melds) {
                 handEl.innerHTML = this.renderMeldsHTML(winResult.melds);
             }
+            this.renderBill(winnerLabel, isTeam ? '🤝' : '🏆', true);
 
             if (modal) modal.classList.add('show');
             this.setStatus("🎉 TEBRİKLER! Kurallara uygun perlerle elinizi bitirdiniz!");
         } else {
             // KAZANILMADI! Kullanıcıya doğru kural anlatımı yapılır
-            this.setStatus("❌ Eliniz henüz bitmeye uygun değil! 14 taşınızın tamamı geçerli perler (en az 3'lü seriler / aynı sayı farklı renkler) veya 7 çift oluşturmalıdır.");
-            alert("❌ Eliniz henüz bitmeye uygun değil!\n\nOkeyde bitebilmek için 14 taşınızın tamamı eksiksiz perler (en az 3'lü seriler veya aynı sayı farklı renkler) ya da 7 çift oluşturmalı, 15. taş da bitiş taşı olarak ortaya atılmalıdır.\n\nLütfen taşlarınızı seriye veya çifte dizip kontrol edin.");
+            if (is101) {
+                this.setStatus("❌ Eliniz henüz 101 bitişine uygun değil! 21 taşınızın tamamı geçerli perler oluşturmalı; el açılmadıysa toplam en az 101 puan olmalı.");
+                alert("❌ Eliniz henüz 101 okey bitişine uygun değil!\n\n101 okeyde 22 taştan birini bitiş taşı olarak attığınızda kalan 21 taşın tamamı geçerli perler (en az 3'lü seriler veya aynı sayı farklı renkler) oluşturmalıdır. Elinizi henüz açmadıysanız perlerin toplamı en az 101 puan olmalıdır.\n\nİpucu: Önce “Eli Aç (101)” ile perlerinizi masaya gösterin.");
+            } else {
+                this.setStatus("❌ Eliniz henüz bitmeye uygun değil! 14 taşınızın tamamı geçerli perler (en az 3'lü seriler / aynı sayı farklı renkler) veya 7 çift oluşturmalıdır.");
+                alert("❌ Eliniz henüz bitmeye uygun değil!\n\nOkeyde bitebilmek için 14 taşınızın tamamı eksiksiz perler (en az 3'lü seriler veya aynı sayı farklı renkler) ya da 7 çift oluşturmalı, 15. taş da bitiş taşı olarak ortaya atılmalıdır.\n\nLütfen taşlarınızı seriye veya çifte dizip kontrol edin.");
+            }
         }
     }
 
     renderMeldsHTML(melds) {
         if (!melds || melds.length === 0) return '';
         let html = '';
-        for (const meld of melds) {
-            html += `<div class="okey-meld-group">`;
+        melds.forEach((meld, index) => {
+            html += `<div class="okey-meld-group meld-anim" style="--meld-index:${index}">`;
             for (const tile of meld) {
                 html += this.renderTileHTML(tile);
             }
             html += `</div>`;
-        }
+        });
         return html;
+    }
+
+    renderOpenedMelds() {
+        if (!this.openBoardEl || !this.openedMeldsEl) return;
+        const melds = this.openedMelds || [];
+        if (melds.length === 0) {
+            this.openBoardEl.hidden = true;
+            this.openedMeldsEl.innerHTML = '';
+            return;
+        }
+        this.openBoardEl.hidden = false;
+        const meldScores = melds.map(meld => this.meldValue(meld));
+        const totalScore = meldScores.reduce((sum, value) => sum + value, 0);
+        const head = this.openBoardEl.querySelector('.okey-open-board-head');
+        if (head) {
+            head.innerHTML = `<span>AÇIK PERLER</span><strong>${meldScores.join(' + ')} = ${totalScore} PUAN</strong>`;
+            head.title = `${meldScores.join(' + ')} = ${totalScore}`;
+        }
+        this.openedMeldsEl.innerHTML = melds.map((meld, index) => {
+            const tiles = meld.map(tile => this.renderTileHTML(tile)).join('');
+            const values = this.meldTileValues(meld);
+            const score = values.reduce((sum, value) => sum + value, 0);
+            return `<div class="okey-meld-group meld-anim" style="--meld-index:${index}">
+                ${tiles}
+                <span class="opened-meld-score" title="${values.join(' + ')} = ${score}">${score}</span>
+            </div>`;
+        }).join('');
+    }
+
+    renderLastDiscard() {
+        if (!this.lastDiscardEl) return;
+        if (!this.lastDiscard || !this.lastDiscard.tile) {
+            this.lastDiscardEl.hidden = true;
+            this.lastDiscardEl.innerHTML = '';
+            return;
+        }
+        const { name, tile } = this.lastDiscard;
+        this.lastDiscardEl.hidden = false;
+        this.lastDiscardEl.innerHTML = `
+            <span class="last-discard-label">SON ATILAN</span>
+            <span class="last-discard-name">${name}</span>
+            <span class="last-discard-tile color-${tile.color}">${tile.num}</span>
+        `;
+    }
+
+    removeMeldsFromRack(melds) {
+        const ids = new Set(melds.flat().map(tile => tile.id).filter(id => id !== undefined));
+        for (let i = 0; i < this.playerRack.length; i++) {
+            const tile = this.playerRack[i];
+            if (tile && ids.has(tile.id)) this.playerRack[i] = null;
+        }
+    }
+
+    compactPlayerRack() {
+        const remaining = this.playerRack.filter(Boolean);
+        this.playerRack = new Array(28).fill(null);
+        remaining.forEach((tile, index) => { this.playerRack[index] = tile; });
+        this.selectedSlotIndex = null;
     }
 
     // 15 taştan 1 tanesini ıskartaya ayırıp kalan 14 taşın bitip bitmediğini denetler
     checkWinningHand(tiles15) {
+        if (this.is101Mode()) return this.check101Win(tiles15);
         if (tiles15.length !== 15) return { canWin: false };
 
         for (let i = 0; i < 15; i++) {
@@ -2106,8 +3166,9 @@ class OkeyGame {
         });
 
         const pool = [...regulars, ...wildcards];
+        const memo = new Map();
 
-        const search = (currentPool) => {
+        const searchRaw = (currentPool) => {
             if (currentPool.length === 0) return [];
             if (currentPool.length < 3) return null;
 
@@ -2142,6 +3203,14 @@ class OkeyGame {
             }
 
             return null;
+        };
+
+        const search = (currentPool) => {
+            const memoKey = currentPool.map(t => t.id).sort((a, b) => a - b).join(',');
+            if (memo.has(memoKey)) return memo.get(memoKey);
+            const result = searchRaw(currentPool);
+            memo.set(memoKey, result);
+            return result;
         };
 
         const result = search(pool);
@@ -2224,23 +3293,7 @@ class OkeyGame {
             }
         }
 
-        // 13'ten sonra 1 gelme kuralı: [11, 12, 13, 1] veya [12, 13, 1]
-        if (first.num === 1 || first.num >= 10) {
-            const specialSeqs = [
-                [11, 12, 13, 1],
-                [12, 13, 1],
-                [10, 11, 12, 13, 1]
-            ];
-            for (const seq of specialSeqs) {
-                if (seq.includes(first.num)) {
-                    const matched = this.matchExplicitSequence(pool, col, seq, wildcards);
-                    if (matched && matched.includes(first)) {
-                        runs.push(matched);
-                    }
-                }
-            }
-        }
-
+        // 101 okeyde 13'ten sonra 1 gelmez; 12-13-1 serisi geçerli değildir.
         return runs;
     }
 
@@ -2304,27 +3357,28 @@ class OkeyGame {
             return (typeof a.num === 'number' ? a.num : 99) - (typeof b.num === 'number' ? b.num : 99);
         });
 
-        // 2 Katlı Istakaya (0-13 ve 14-27) perler arasına 1 boşluk koyarak yerleştir
         const newRack = new Array(28).fill(null);
         let currentSlot = 0;
         let lastColor = null;
 
         for (let i = 0; i < tiles.length; i++) {
             const t = tiles[i];
-            // Renk değiştiğinde veya büyük numara atlamasında 1 boşluk bırak (eğer yer varsa)
-            if (lastColor && lastColor !== t.color && currentSlot < 13) {
-                currentSlot++; // Üst katta boşluk bırak
-            } else if (currentSlot === 13) {
-                currentSlot = 14; // Üst kat bittiğinde Alt Kata geç
-            } else if (lastColor && lastColor !== t.color && currentSlot >= 14 && currentSlot < 27) {
-                currentSlot++; // Alt katta boşluk bırak
+            const remaining = tiles.length - i;
+
+            if (currentSlot === 13) currentSlot = 14; // Üst kat 13 taş taşır, alta geç
+            // Renk değişiminde, sığdığı sürece bir boşluk bırak
+            if (lastColor && lastColor !== t.color && currentSlot < 27 && (28 - currentSlot) > remaining) {
+                currentSlot++;
+            }
+            if (currentSlot >= 28) {
+                const fallback = newRack.indexOf(null);
+                if (fallback === -1) break;
+                currentSlot = fallback;
             }
 
-            if (currentSlot >= 28) currentSlot = 27;
             newRack[currentSlot] = t;
             lastColor = t.color;
             currentSlot++;
-            if (currentSlot === 14) currentSlot = 14; // Alt kat başlangıcı
         }
 
         this.playerRack = newRack;
@@ -2350,13 +3404,18 @@ class OkeyGame {
 
         for (let i = 0; i < tiles.length; i++) {
             if (currentSlot === 13) currentSlot = 14;
-            if (currentSlot >= 28) currentSlot = 27;
+            if (currentSlot >= 28) {
+                const fallback = newRack.indexOf(null);
+                if (fallback === -1) break;
+                currentSlot = fallback;
+            }
 
             newRack[currentSlot] = tiles[i];
             currentSlot++;
 
-            // Her 2 taşta bir (çift) 1 boşluk bırak
-            if (i % 2 === 1 && currentSlot < 27 && currentSlot !== 13) {
+            // Her 2 taşta bir (çift) 1 boşluk bırak; yer varsa
+            const remaining = tiles.length - i - 1;
+            if (i % 2 === 1 && currentSlot < 27 && (28 - currentSlot) > remaining) {
                 currentSlot++;
             }
         }
@@ -2384,7 +3443,7 @@ class KemankesGame {
         this.ctx = this.canvas.getContext('2d');
         this.running = false;
         this.loopToken = 0;
-        this.mode = 'puta'; // 'puta', 'menzil', 'hareketli'
+        this.mode = 'puta'; // 'puta', 'menzil', 'hareketli', 'kus', 'firtina'
         this.score = 0;
         this.arrowsLeft = 10;
         this.combo = 1;
@@ -2406,6 +3465,9 @@ class KemankesGame {
         this.hits = [];
         this.particles = [];
         this.bannerWave = 0;
+        this.bird = null;
+        this.stormTimer = 0;
+        this.lightning = 0;
 
         this.bindEvents();
         this.resize();
@@ -2427,7 +3489,8 @@ class KemankesGame {
     }
 
     resetWind() {
-        this.wind = Math.round((Math.random() * 12 - 6) * 10) / 10;
+        const strength = this.mode === 'firtina' ? 13 : 6;
+        this.wind = Math.round((Math.random() * strength * 2 - strength) * 10) / 10;
         const windEl = document.getElementById('kemankesWind');
         const compassEl = document.getElementById('kemankesCompass');
         if (windEl) {
@@ -2511,7 +3574,7 @@ class KemankesGame {
         const token = this.loopToken;
         this.resize();
         this.score = 0;
-        this.arrowsLeft = this.mode === 'menzil' ? 5 : 10;
+        this.arrowsLeft = this.mode === 'menzil' ? 5 : (this.mode === 'kus' ? 8 : 10);
         this.combo = 1;
         this.power = 0;
         this.isPulling = false;
@@ -2520,6 +3583,9 @@ class KemankesGame {
         this.arrow = null;
         this.cameraX = 0;
         this.distanceMeters = 0;
+        this.stormTimer = 0;
+        this.lightning = 0;
+        this.bird = this.mode === 'kus' ? this.createBird() : null;
         this.running = true;
         this.resetWind();
         this.updateUI();
@@ -2541,6 +3607,21 @@ class KemankesGame {
         }
         this.updateUI();
         this.renderGameOver();
+    }
+
+    createBird() {
+        return {
+            x: this.canvas.width - 90,
+            y: 110 + Math.random() * (this.canvas.height - 280),
+            vx: -(48 + Math.random() * 34),
+            wing: 0,
+            radius: 24,
+            flash: 0
+        };
+    }
+
+    resetBird() {
+        this.bird = this.createBird();
     }
 
     shoot() {
@@ -2615,6 +3696,16 @@ class KemankesGame {
             else if (this.distanceMeters >= 600) rank = "🎖️ Menzil Sahibi Kemankeş";
             else if (this.distanceMeters >= 400) rank = "🎯 Yiğit Nişancı";
             else rank = "Acemi Menzilci";
+        } else if (this.mode === 'kus') {
+            if (this.score >= 700) rank = "🦅 Şahin Gözlü Avcı";
+            else if (this.score >= 400) rank = "🕊️ Usta Kuşçu";
+            else if (this.score >= 180) rank = "🏹 Çırak Avcı";
+            else rank = "Acemi Avcı";
+        } else if (this.mode === 'firtina') {
+            if (this.score >= 800) rank = "🌩️ Fırtına Kahramanı";
+            else if (this.score >= 500) rank = "🌪️ Rüzgâr Ustası";
+            else if (this.score >= 250) rank = "🎯 Sert Nişancı";
+            else rank = "Acemi Fırtınacı";
         } else {
             if (this.score >= 800) rank = "🏆 Tozkoparan İskender";
             else if (this.score >= 500) rank = "🎖️ Kabza Sahibi Kemankeş";
@@ -2652,6 +3743,54 @@ class KemankesGame {
             this.target.y += this.target.vy * this.target.dir * dt;
             if (this.target.y < 110) { this.target.y = 110; this.target.dir = 1; }
             if (this.target.y > this.canvas.height - 110) { this.target.y = this.canvas.height - 110; this.target.dir = -1; }
+        }
+
+        // Fırtına modu: ani rüzgâr değişimleri ve şimşek
+        if (this.mode === 'firtina') {
+            this.stormTimer += dt;
+            this.lightning = Math.max(0, this.lightning - dt * 2.2);
+            if (this.stormTimer > 2.4) {
+                this.stormTimer = 0;
+                this.resetWind();
+                this.lightning = 0.35;
+            }
+        }
+
+        // Uçan kuş modu
+        if (this.mode === 'kus' && this.bird) {
+            const bird = this.bird;
+            bird.x += bird.vx * dt;
+            bird.y += Math.sin(performance.now() * 0.0028) * 16 * dt;
+            bird.wing += dt * 11;
+            if (bird.flash > 0) bird.flash -= dt;
+
+            if (bird.x < 165) this.resetBird();
+
+            if (this.arrow) {
+                const dist = Math.hypot(this.arrow.x - bird.x, this.arrow.y - bird.y);
+                if (dist < bird.radius + 7) {
+                    const isBull = dist < 10;
+                    const pts = (isBull ? 120 : 70) * this.combo;
+                    this.score += pts;
+                    if (isBull) this.combo = Math.min(4, this.combo + 1);
+                    else this.combo = 1;
+                    this.createParticles(bird.x, bird.y, isBull ? '#ffd700' : '#f4a261', isBull ? 30 : 18);
+                    if (window.turkishSound) {
+                        window.turkishSound.playArrowHit(true);
+                        if (window.turkishSound.playChime) window.turkishSound.playChime();
+                    }
+                    if (window.showToast) window.showToast(isBull ? `🎯 KUŞU TAM GÖĞSÜNDEN VURDUN! (+${pts})` : `🕊️ Kuşu kanadından vurdun! (+${pts})`, '🏹');
+                    this.arrow = null;
+                    this.resetBird();
+                    this.updateUI();
+                    if (this.arrowsLeft <= 0) setTimeout(() => this.stop(), 900);
+                } else if (this.arrow.x > this.canvas.width + 80 || this.arrow.y > this.canvas.height + 80) {
+                    this.combo = 1;
+                    this.arrow = null;
+                    this.updateUI();
+                    if (this.arrowsLeft <= 0) setTimeout(() => this.stop(), 900);
+                }
+            }
         }
 
         // Parçacıklar
@@ -2778,11 +3917,12 @@ class KemankesGame {
 
         // Gökyüzü (Okmeydanı Gün Batımı & Bozkır)
         const skyGrad = ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        skyGrad.addColorStop(0, '#0c1626');
-        skyGrad.addColorStop(0.65, '#203a5e');
-        skyGrad.addColorStop(1, '#664228');
+        skyGrad.addColorStop(0, this.mode === 'firtina' ? '#050912' : '#0c1626');
+        skyGrad.addColorStop(0.65, this.mode === 'firtina' ? '#18253b' : '#203a5e');
+        skyGrad.addColorStop(1, this.mode === 'firtina' ? '#3b3326' : '#664228');
         ctx.fillStyle = skyGrad;
-        ctx.fillRect(this.cameraX, 0, this.canvas.width, this.canvas.height);
+        // Kamera ne kadar kayarsa kaysın gökyüzü ekranı tamamen doldurur
+        ctx.fillRect(this.cameraX - 30, 0, this.canvas.width + 60, this.canvas.height);
 
         // Uzak Selçuklu Kümbetleri & Dağ Silüeti
         this.drawBackgroundScenery(ctx);
@@ -2794,20 +3934,29 @@ class KemankesGame {
         grassGrad.addColorStop(0.35, '#1e3d28');
         grassGrad.addColorStop(1, '#0e2014');
         ctx.fillStyle = grassGrad;
-        ctx.fillRect(-100, groundY, (this.mode === 'menzil' ? 3000 : this.canvas.width + 200), 75);
+        // Çim, kamerayla birlikte sonsuzmuş gibi kayar; uzak atışta kaybolmaz
+        ctx.fillRect(this.cameraX - 120, groundY, this.canvas.width + 240, 90);
+        this.drawGrassTufts(ctx, groundY);
 
         // Tarihi Menzil Taşı
         this.drawMenzilStone(ctx, 360, groundY);
+        if (this.mode === 'menzil') {
+            for (let stoneX = 960; stoneX < this.cameraX + this.canvas.width + 400; stoneX += 620) {
+                this.drawMenzilStone(ctx, stoneX, groundY);
+            }
+        }
 
         // Rüzgar Sancağı (Hilal ve Yıldızlı Al Bayrak)
         this.drawWindFlag(ctx, 280, 40);
 
-        if (this.mode !== 'menzil') {
-            // Puta Hedefi
-            this.drawPuta(ctx);
-        } else {
+        if (this.mode === 'kus') {
+            this.drawBird(ctx);
+        } else if (this.mode === 'menzil') {
             // Menzil Direkleri ve Metre İşaretleri
             this.drawDistanceMarkers(ctx, groundY);
+        } else {
+            // Puta Hedefi
+            this.drawPuta(ctx);
         }
 
         // Kemankeş Yayı ve Okçu
@@ -2826,16 +3975,108 @@ class KemankesGame {
     }
 
     drawBackgroundScenery(ctx) {
-        ctx.fillStyle = 'rgba(15, 25, 45, 0.65)';
+        const h = this.canvas.height;
+        const width = this.canvas.width;
+        const tile = 780;
+        const start = Math.floor((this.cameraX - 40) / tile) * tile;
+
+        // Uzak tepeler: kamera kaydıkça tekrar eder, ufuk boş kalmaz
+        for (let base = start - tile; base < this.cameraX + width + tile; base += tile) {
+            ctx.fillStyle = 'rgba(15, 25, 45, 0.55)';
+            ctx.beginPath();
+            ctx.moveTo(base, h - 65);
+            ctx.lineTo(base + 90, h - 155);
+            ctx.lineTo(base + 210, h - 92);
+            ctx.lineTo(base + 330, h - 168);
+            ctx.lineTo(base + 470, h - 82);
+            ctx.lineTo(base + 610, h - 148);
+            ctx.lineTo(base + 780, h - 65);
+            ctx.fill();
+
+            // Kümbet ve servi silüetleri
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.16)';
+            ctx.beginPath();
+            ctx.arc(base + 250, h - 120, 18, Math.PI, 0);
+            ctx.fill();
+            ctx.fillRect(base + 232, h - 120, 36, 56);
+            ctx.beginPath();
+            ctx.moveTo(base + 560, h - 62);
+            ctx.lineTo(base + 568, h - 142);
+            ctx.lineTo(base + 576, h - 62);
+            ctx.fill();
+        }
+    }
+
+    drawGrassTufts(ctx, groundY) {
+        const width = this.canvas.width;
+        const start = Math.floor((this.cameraX - 80) / 24) * 24;
+        ctx.save();
+        ctx.lineWidth = 1.2;
+        for (let x = start; x < this.cameraX + width + 100; x += 24) {
+            const seed = Math.sin(x * 12.9898) * 43758.5453;
+            const r = seed - Math.floor(seed);
+            const height = 4 + r * 9;
+            const sway = Math.sin(x * 0.03 + performance.now() * 0.0015) * 2;
+            ctx.strokeStyle = r > 0.5 ? 'rgba(122, 168, 116, 0.55)' : 'rgba(74, 122, 80, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(x, groundY + 10 + r * 12);
+            ctx.quadraticCurveTo(x + sway, groundY + 2, x + sway * 1.6, groundY - height);
+            ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    drawBird(ctx) {
+        if (!this.bird) return;
+        const b = this.bird;
+        const wing = Math.sin(b.wing) * 12;
+        ctx.save();
+        ctx.translate(b.x, b.y);
+
+        // Kanatlar
+        ctx.fillStyle = '#e9e2d0';
         ctx.beginPath();
-        ctx.moveTo(this.cameraX, this.canvas.height - 65);
-        ctx.lineTo(this.cameraX + 80, this.canvas.height - 140);
-        ctx.lineTo(this.cameraX + 180, this.canvas.height - 85);
-        ctx.lineTo(this.cameraX + 310, this.canvas.height - 160);
-        ctx.lineTo(this.cameraX + 450, this.canvas.height - 75);
-        ctx.lineTo(this.cameraX + 620, this.canvas.height - 150);
-        ctx.lineTo(this.cameraX + 780, this.canvas.height - 65);
+        ctx.moveTo(-2, 0);
+        ctx.quadraticCurveTo(-20, -18 - wing, -40, -2 - wing * 0.4);
+        ctx.quadraticCurveTo(-20, 2, -2, 4);
         ctx.fill();
+
+        // Gövde
+        ctx.fillStyle = '#f7f3e8';
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 24, 13, -0.15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(74, 60, 35, 0.45)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Baş ve gaga
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(22, -7, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d4af37';
+        ctx.beginPath();
+        ctx.moveTo(29, -8);
+        ctx.lineTo(40, -4);
+        ctx.lineTo(29, -1);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(24, -10, 1.7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Kuyruk
+        ctx.fillStyle = '#d8cfbb';
+        ctx.beginPath();
+        ctx.moveTo(-20, 0);
+        ctx.lineTo(-42, 7);
+        ctx.lineTo(-38, -3);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
     }
 
     drawMenzilStone(ctx, x, y) {
@@ -2949,7 +4190,7 @@ class KemankesGame {
     }
 
     drawDistanceMarkers(ctx, groundY) {
-        for (let m = 100; m <= 1000; m += 100) {
+        for (let m = 100; m <= 4500; m += 100) {
             const x = 88 + (m / 1.35);
             ctx.fillStyle = '#d4af37';
             ctx.fillRect(x - 2, groundY - 25, 4, 30);
@@ -3076,6 +4317,59 @@ class KemankesGame {
     }
 
     drawHUD(ctx) {
+        // Mod ve mesafe rozeti
+        const modeLabels = {
+            puta: '🎯 Puta talimi',
+            hareketli: '🌀 Hareketli hedef',
+            menzil: '📏 Menzil atışı',
+            kus: '🕊️ Uçan kuş avı',
+            firtina: '🌪️ Fırtına talimi'
+        };
+        ctx.save();
+        ctx.textAlign = 'right';
+        ctx.fillStyle = 'rgba(10, 15, 25, 0.72)';
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.55)';
+        ctx.lineWidth = 1;
+        const badgeW = 212;
+        ctx.fillRect(this.canvas.width - badgeW - 18, 18, badgeW, 48);
+        ctx.strokeRect(this.canvas.width - badgeW - 18, 18, badgeW, 48);
+        ctx.fillStyle = '#f7ebba';
+        ctx.font = 'bold 13px "Segoe UI", sans-serif';
+        ctx.fillText(modeLabels[this.mode] || 'Talim', this.canvas.width - 30, 38);
+        ctx.font = '12px "Segoe UI", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        if (this.mode === 'menzil') {
+            ctx.fillText(`Menzil: ${Math.round(this.distanceMeters)} m · Rekor: ${this.menzilRecord} m`, this.canvas.width - 30, 56);
+        } else if (this.mode === 'kus') {
+            ctx.fillText(`Kalan ok: ${this.arrowsLeft} / 8 · Puan: ${this.score}`, this.canvas.width - 30, 56);
+        } else if (this.mode === 'firtina') {
+            ctx.fillText(`Rüzgâr: ${this.wind} m/s · ani değişim`, this.canvas.width - 30, 56);
+        } else {
+            ctx.fillText(`Puan: ${this.score} · Kombo: ${this.combo}x`, this.canvas.width - 30, 56);
+        }
+        ctx.restore();
+
+        // Fırtına yağmuru ve şimşek
+        if (this.mode === 'firtina') {
+            ctx.save();
+            ctx.strokeStyle = 'rgba(180, 210, 255, 0.28)';
+            ctx.lineWidth = 1;
+            const time = performance.now() * 0.001;
+            for (let i = 0; i < 46; i++) {
+                const x = (i * 137 + time * 480) % (this.canvas.width + 200) - 100;
+                const y = ((i * 83 + time * 720) % this.canvas.height);
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x - 9, y + 22);
+                ctx.stroke();
+            }
+            if (this.lightning > 0) {
+                ctx.fillStyle = `rgba(220, 235, 255, ${this.lightning * 0.55})`;
+                ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            ctx.restore();
+        }
+
         // Gerilme Çubuğu & Titreme Uyarısı
         if (this.isPulling) {
             const holdTime = (performance.now() - this.pullStartTime) / 1000;
@@ -3125,6 +4419,12 @@ class KemankesGame {
         if (this.mode === 'menzil') {
             ctx.fillText(`En Uzak Menzil: ${Math.round(this.distanceMeters)} Metre`, this.canvas.width / 2, this.canvas.height / 2 + 5);
             ctx.fillText(`Menzil Rekoru: ${this.menzilRecord} Metre`, this.canvas.width / 2, this.canvas.height / 2 + 35);
+        } else if (this.mode === 'kus') {
+            ctx.fillText(`Kuş Avı Puanı: ${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 5);
+            ctx.fillText(`En İyi Talim: ${this.highScore}`, this.canvas.width / 2, this.canvas.height / 2 + 35);
+        } else if (this.mode === 'firtina') {
+            ctx.fillText(`Fırtına Puanı: ${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 5);
+            ctx.fillText(`En İyi Talim: ${this.highScore}`, this.canvas.width / 2, this.canvas.height / 2 + 35);
         } else {
             ctx.fillText(`Toplam Puan: ${this.score}`, this.canvas.width / 2, this.canvas.height / 2 + 5);
             ctx.fillText(`Menzil Rekoru: ${this.highScore}`, this.canvas.width / 2, this.canvas.height / 2 + 35);
@@ -3248,6 +4548,30 @@ class EbruStudio {
         }, { passive: false });
 
         window.addEventListener('touchend', handleEnd);
+
+        // Fırça önizlemesi: teknenin üzerinde canlı boyut/araç göstergesi
+        const preview = document.getElementById('ebruBrushPreview');
+        const movePreview = (e) => {
+            if (!preview) return;
+            const frame = this.canvas.parentElement;
+            if (!frame) return;
+            const frameRect = frame.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const scale = frameRect.width / this.canvas.width;
+            const size = Math.max(12, this.brushSize * 2 * scale);
+            preview.style.width = `${size}px`;
+            preview.style.height = `${size}px`;
+            preview.style.left = `${clientX - frameRect.left - size / 2}px`;
+            preview.style.top = `${clientY - frameRect.top - size / 2}px`;
+            preview.dataset.tool = this.currentTool;
+            preview.classList.add('show');
+        };
+        this.canvas.addEventListener('pointermove', movePreview);
+        this.canvas.addEventListener('pointerdown', movePreview);
+        this.canvas.addEventListener('pointerleave', () => {
+            if (preview) preview.classList.remove('show');
+        });
     }
 
     getPos(e) {
@@ -3286,6 +4610,12 @@ class EbruStudio {
                 break;
             case 'bulbul':
                 this.createBulbulYuvasi(cx, cy);
+                break;
+            case 'ring':
+                this.createRingMotif(cx, cy);
+                break;
+            case 'daisy':
+                this.createDaisyMotif(cx, cy);
                 break;
             default:
                 this.addMathematicalDrop(cx, cy, this.brushSize, this.currentColor);
@@ -3459,6 +4789,44 @@ class EbruStudio {
         if (window.showToast) window.showToast('Osmanlı Lalesi teknede nakşedildi!', '🌷');
     }
 
+    // Halka (Battal halkası) Motifi
+    createRingMotif(cx = this.canvas.width / 2, cy = this.canvas.height / 2) {
+        this.addMathematicalDrop(cx, cy, 54, this.currentColor);
+        this.addMathematicalDrop(cx, cy, 44, '#f8f4eb');
+        this.addMathematicalDrop(cx, cy, 34, this.currentColor);
+        this.addMathematicalDrop(cx, cy, 24, '#d4af37');
+        this.addMathematicalDrop(cx, cy, 14, '#f8f4eb');
+        this.addMathematicalDrop(cx, cy, 7, this.currentColor);
+
+        // Biz ile halkaları hafifçe dışa çek
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2;
+            this.dragStylus(cx + Math.cos(angle) * 30, cy + Math.sin(angle) * 30,
+                cx + Math.cos(angle) * 58, cy + Math.sin(angle) * 58);
+        }
+        this.saveState();
+        this.redraw();
+        if (window.turkishSound) window.turkishSound.playNey(659.25, 1.1);
+        if (window.showToast) window.showToast('Battal halkası teknede açıldı!', '⭕');
+    }
+
+    // Papatya Motifi
+    createDaisyMotif(cx = this.canvas.width / 2, cy = this.canvas.height / 2) {
+        this.addMathematicalDrop(cx, cy + 40, 16, '#2d6a4f');
+        this.addMathematicalDrop(cx, cy, 22, '#d4af37');
+        for (let i = 0; i < 10; i++) {
+            const angle = (i / 10) * Math.PI * 2;
+            const px = cx + Math.cos(angle) * 34;
+            const py = cy + Math.sin(angle) * 34;
+            this.addMathematicalDrop(px, py, 13, '#f8f4eb');
+            this.addMathematicalDrop(px, py, 7, this.currentColor);
+        }
+        this.saveState();
+        this.redraw();
+        if (window.turkishSound) window.turkishSound.playNey(587.33, 1.0);
+        if (window.showToast) window.showToast('Papatya motifi nakşedildi!', '🌼');
+    }
+
     // Klasik Gül Motifi
     createGülMotif(cx = this.canvas.width / 2, cy = this.canvas.height / 2) {
         this.addMathematicalDrop(cx, cy, 45, '#c1121f');
@@ -3539,26 +4907,46 @@ class EbruStudio {
 
     redraw() {
         const ctx = this.ctx;
-        // Kitreli suyun krem/parşömen rengi
-        ctx.fillStyle = '#f8f4eb';
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        const w = this.canvas.width;
+        const h = this.canvas.height;
 
-        // Su dokusu
+        // Kitreli suyun parşömen zemini: hafif ışık ve derinlik
+        const water = ctx.createRadialGradient(w * 0.5, h * 0.42, 40, w * 0.5, h * 0.5, Math.max(w, h) * 0.75);
+        water.addColorStop(0, '#fdfaf3');
+        water.addColorStop(0.62, '#f6efe0');
+        water.addColorStop(1, '#eadfc8');
+        ctx.fillStyle = water;
+        ctx.fillRect(0, 0, w, h);
+
+        // Su damarı dokusu (yatay çizgiler)
         ctx.strokeStyle = 'rgba(212, 175, 55, 0.08)';
         ctx.lineWidth = 1;
-        for (let y = 10; y < this.canvas.height; y += 20) {
+        for (let y = 10; y < h; y += 20) {
             ctx.beginPath();
             ctx.moveTo(0, y);
-            ctx.lineTo(this.canvas.width, y);
+            ctx.lineTo(w, y);
             ctx.stroke();
+        }
+
+        // Hafif altın zerreleri (deterministik)
+        for (let i = 0; i < 28; i++) {
+            const sx = ((i * 137.5) % w);
+            const sy = ((i * 83.7) % h);
+            ctx.fillStyle = `rgba(212, 175, 55, ${0.035 + (i % 5) * 0.012})`;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 1 + (i % 3), 0, Math.PI * 2);
+            ctx.fill();
         }
 
         // Damlaların çizimi (Polygon rendering)
         for (const d of this.drops) {
             ctx.save();
             ctx.fillStyle = d.color;
-            ctx.strokeStyle = d.color;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = 'rgba(60, 42, 18, 0.12)';
+            ctx.lineWidth = 0.6;
+            ctx.shadowColor = 'rgba(80, 55, 20, 0.14)';
+            ctx.shadowBlur = 5;
+            ctx.shadowOffsetY = 1.5;
 
             ctx.beginPath();
             if (d.vertices && d.vertices.length > 0) {
@@ -3574,6 +4962,16 @@ class EbruStudio {
             ctx.stroke();
             ctx.restore();
         }
+
+        // Kenar vinyeti ve altın çerçeve hissi
+        const vignette = ctx.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.72);
+        vignette.addColorStop(0, 'rgba(60, 42, 18, 0)');
+        vignette.addColorStop(1, 'rgba(60, 42, 18, 0.12)');
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, w, h);
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(5, 5, w - 10, h - 10);
     }
 
     clear() {
@@ -3658,6 +5056,7 @@ class MangalaGame {
         this.turn = 'player'; // 'player' | 'ai'
         this.isAnimating = false;
         this.gameOver = false;
+        this.difficulty = 'normal';
         this.statusText = "Sıra sizde! Başlamak için kendi bölgenizdeki (alttaki) bir kuyuya tıklayın.";
 
         this.initDOM();
@@ -3726,6 +5125,17 @@ class MangalaGame {
                     ${this.statusText}
                 </div>
 
+                <!-- Mangala Zorluk & Yardım -->
+                <div class="mangala-toolbar">
+                    <div class="mangala-difficulty" role="group" aria-label="Mangala zorluk seviyesi">
+                        <span class="mangala-toolbar-label">Zorluk:</span>
+                        <button class="mangala-diff-btn" data-mangala-difficulty="kolay">🌱 Kolay</button>
+                        <button class="mangala-diff-btn active" data-mangala-difficulty="normal">⚖️ Normal</button>
+                        <button class="mangala-diff-btn" data-mangala-difficulty="zor">🔥 Zor</button>
+                    </div>
+                    <button id="btnMangalaHint" class="btn-ottoman btn-sm">💡 Hamle İpucu</button>
+                </div>
+
                 <!-- Mangala Düğmeleri -->
                 <div class="mangala-actions">
                     <button id="btnNewMangala" class="btn-ottoman">🔄 Yeni Mangala Oyunu</button>
@@ -3756,6 +5166,69 @@ class MangalaGame {
                 if (rulesModal) rulesModal.classList.add('show');
             });
         }
+
+        this.container.querySelectorAll('[data-mangala-difficulty]').forEach(btn => {
+            btn.addEventListener('click', () => this.setDifficulty(btn.dataset.mangalaDifficulty));
+        });
+
+        const btnHint = this.container.querySelector('#btnMangalaHint');
+        if (btnHint) btnHint.addEventListener('click', () => this.hintMove());
+
+        const btnAgain = document.getElementById('btnMangalaPlayAgain');
+        if (btnAgain) {
+            btnAgain.addEventListener('click', () => {
+                const modal = document.getElementById('mangalaResultModal');
+                if (modal) modal.classList.remove('show');
+                this.resetGame();
+            });
+        }
+        const btnCloseResult = document.getElementById('btnMangalaCloseResult');
+        if (btnCloseResult) {
+            btnCloseResult.addEventListener('click', () => {
+                const modal = document.getElementById('mangalaResultModal');
+                if (modal) modal.classList.remove('show');
+            });
+        }
+    }
+
+    setDifficulty(level) {
+        if (!['kolay', 'normal', 'zor'].includes(level)) return;
+        this.difficulty = level;
+        if (!this.container) return;
+        this.container.querySelectorAll('[data-mangala-difficulty]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mangalaDifficulty === level);
+        });
+        const labels = { kolay: 'Kolay', normal: 'Normal', zor: 'Zor' };
+        this.statusText = `Zorluk <strong>${labels[level]}</strong> olarak ayarlandı. Sıra sizde; bir kuyuya tıklayın.`;
+        this.render();
+        if (window.showToast) window.showToast(`Bilge Vezir zorluğu: ${labels[level]}`, level === 'zor' ? '🔥' : (level === 'kolay' ? '🌱' : '⚖️'));
+    }
+
+    hintMove() {
+        if (!this.container || this.gameOver) return;
+        if (this.turn !== 'player' || this.isAnimating) {
+            this.statusText = '💡 İpucu için sıranızı ve hamlenizin bitmesini bekleyin.';
+            this.render();
+            return;
+        }
+
+        const best = this.findBestMove('player');
+        if (best.move === null) {
+            this.statusText = '💡 Oynanabilecek boş kuyu yok; taşlar dağıtıldı.';
+            this.render();
+            return;
+        }
+
+        this.container.querySelectorAll('.mangala-well').forEach(well => well.classList.remove('hint-pit'));
+        const well = this.container.querySelector(`#pit-${best.move}`);
+        if (well) {
+            well.classList.add('hint-pit');
+            setTimeout(() => well.classList.remove('hint-pit'), 2800);
+        }
+        const reason = best.reason ? ` ${best.reason}` : '';
+        this.statusText = `💡 Bilge Vezir fısıldıyor: <strong>${best.move + 1} numaralı kuyuyu</strong> dene.${reason}`;
+        this.render();
+        if (window.showToast) window.showToast(`İpucu: ${best.move + 1} numaralı kuyu`, '💡');
     }
 
     resetGame() {
@@ -3765,7 +5238,13 @@ class MangalaGame {
         this.turn = 'player';
         this.isAnimating = false;
         this.gameOver = false;
+        if (this.resultTimer) clearTimeout(this.resultTimer);
         this.statusText = "Yeni el başladı! Başlamak için kendi bölgenizdeki bir kuyuya tıklayın.";
+        const resultModal = document.getElementById('mangalaResultModal');
+        if (resultModal) resultModal.classList.remove('show');
+        if (this.container) {
+            this.container.querySelectorAll('.mangala-well').forEach(well => well.classList.remove('hint-pit'));
+        }
         this.render();
         if (window.showToast) window.showToast('Mangala masası taze taşlarla kuruldu!', '🪨');
     }
@@ -3819,6 +5298,9 @@ class MangalaGame {
         }
 
         this.isAnimating = true;
+        if (this.container) {
+            this.container.querySelectorAll('.mangala-well').forEach(well => well.classList.remove('hint-pit'));
+        }
         let stones = this.board[pitIndex];
         const isPlayer = this.turn === 'player';
         const ownTreasury = isPlayer ? 6 : 13;
@@ -3927,10 +5409,122 @@ class MangalaGame {
         }
     }
 
+    evaluateMove(move, side, board = this.board) {
+        const isPlayer = side === 'player';
+        const ownTreasury = isPlayer ? 6 : 13;
+        const oppTreasury = isPlayer ? 13 : 6;
+        const count = board[move];
+        let curr = move;
+        let stones = count;
+
+        if (count <= 0) return { move, score: -Infinity, end: move, reason: '' };
+
+        if (count === 1) {
+            curr = (curr + 1) % 14;
+            if (curr === oppTreasury) curr = (curr + 1) % 14;
+        } else {
+            stones = count - 1;
+            while (stones > 0) {
+                curr = (curr + 1) % 14;
+                if (curr === oppTreasury) continue;
+                stones--;
+            }
+        }
+
+        const end = curr;
+        let score = 0;
+        let reason = '';
+
+        if (end === ownTreasury) {
+            score += 50;
+            reason = 'Son taş hazineye düşüyor, tekrar oynuyorsunuz.';
+        }
+
+        const isOpponentWell = isPlayer ? (end >= 7 && end <= 12) : (end >= 0 && end <= 5);
+        const finalCount = board[end] + 1;
+        if (isOpponentWell && finalCount % 2 === 0) {
+            score += 30 + finalCount;
+            reason = `Rakip kuyuyu çift yapıp ${finalCount} taş kazanıyorsunuz.`;
+        }
+
+        const isOwnWell = isPlayer ? (end >= 0 && end <= 5) : (end >= 7 && end <= 12);
+        if (isOwnWell && board[end] === 0) {
+            const opposite = 12 - end;
+            if (board[opposite] > 0) {
+                score += 25 + board[opposite];
+                reason = `Tilki kuralıyla ${board[opposite] + 1} taş alıyorsunuz.`;
+            }
+        }
+
+        return { move, score, end, reason };
+    }
+
+    simulateMove(move, side, board = this.board) {
+        const isPlayer = side === 'player';
+        const ownTreasury = isPlayer ? 6 : 13;
+        const oppTreasury = isPlayer ? 13 : 6;
+        const nextBoard = [...board];
+        const count = nextBoard[move];
+        let stones = count === 1 ? 1 : count - 1;
+        let curr = move;
+        nextBoard[move] = count === 1 ? 0 : 1;
+
+        while (stones > 0) {
+            curr = (curr + 1) % 14;
+            if (curr === oppTreasury) continue;
+            nextBoard[curr]++;
+            stones--;
+        }
+
+        // Yaklaşık yakalama simülasyonu (ipucu/zorluk değerlendirmesi için)
+        const isOpponentWell = isPlayer ? (curr >= 7 && curr <= 12) : (curr >= 0 && curr <= 5);
+        if (isOpponentWell && nextBoard[curr] % 2 === 0) {
+            nextBoard[ownTreasury] += nextBoard[curr];
+            nextBoard[curr] = 0;
+        }
+        const isOwnWell = isPlayer ? (curr >= 0 && curr <= 5) : (curr >= 7 && curr <= 12);
+        if (isOwnWell && nextBoard[curr] === 1) {
+            const opposite = 12 - curr;
+            if (nextBoard[opposite] > 0) {
+                nextBoard[ownTreasury] += nextBoard[opposite] + 1;
+                nextBoard[curr] = 0;
+                nextBoard[opposite] = 0;
+            }
+        }
+
+        return nextBoard;
+    }
+
+    findBestMove(side, board = this.board, withLookahead = this.difficulty === 'zor') {
+        const isPlayer = side === 'player';
+        const pits = isPlayer ? [0, 1, 2, 3, 4, 5] : [7, 8, 9, 10, 11, 12];
+        let best = { move: null, score: -Infinity, reason: '' };
+
+        for (const move of pits) {
+            if (board[move] <= 0) continue;
+            const evaluation = this.evaluateMove(move, side, board);
+            let score = evaluation.score;
+
+            if (withLookahead) {
+                const nextBoard = this.simulateMove(move, side, board);
+                const opponent = isPlayer ? 'ai' : 'player';
+                const opponentBest = this.findBestMove(opponent, nextBoard, false);
+                if (opponentBest.move !== null) {
+                    score -= Math.max(0, opponentBest.score) * 0.45;
+                }
+            }
+
+            if (score > best.score) {
+                best = { move, score, reason: evaluation.reason };
+            }
+        }
+
+        return best;
+    }
+
     aiMove() {
         if (this.turn !== 'ai' || this.isAnimating || this.gameOver) return;
 
-        // Bilge Vezir Yapay Zeka Stratejisi
         const validMoves = [];
         for (let i = 7; i <= 12; i++) {
             if (this.board[i] > 0) validMoves.push(i);
@@ -3941,36 +5535,15 @@ class MangalaGame {
             return;
         }
 
-        let bestMove = validMoves[0];
-        let bestScore = -999;
+        const best = this.findBestMove('ai');
+        let move = best.move !== null ? best.move : validMoves[0];
 
-        for (const move of validMoves) {
-            let score = 0;
-            const count = this.board[move];
-            let endPit = (move + (count === 1 ? 1 : count - 1)) % 14;
-
-            // Öncelik 1: Hazinede bitip tekrar oynama
-            if (endPit === 13) score += 50;
-
-            // Öncelik 2: Çift yapıp taş kapma
-            if (endPit >= 0 && endPit <= 5) {
-                const nextVal = this.board[endPit] + 1;
-                if (nextVal % 2 === 0) score += 30 + nextVal;
-            }
-
-            // Öncelik 3: Kendi boş kuyusuna düşüp göz alma
-            if (endPit >= 7 && endPit <= 12 && (this.board[endPit] === 0 || (count === 1 && this.board[endPit] === 0))) {
-                const opp = 12 - endPit;
-                if (this.board[opp] > 0) score += 25 + this.board[opp];
-            }
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestMove = move;
-            }
+        // Kolay seviyede Vezir bazen içgüdüsel/rastgele oynar.
+        if (this.difficulty === 'kolay' && Math.random() < 0.55) {
+            move = validMoves[Math.floor(Math.random() * validMoves.length)];
         }
 
-        this.playMove(bestMove);
+        this.playMove(move);
     }
 
     checkGameOver() {
@@ -4004,7 +5577,7 @@ class MangalaGame {
             const playerScore = this.board[6];
             const aiScore = this.board[13];
 
-            setTimeout(() => {
+            this.resultTimer = setTimeout(() => {
                 let title = "OYUN BİTTİ!";
                 let desc = `Siz: ${playerScore} Taş | Bilge Vezir: ${aiScore} Taş`;
                 if (playerScore > aiScore) {
@@ -4018,12 +5591,43 @@ class MangalaGame {
                     desc += " — Her iki taraf da 24'er taş topladı, dostluk kazandı!";
                 }
 
+                this.showResultModal(title, desc, playerScore, aiScore);
                 if (window.showToast) window.showToast(title, '🏆');
             }, 500);
 
             return true;
         }
         return false;
+    }
+
+    showResultModal(title, desc, playerScore, aiScore) {
+        const modal = document.getElementById('mangalaResultModal');
+        const trophyEl = document.getElementById('mangalaResultTrophy');
+        const titleEl = document.getElementById('mangalaResultTitle');
+        const descEl = document.getElementById('mangalaResultDesc');
+        const scoreEl = document.getElementById('mangalaResultScore');
+
+        if (trophyEl) trophyEl.textContent = playerScore > aiScore ? '🏆' : (aiScore > playerScore ? '🧙‍♂️' : '🤝');
+        if (titleEl) titleEl.textContent = title;
+        if (descEl) descEl.textContent = desc;
+        if (scoreEl) {
+            const diffLabels = { kolay: 'Kolay', normal: 'Normal', zor: 'Zor' };
+            scoreEl.innerHTML = `
+                <div class="mangala-result-side player">
+                    <span>Siz</span>
+                    <strong>${playerScore}</strong>
+                    <small>taş</small>
+                </div>
+                <div class="mangala-result-vs">—</div>
+                <div class="mangala-result-side ai">
+                    <span>Bilge Vezir</span>
+                    <strong>${aiScore}</strong>
+                    <small>taş</small>
+                </div>
+                <div class="mangala-result-diff">Zorluk: ${diffLabels[this.difficulty] || 'Normal'}</div>
+            `;
+        }
+        if (modal) modal.classList.add('show');
     }
 
     sleep(ms) {

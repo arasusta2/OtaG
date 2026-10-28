@@ -40,6 +40,7 @@
         <nav class="portal-nav" aria-label="Uygulama bölümleri">
             <button class="nav-btn active" data-tab="tab-okey">🀄 Kıraathane Okeyi</button>
             <button class="nav-btn" data-tab="tab-tavla">🎲 Şark Tavlası</button>
+            <button class="nav-btn" data-tab="tab-mangala">🪨 Mangala</button>
             <button class="nav-btn" data-tab="tab-kemankes">🏹 Kemankeş Okçuluğu</button>
             <button class="nav-btn" data-tab="tab-ebru">🎨 Ebruzen Teknesi</button>
             <button class="nav-btn" data-tab="tab-mesk">🎵 Meşkhane</button>
@@ -59,18 +60,32 @@
                     </div>
                     <div class="card-actions">
                         <button id="btnNewOkeyGame" class="btn-ottoman">🎲 Yeni El Dağıt</button>
-                        <button id="btnSortRuns" class="btn-ottoman">🔄 Seriye Diz</button>
-                        <button id="btnSortPairs" class="btn-ottoman">👥 Çiftlere Diz</button>
                     </div>
                 </div>
 
-                <!-- Yeşil Çuha Okey Masası -->
-                <div class="okey-table">
+                <!-- Okey Mod Seçimi -->
+                <div class="okey-mode-bar" role="group" aria-label="Okey oyun türü">
+                    <button class="okey-mode-btn active" data-okey-mode="klasik">🀄 Klasik Okey <small>14 taş</small></button>
+                    <button class="okey-mode-btn" data-okey-mode="101">💯 101 Okey <small>21 taş</small></button>
+                    <button class="okey-mode-btn" data-okey-mode="101-esli">🤝 101 Eşli <small>ortaklı masa</small></button>
+                    <span class="okey-mode-note" id="okeyModeNote">Klasik kıraathane okeyi: 14 taşla perleri tamamla, 15. taşı atarak bitir.</span>
+                    <span class="okey-mode-hint">💡 101 modunda “Seri Aç” 101 puanlık perleri, “Çift Aç” 7 çifti animasyonla masaya serer; hesap defteri el sonunda kazananın yanında görünür.</span>
+                </div>
+
+                <!-- Dijital 101 Okey Masası -->
+                <div class="okey-table okey-table-v2">
+                    <div class="okey-table-main">
+                        <div class="okey-tabletop">
+                    <div id="okeyOpenBoard" class="okey-open-board" hidden>
+                        <div class="okey-open-board-head">AÇIK PERLER</div>
+                        <div id="okeyOpenedMelds" class="okey-opened-melds"></div>
+                    </div>
+
                     <!-- Üst Bölüm: Mehmet Usta ve Üst Iskartalar -->
                     <div class="okey-top-row">
                         <!-- Sol Üst: Mehmet Usta'nın Iskartası -->
                         <div class="okey-discard-zone" id="zoneDiscardMehmet">
-                            <div class="discard-zone-label">Mehmet Usta Iskartası</div>
+                            <div class="discard-zone-label">MEHMET</div>
                             <div class="discard-slot" id="discardMehmet"></div>
                         </div>
 
@@ -86,7 +101,7 @@
 
                         <!-- Sağ Üst: Ali Dayı'nın Iskartası -->
                         <div class="okey-discard-zone" id="zoneDiscardAli">
-                            <div class="discard-zone-label">Ali Dayı Iskartası</div>
+                            <div class="discard-zone-label">ALİ</div>
                             <div class="discard-slot" id="discardAli"></div>
                         </div>
                     </div>
@@ -136,12 +151,14 @@
                         <!-- Hasan Amca'nın Iskartası (Sizin Solunuz) -->
                         <div class="okey-discard-zone interactive-draw-zone" id="zoneDiscardHasan" title="Yandan taş almak için tıklayın">
                             <div class="discard-zone-label">
-                                <span>Solunuz (Hasan Amca)</span>
+                                <span>HASAN</span>
                                 <span class="zone-badge badge-take">Yandan Al</span>
                             </div>
                             <div class="discard-slot" id="discardHasan"></div>
                             <button id="btnDrawSide" class="btn-ottoman btn-xs">Yandan Al</button>
                         </div>
+
+                        <div id="okeyLastDiscard" class="okey-last-discard" hidden></div>
 
                         <div class="turn-status-badge" id="okeyTurnBadge">
                             <span class="turn-dot pulse"></span>
@@ -151,15 +168,45 @@
                         <!-- Sizin Iskartanız (Sizin Sağınız) -->
                         <div class="okey-discard-zone interactive-throw-zone" id="zoneDiscardPlayer" title="Taş atmak için taşa çift tıklayın veya seçip buraya tıklayın">
                             <div class="discard-zone-label">
-                                <span>Sağınız (Sizin Iskartanız)</span>
+                                <span>SİZ</span>
                                 <span class="zone-badge badge-throw">Taş At</span>
                             </div>
                             <div class="discard-slot" id="discardPlayer"></div>
                         </div>
                     </div>
+                        </div> <!-- /okey-tabletop -->
+
+                        <aside class="okey-action-rail" aria-label="Okey işlemleri">
+                            <div class="okey-rail-head">MASA İŞLEMLERİ</div>
+                            <button id="btnOpen101" class="okey-rail-btn okey-rail-open" hidden>🀄 Seri Aç</button>
+                            <button id="btnOpenPairs101" class="okey-rail-btn okey-rail-open" hidden>👥 Çift Aç</button>
+                            <button id="btnDiscardTile" class="okey-rail-btn okey-rail-discard">🎯 Taş İşle</button>
+                            <div class="okey-rail-empty" aria-hidden="true"></div>
+                            <button id="btnFinishOkey" class="okey-rail-btn okey-rail-finish">🏆 BİTTİM!</button>
+                            <p id="okeyRailNote" class="okey-rail-note">101’de 101 puanlık seri veya 7 çift ile el aç.</p>
+                        </aside>
+                    </div> <!-- /okey-table-main -->
 
                     <!-- 2 KATLI CEVİZ ISTAKA -->
                     <div class="player-area">
+                        <div class="okey-dock-strip">
+                            <span id="okeyDockHandValue" class="okey-dock-badge" title="Eldeki taşların puanı">0</span>
+                            <span class="okey-dock-player">Siz</span>
+                            <div class="okey-dock-sort">
+                                <button id="btnSortRuns" class="okey-dock-sort-btn">🀄 Seri Diz</button>
+                                <button id="btnSortPairs" class="okey-dock-sort-btn">👥 Çift Diz</button>
+                            </div>
+                            <div id="okeySelectedPreview" class="okey-selected-preview" hidden>
+                                <span class="selected-preview-label">SEÇİLİ</span>
+                                <span id="okeySelectedTile" class="selected-preview-tile"></span>
+                                <span id="okeySelectedText" class="selected-preview-text"></span>
+                                <button id="btnClearSelected" class="selected-preview-clear" title="Seçimi temizle" aria-label="Seçimi temizle">✕</button>
+                            </div>
+                            <div class="okey-dock-right">
+                                <span class="okey-dock-target" title="1010 hedefe kalan puan">Kalan <strong id="okeyDockTarget">1010</strong></span>
+                                <span id="okeyDockScore" class="okey-dock-badge gold" title="Turnuva puanınız">0</span>
+                            </div>
+                        </div>
                         <div class="player-istaka-container">
                             <div class="istaka-header">
                                 <div class="istaka-title-row">
@@ -185,12 +232,68 @@
 
                         <div class="okey-controls-row">
                             <div class="okey-controls-left">
-                                <button id="btnDiscardTile" class="btn-action-turk">🎯 Seçili Taşı At</button>
                                 <button id="btnPlayerChat" class="btn-ottoman">💬 Masaya Laf At (200+)</button>
                                 <button id="btnRandomShout" class="btn-ottoman" title="Rastgele Racon veya Mani Fırlat">🎲 Racon Kes</button>
                                 <span class="tip-text">💡 Taşı seçip boş yere tıklayabilir, sürükleyebilir veya çift tıklayarak ıskartaya atabilirsiniz.</span>
                             </div>
-                            <button id="btnFinishOkey" class="btn-gold">🏆 BİTTİM! (Okey Aç)</button>
+                        </div>
+
+                        <!-- Kendi Lafını Yaz -->
+                        <div class="okey-chat-composer">
+                            <span class="chat-composer-icon">💬</span>
+                            <input id="okeyCustomChatInput" type="text" maxlength="90" placeholder="Masaya kendi lafını yaz... (ör. 'Bu el bende beyler!') " aria-label="Masaya yazacağın laf">
+                            <button id="btnOkeyCustomChat" class="btn-action-turk btn-sm">Gönder</button>
+                            <button id="btnOkeyCustomRandom" class="btn-ottoman btn-xs" title="Rastgele bir laf yaz">🎲</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Okey Skor Geçmişi & Turnuva Tablosu -->
+                <div class="okey-scoreboard" id="okeyScoreboard">
+                    <div class="scoreboard-head">
+                        <div>
+                            <h3 class="scoreboard-title">🧮 Okey Skor Geçmişi</h3>
+                            <p class="scoreboard-desc" id="okeyScoreNote">Oynanan eller, kazananlar ve 101 turnuva puanları burada birikir.</p>
+                        </div>
+                        <div class="scoreboard-actions">
+                            <span class="match-target">Hedef <strong id="okeyMatchTarget">1010</strong></span>
+                            <button id="btnResetOkeyScore" class="btn-ottoman btn-sm">🧹 Skoru Sıfırla</button>
+                        </div>
+                    </div>
+                    <div id="okeyScoreCards" class="okey-score-cards"></div>
+                    <div class="score-history-wrap">
+                        <div class="score-history-title">📜 Son Eller</div>
+                        <div id="okeyScoreHistory" class="score-history">
+                            <span class="service-empty">Henüz oynanmış el yok. İlk elin kazananı buraya yazılacak.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kıraathane Sipariş & Hesap Paneli -->
+                <div class="okey-services" id="okeyServicesPanel">
+                    <div class="service-head">
+                        <div>
+                            <h3 class="service-title">☕ Masa Hesabı & İkramlar</h3>
+                            <p class="service-desc">Masaya çay, kahve ve kıraathane lezzetleri ısmarla. Rakipler de ara sıra size ikram eder; hesap el sonunda kazananın yanında görünür.</p>
+                        </div>
+                        <div class="service-total">Toplam <strong id="okeyTabTotal">0 ₺</strong></div>
+                    </div>
+                    <div class="service-menu" id="okeyMenu" role="group" aria-label="Masa sipariş menüsü">
+                        <button class="menu-item" data-order="Çay" data-price="15">☕ Çay <span>15 ₺</span></button>
+                        <button class="menu-item" data-order="Türk Kahvesi" data-price="40">☕ Türk Kahvesi <span>40 ₺</span></button>
+                        <button class="menu-item" data-order="Ihlamur" data-price="20">🌿 Ihlamur <span>20 ₺</span></button>
+                        <button class="menu-item" data-order="Nescafe" data-price="35">🥤 Nescafe <span>35 ₺</span></button>
+                        <button class="menu-item" data-order="Simit" data-price="12">🥯 Simit <span>12 ₺</span></button>
+                        <button class="menu-item" data-order="Kaşarlı Tost" data-price="45">🥪 Kaşarlı Tost <span>45 ₺</span></button>
+                        <button class="menu-item" data-order="Gazoz" data-price="25">🍾 Gazoz <span>25 ₺</span></button>
+                        <button class="menu-item" data-order="Su" data-price="8">💧 Su <span>8 ₺</span></button>
+                        <button class="menu-item" data-order="Kurabiye" data-price="18">🍪 Kurabiye <span>18 ₺</span></button>
+                        <button class="menu-item" data-order="Demlik Çay" data-price="60">🫖 Demlik Çay <span>60 ₺</span></button>
+                    </div>
+                    <div class="service-tab-wrap">
+                        <div class="service-tab-title">🧾 El Hesabı</div>
+                        <div id="okeyTabItems" class="service-tab-items">
+                            <span class="service-empty">Henüz sipariş yok. Masaya ilk çayı siz söyleyin!</span>
                         </div>
                     </div>
                 </div>
@@ -240,7 +343,34 @@
                     <div id="tavlaStatusMsg" class="tavla-status-banner">
                         🎲 Sıra sizde! "Zar At" butonuna basarak oyuna başlayın.
                     </div>
+
+                    <!-- Tavla: Kendi Lafını Yaz -->
+                    <div class="tavla-chat-box">
+                        <div class="tavla-chat-title">💬 Rakibe Laf At</div>
+                        <div class="tavla-chat-row">
+                            <input id="tavlaChatInput" type="text" maxlength="90" placeholder="Kendi mesajını yaz... (ör. 'Zarın da pulun da benim olsun!') " aria-label="Tavlada söyleyeceğin mesaj">
+                            <button id="btnTavlaChat" class="btn-action-turk btn-sm">Gönder</button>
+                            <button id="btnTavlaChatRandom" class="btn-ottoman btn-sm">🎲 Rastgele</button>
+                        </div>
+                        <div id="tavlaChatBubble" class="tavla-chat-bubble" aria-live="polite"></div>
+                    </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- 2B. MANGALA (KÖÇÜRME) -->
+        <section id="tab-mangala" class="app-section">
+            <div class="seljuk-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title">🪨 Mangala — Kadim Türk Zeka Oyunu</h2>
+                        <p class="card-desc">UNESCO tescilli köçürme/mangala oyununu Bilge Vezir'e karşı oynayın. Kuyulardaki taşları saat yönünün tersine dağıtın, çift yaparak ve tilki kuralıyla hazinenizi büyütün. Kendi bölgenizdeki kuyuları ilk boşaltan, rakipte kalan taşları da kazanır.</p>
+                    </div>
+                    <div class="card-actions">
+                        <button id="btnMangalaRulesTop" class="btn-ottoman">📜 Kurallar</button>
+                    </div>
+                </div>
+                <div id="mangalaContainer" class="mangala-container"></div>
             </div>
         </section>
 
@@ -253,7 +383,10 @@
                     <button class="btn-ottoman kemankes-mode-btn active" data-kemankes-mode="puta">🎯 Puta talimi</button>
                     <button class="btn-ottoman kemankes-mode-btn" data-kemankes-mode="hareketli">🌀 Hareketli hedef</button>
                     <button class="btn-ottoman kemankes-mode-btn" data-kemankes-mode="menzil">📏 Menzil atışı</button>
+                    <button class="btn-ottoman kemankes-mode-btn" data-kemankes-mode="kus">🕊️ Uçan kuş avı</button>
+                    <button class="btn-ottoman kemankes-mode-btn" data-kemankes-mode="firtina">🌪️ Fırtına talimi</button>
                 </div>
+                <p id="kemankesModeDesc" class="kemankes-mode-desc">🎯 Puta talimi: Sabit hedefin gözünü vur, komboyu büyüt.</p>
                 <p class="kemankes-hint">Nişan için oyun alanına dokunup/fareyle hareket edin; basılı tutarak kuvveti ayarlayın, bırakınca atış yapılır. Mobilde de çalışır.</p>
                 <div class="game-frame">
                     <canvas id="kemankesCanvas" class="game-canvas" width="700" height="400"></canvas>
@@ -261,6 +394,7 @@
                 <div class="hud-bar">
                     <div>Puan: <strong id="kemankesScore" class="hud-val">0</strong></div>
                     <div>Rüzgar: <strong id="kemankesWind" class="hud-val">Sakin</strong></div>
+                    <div>Yön: <span id="kemankesCompass" class="compass-needle">🧭</span></div>
                     <div>Ok: <span id="kemankesArrows">🏹🏹🏹🏹🏹🏹🏹</span></div>
                     <div>Kuvvet: <strong id="kemankesPower" class="hud-val">%0</strong></div>
                     <div id="kemankesCombo" class="kemankes-combo"></div>
@@ -287,6 +421,10 @@
                     <button class="ebru-color-btn" data-color="#2d6a4f" style="background:#2d6a4f;" title="Zümrüt Yeşil"></button>
                     <button class="ebru-color-btn" data-color="#e76f51" style="background:#e76f51;" title="Safran"></button>
                     <button class="ebru-color-btn" data-color="#6a0572" style="background:#6a0572;" title="Mürdüm Mor"></button>
+                    <button class="ebru-color-btn" data-color="#8d6a9f" style="background:#8d6a9f;" title="Lila"></button>
+                    <button class="ebru-color-btn" data-color="#bc6c25" style="background:#bc6c25;" title="Kiremit"></button>
+                    <button class="ebru-color-btn" data-color="#606c38" style="background:#606c38;" title="Zeytin Yeşili"></button>
+                    <button class="ebru-color-btn" data-color="#f2e8cf" style="background:#f2e8cf; border:1px solid #b9a779;" title="Kitre Beyazı"></button>
                 </div>
                 <div class="ebru-workbench">
                     <div class="ebru-tools" role="group" aria-label="Ebru araçları">
@@ -301,6 +439,8 @@
                         <button id="btnEbruGelgit" class="btn-ottoman">🌊 Gelgit</button>
                         <button id="btnEbruSal" class="btn-ottoman">🧣 Şal deseni</button>
                         <button id="btnEbruBattal" class="btn-ottoman">🎨 Battal zemin</button>
+                        <button class="btn-ottoman" data-ebru-tool="ring">⭕ Halka</button>
+                        <button class="btn-ottoman" data-ebru-tool="daisy">🌼 Papatya</button>
                     </div>
                     <div class="ebru-adjustments">
                         <label for="ebruBrushSize">Fırça boyu <span id="ebruBrushValue">28</span></label>
@@ -313,9 +453,15 @@
                         <button id="btnClearEbru" class="btn-ottoman">💧 Tekneyi temizle</button>
                         <button id="btnPrintEbru" class="btn-action-turk btn-sm">📜 Kâğıda bas & indir</button>
                     </div>
-                </div>
-                <div class="ebru-tray-frame">
+                </div>                    <div class="ebru-tray-frame">
+                    <div class="ebru-tray-ornament top"></div>
                     <canvas id="ebruCanvas" width="680" height="400" style="cursor:crosshair;"></canvas>
+                    <div id="ebruBrushPreview" class="ebru-brush-preview" aria-hidden="true"></div>
+                    <div class="ebru-tray-ornament bottom"></div>
+                </div>
+                <div class="ebru-tip-row">
+                    <span>💡 <strong>Usta notu:</strong> Önce açık renkle zemin at, üstüne koyu damlalar bırak; biz ile çektikçe kitre deseni kendiliğinden akar.</span>
+                    <span id="ebruTip" class="ebru-tip-badge">Araç: Damla · Fırça: 28</span>
                 </div>
             </div>
         </section>
@@ -376,6 +522,87 @@
                             <button id="btnKudumTek" class="btn-ottoman">🥁 TEK</button>
                         </div>
                     </div>
+
+                    <!-- Kemençe & Tambur -->
+                    <div class="instrument-card">
+                        <h3 class="instrument-title">🎻 Kemençe & Tambur</h3>
+                        <p class="instrument-desc">Yayı kemençeye sürün, mızrabı tamburun tellerine vurun:</p>
+                        <div class="mini-key-row kemence-keys">
+                            <button class="mini-instrument-key" data-inst="kemence" data-note="Sol"><span>Sol</span><small>G</small></button>
+                            <button class="mini-instrument-key" data-inst="kemence" data-note="La"><span>La</span><small>A</small></button>
+                            <button class="mini-instrument-key" data-inst="kemence" data-note="Si"><span>Si</span><small>B</small></button>
+                            <button class="mini-instrument-key" data-inst="kemence" data-note="Do"><span>Do</span><small>C</small></button>
+                            <button class="mini-instrument-key" data-inst="kemence" data-note="Re"><span>Re</span><small>D</small></button>
+                        </div>
+                        <div class="saz-strings-box tambur-strings">
+                            <button class="saz-string tambur-string" data-inst="tambur" data-note="Alt">🎵 Alt Tel (Tiz)</button>
+                            <button class="saz-string tambur-string" data-inst="tambur" data-note="Orta">🎵 Orta Tel (Ahenk)</button>
+                            <button class="saz-string tambur-string" data-inst="tambur" data-note="Üst">🎵 Üst Tel (Dem)</button>
+                        </div>
+                        <div class="mini-hint">Kemençe yaylı, tambur mızraplıdır; ikisi de klasik fasılın omurgasıdır.</div>
+                    </div>
+
+                    <!-- Ud & Kaval -->
+                    <div class="instrument-card">
+                        <h3 class="instrument-title">🪕 Ud & Kaval</h3>
+                        <p class="instrument-desc">Udun perdelerine dokunun, kavalın deliklerinden nefes geçirin:</p>
+                        <div class="saz-strings-box ud-strings">
+                            <button class="saz-string ud-string" data-inst="ud" data-note="Re">🎵 Ud Re</button>
+                            <button class="saz-string ud-string" data-inst="ud" data-note="Mi">🎵 Ud Mi</button>
+                            <button class="saz-string ud-string" data-inst="ud" data-note="Sol">🎵 Ud Sol</button>
+                            <button class="saz-string ud-string" data-inst="ud" data-note="La">🎵 Ud La</button>
+                        </div>
+                        <div class="ney-holes kaval-holes">
+                            <button class="ney-key kaval-hole" data-inst="kaval" data-note="Re"><span>Re</span><small>1</small></button>
+                            <button class="ney-key kaval-hole" data-inst="kaval" data-note="Mi"><span>Mi</span><small>2</small></button>
+                            <button class="ney-key kaval-hole" data-inst="kaval" data-note="Fa"><span>Fa</span><small>3</small></button>
+                            <button class="ney-key kaval-hole" data-inst="kaval" data-note="Sol"><span>Sol</span><small>4</small></button>
+                            <button class="ney-key kaval-hole" data-inst="kaval" data-note="La"><span>La</span><small>5</small></button>
+                            <button class="ney-key kaval-hole" data-inst="kaval" data-note="Si♭"><span>Si♭</span><small>6</small></button>
+                        </div>
+                        <div class="mini-hint">Kaval, Anadolu'nun çoban çalgısıdır; nefes verirken parmaklarınızı kaldırın.</div>
+                    </div>
+
+                    <!-- Zurna, Davul & Def -->
+                    <div class="instrument-card">
+                        <h3 class="instrument-title">📯 Zurna, Davul & Def</h3>
+                        <p class="instrument-desc">Düğün alayının ritmini kurun; zurnaya nefes, davula tokmak, defe zil vurun:</p>
+                        <div class="ney-holes zurna-keys">
+                            <button class="ney-key zurna-key" data-inst="zurna" data-note="La"><span>La</span><small>A</small></button>
+                            <button class="ney-key zurna-key" data-inst="zurna" data-note="Si"><span>Si</span><small>B</small></button>
+                            <button class="ney-key zurna-key" data-inst="zurna" data-note="Do#"><span>Do#</span><small>C#</small></button>
+                            <button class="ney-key zurna-key" data-inst="zurna" data-note="Re"><span>Re</span><small>D</small></button>
+                            <button class="ney-key zurna-key" data-inst="zurna" data-note="Mi"><span>Mi</span><small>E</small></button>
+                        </div>
+                        <div class="kudum-row davul-row">
+                            <button id="btnDavulDum" class="btn-ottoman">🥁 DAVUL DÜM</button>
+                            <button id="btnDavulTek" class="btn-ottoman">🥁 DAVUL TEK</button>
+                            <button id="btnDefZil" class="btn-ottoman">🪘 DEF ZİLİ</button>
+                        </div>
+                        <div class="mini-hint">Davul ve zurna Rumeli'nin, def ise fasıl ve Mevlevi musikisinin vazgeçilmezidir.</div>
+                    </div>
+
+                    <!-- Hazır Repertuvar -->
+                    <div class="instrument-card instrument-card-wide repertoire-card">
+                        <div class="repertoire-head">
+                            <div>
+                                <h3 class="instrument-title">🎼 Meşkhane Repertuvarı — Hazır Taksim & Türküler</h3>
+                                <p class="instrument-desc">Tek düğmeyle geleneksel makamlardan kısa icralar dinleyin. Her eser, seçtiğiniz çalgıların tınısıyla canlı sentezlenir.</p>
+                            </div>
+                            <button id="btnStopRepertoire" class="btn-ottoman btn-sm">⏹️ Durdur</button>
+                        </div>
+                        <div class="repertoire-grid" id="repertoireGrid">
+                            <button class="repertoire-btn" data-piece="segah"><strong>Segah Taksim</strong><span>Ney & kanun · ağır</span></button>
+                            <button class="repertoire-btn" data-piece="hicaz"><strong>Hicaz Saz Semaisi</strong><span>Tambur & kemençe</span></button>
+                            <button class="repertoire-btn" data-piece="nihavend"><strong>Nihavend Longa</strong><span>Kanun & ud · neşeli</span></button>
+                            <button class="repertoire-btn" data-piece="rumeli"><strong>Rumeli Horonu</strong><span>Zurna & davul · oynak</span></button>
+                            <button class="repertoire-btn" data-piece="anadolu"><strong>Anadolu Oyun Havası</strong><span>Kaval & bağlama</span></button>
+                            <button class="repertoire-btn" data-piece="mevlevi"><strong>Mevlevi Peşrevi</strong><span>Ney & kudüm · huşu</span></button>
+                            <button class="repertoire-btn" data-piece="cankkale"><strong>Çanakkale Türküsü</strong><span>Kemençe & ud · hüzünlü</span></button>
+                            <button class="repertoire-btn" data-piece="uzunince"><strong>Uzun İnce Bir Yoldayım</strong><span>Bağlama & kaval · âşık</span></button>
+                        </div>
+                        <div id="repertoireNow" class="repertoire-now">Bir eser seçin; meşkhane kürsüsü sizin.</div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -434,6 +661,12 @@
                 <div class="region-content-box">
                     <h3 id="regionTitle" class="region-title">Marmara Bölgesi — Tarihin ve Medeniyetlerin Başkenti</h3>
                     <p id="regionDesc" class="region-desc">Üç imparatorluğa başkentlik yapmış payitaht İstanbul, Osmanlı'nın ilk başkentleri Bursa ve Edirne ile kadim bir tarih beşiği.</p>
+                    <div id="regionStats" class="region-stats">
+                        <span class="region-stat-chip"><strong>Yüzölçümü</strong> 67.000 km²</span>
+                        <span class="region-stat-chip"><strong>Nüfus</strong> ~24 milyon</span>
+                        <span class="region-stat-chip"><strong>İl</strong> 11</span>
+                        <span class="region-stat-chip"><strong>İklim</strong> Geçiş iklimi</span>
+                    </div>
                     <div class="region-grid">
                         <div class="region-item-box">
                             <h4 class="region-item-title sites">🕌 Tarihi Miras:</h4>
@@ -446,6 +679,22 @@
                         <div class="region-item-box region-item-full">
                             <h4 class="region-item-title culture">🎭 Halk Kültürü & Gelenekler:</h4>
                             <p id="regionCulture" class="region-item-text">Kırkpınar Yağlı Güreşleri, İznik Çinisi, Karagöz & Hacivat Gölge Oyunu, Boğaz Kültürü</p>
+                        </div>
+                        <div class="region-item-box">
+                            <h4 class="region-item-title routes">🧭 Gezilecek Rotalar:</h4>
+                            <p id="regionRoutes" class="region-item-text">İstanbul Tarihi Yarımada → Bursa Cumalıkızık → Edirne Selimiye → Gelibolu Yarımadası</p>
+                        </div>
+                        <div class="region-item-box">
+                            <h4 class="region-item-title crafts">🪡 El Sanatları:</h4>
+                            <p id="regionCrafts" class="region-item-text">İznik Çinisi, Hereke Halısı, Edirnekâri, Sedefkârlık</p>
+                        </div>
+                        <div class="region-item-box">
+                            <h4 class="region-item-title music">🎵 Müzik & Oyun:</h4>
+                            <p id="regionMusic" class="region-item-text">Karagöz & Hacivat, Kanto, Roman Havası, Boğaz Faslı</p>
+                        </div>
+                        <div class="region-item-box">
+                            <h4 class="region-item-title festivals">🎉 Festivaller & Şenlikler:</h4>
+                            <p id="regionFestivals" class="region-item-text">Kırkpınar Yağlı Güreşleri (Haziran), İstanbul Caz Festivali, Bursa Festivali</p>
                         </div>
                     </div>
                 </div>
@@ -621,7 +870,51 @@
             <h2 class="modal-title" id="okeyModalTitle">TEBRİKLER! OKEYLE BİTTİNİZ!</h2>
             <p class="modal-desc" id="okeyModalDesc">Masanın şampiyonu oldunuz! Ali Dayı, Mehmet Usta ve Hasan Amca çayları ısmarlıyor! ☕🎉</p>
             <div id="okeyModalWinningHand" class="okey-modal-hand"></div>
+            <div id="okeyModalBill" class="okey-modal-bill"></div>
             <button id="btnCloseOkeyWin" class="btn-action-turk">Yeni Ele Başla</button>
+        </div>
+    </div>
+
+    <!-- 101 Okey Eli Açma Animasyonu -->
+    <div id="okeyOpenModal" class="okey-modal">
+        <div class="okey-modal-card okey-open-card">
+            <div class="modal-trophy okey-open-trophy">🀄</div>
+            <h2 class="modal-title" id="okeyOpenTitle">ELİNİZİ AÇTINIZ!</h2>
+            <p class="modal-desc" id="okeyOpenDesc">Masaya perlerinizi gösterdiniz. Şimdi sıra bitiş taşında!</p>
+            <div id="okeyOpenMelds" class="okey-modal-hand okey-open-melds"></div>
+            <button id="btnCloseOkeyOpen" class="btn-action-turk">Devam Et</button>
+        </div>
+    </div>
+
+    <!-- Mangala Sonuç Modalı -->
+    <div id="mangalaResultModal" class="okey-modal">
+        <div class="okey-modal-card mangala-result-card">
+            <div class="modal-trophy" id="mangalaResultTrophy">🏆</div>
+            <h2 class="modal-title" id="mangalaResultTitle">MANGALA BİTTİ!</h2>
+            <p class="modal-desc" id="mangalaResultDesc">Hazine taşları sayılıyor...</p>
+            <div id="mangalaResultScore" class="mangala-result-score"></div>
+            <div class="mangala-result-actions">
+                <button id="btnMangalaPlayAgain" class="btn-action-turk">🔄 Yeni Mangala</button>
+                <button id="btnMangalaCloseResult" class="btn-ottoman">Masaya Dön</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mangala Kuralları Modalı -->
+    <div id="mangalaRulesModal" class="okey-modal">
+        <div class="okey-modal-card mangala-rules-card">
+            <button class="ruler-modal-close" id="btnCloseMangalaRules">✕</button>
+            <div class="modal-trophy">🪨</div>
+            <h2 class="modal-title">Mangala (Köçürme) Kuralları</h2>
+            <div class="mangala-rules-text">
+                <p><strong>1. Dağıtım:</strong> Oyuncu, seçtiği kuyudaki tüm taşları saat yönünün tersine, her kuyuya bir taş bırakarak dağıtır. Rakibin hazinesine taş bırakılmaz.</p>
+                <p><strong>2. Tek taş:</strong> Kuyuda tek taş varsa yalnızca bir sonraki kuyuya bırakılır; o kuyu kendi hazineniz ise tekrar oynarsınız.</p>
+                <p><strong>3. Çift yapma:</strong> Son taş rakibin bölgesindeki bir kuyuya düşer ve oradaki taş sayısını çift yaparsa, o kuyudaki taşlar hazinenize alınır.</p>
+                <p><strong>4. Tilki kuralı (göz alma):</strong> Son taş kendi boş kuyunuza düşerse, tam karşısındaki rakip kuyudaki taşlarla birlikte hazinenize alınır.</p>
+                <p><strong>5. Bitiş:</strong> Kendi altı kuyusunu ilk boşaltan oyuncu, rakibin kuyularında kalan tüm taşları da hazinesine katar. En çok taş toplayan oyunu kazanır.</p>
+                <p class="mangala-rules-note">Mangala 2010'da UNESCO Somut Olmayan Kültürel Miras listesine alınmıştır.</p>
+            </div>
+            <button id="btnCloseMangalaRulesBottom" class="btn-action-turk">Anladım, Masaya Dön</button>
         </div>
     </div>
 
