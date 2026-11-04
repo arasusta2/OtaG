@@ -320,6 +320,65 @@ body.light-theme .logo-text h1 {
     box-shadow: 0 0 16px rgba(212, 175, 55, 0.35);
 }
 
+/* === GÖRSEL İNCELİK KATMANI === */
+::selection {
+    background: rgba(212, 175, 55, 0.32);
+    color: var(--text-main);
+}
+
+html { scroll-behavior: smooth; }
+
+.portal-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(247, 235, 186, 0.78), transparent);
+    pointer-events: none;
+}
+
+.nav-btn::after {
+    content: "";
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: 4px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0;
+    transform: scaleX(0.4);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.nav-btn.active::after {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.seljuk-card::before {
+    content: "";
+    position: absolute;
+    inset: 9px;
+    border: 1px solid rgba(212, 175, 55, 0.09);
+    border-radius: calc(var(--radius-lg) - 8px);
+    pointer-events: none;
+}
+body.light-theme .seljuk-card::before {
+    border-color: rgba(155, 120, 17, 0.11);
+}
+
+.card-title::after {
+    content: "";
+    flex: 1 1 40px;
+    max-width: 180px;
+    min-width: 24px;
+    height: 1px;
+    margin-left: 4px;
+    background: linear-gradient(90deg, rgba(212, 175, 55, 0.52), transparent);
+}
+
 /* === 3. SEKSİYONLAR & KARTLAR === */
 .app-section {
     display: none;
@@ -2393,6 +2452,18 @@ body.light-theme .portal-header {
     scrollbar-width: none;
 }
 .portal-nav::-webkit-scrollbar { display: none; }
+.portal-nav {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.portal-nav.nav-dragging {
+    cursor: grabbing;
+    scroll-behavior: auto;
+}
+.portal-nav.nav-dragging .nav-btn {
+    pointer-events: none;
+}
 .nav-btn {
     flex: 0 0 auto;
     position: relative;
@@ -2597,6 +2668,7 @@ select:focus-visible {
     .back-to-top { width: 44px; height: 44px; border-radius: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
     *,
     *::before,
     *::after {
@@ -3818,7 +3890,9 @@ body.light-theme .tavla-chat-bubble.bot { color: #6d0b13; }
 
 #botRightContainer {
     right: 14px;
-    bottom: 18px;
+    top: 46%;
+    bottom: auto;
+    transform: translateY(-50%);
 }
 
 .okey-table-v2 .bot-avatar-box {
@@ -4348,6 +4422,24 @@ body.light-theme .tavla-chat-bubble.bot { color: #6d0b13; }
     border-color: #7b5217;
 }
 
+.okey-dock-per-total {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.okey-dock-per-total[hidden] {
+    display: none !important;
+}
+
+.okey-dock-caption {
+    margin-right: -3px;
+    font-size: 0.5rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #5a3a0a;
+}
+
 .okey-dock-player {
     font-size: 0.82rem;
     font-weight: 900;
@@ -4723,7 +4815,7 @@ body.light-theme .tavla-chat-bubble.bot { color: #6d0b13; }
         font-size: 0.8rem;
     }
     #botLeftContainer { left: 6px; top: 42%; }
-    #botRightContainer { right: 6px; bottom: 10px; }
+    #botRightContainer { right: 6px; top: 42%; bottom: auto; transform: translateY(-50%); }
     .okey-table-v2 .okey-top-bot { top: 6px; }
     .okey-table-v2 .bot-avatar-box { padding: 4px 6px; gap: 4px; }
     .okey-table-v2 .bot-icon { font-size: 1rem; }
@@ -4742,4 +4834,339 @@ body.light-theme .tavla-chat-bubble.bot { color: #6d0b13; }
     .okey-table-v2 .okey-tile-slot { height: 54px; }
     .okey-table-v2 .okey-tile { height: 52px; }
     .okey-table-v2 .okey-tile .tile-num { font-size: 1.25rem; }
+}
+
+/* ============================================================
+   GELENEKSEL OKEY MASA DÜZENİ
+   Oyuncular ve ıskartalar dört yöne dağılır; sağdaki dikey
+   ıskarta şeridi yerine eski dört köşe düzeni kullanılır.
+   ============================================================ */
+.okey-table.okey-table-v2 .okey-tabletop {
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.okey-table.okey-table-v2 .okey-top-row,
+.okey-table.okey-table-v2 .okey-middle-row,
+.okey-table.okey-table-v2 .okey-lower-discards-row {
+    display: flex;
+    width: 100%;
+}
+
+.okey-table.okey-table-v2 .okey-top-row {
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+.okey-table.okey-table-v2 .okey-middle-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.okey-table.okey-table-v2 .okey-lower-discards-row {
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+.okey-table.okey-table-v2 .okey-top-bot,
+.okey-table.okey-table-v2 .okey-side-bot {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: auto;
+    text-align: center;
+    z-index: 6;
+}
+
+.okey-table.okey-table-v2 #botLeftContainer,
+.okey-table.okey-table-v2 #botRightContainer {
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    transform: none;
+}
+
+.okey-table.okey-table-v2 .okey-discard-zone {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    min-width: 112px;
+    height: auto;
+    padding: 8px 10px;
+    border-radius: 10px;
+    justify-content: center;
+}
+
+.okey-table.okey-table-v2 #zoneDiscardMehmet,
+.okey-table.okey-table-v2 #zoneDiscardAli,
+.okey-table.okey-table-v2 #zoneDiscardHasan,
+.okey-table.okey-table-v2 #zoneDiscardPlayer {
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+}
+
+.okey-table.okey-table-v2 .discard-zone-label {
+    writing-mode: horizontal-tb;
+    text-orientation: initial;
+    transform: none;
+    min-height: 0;
+    margin-bottom: 5px;
+    font-size: 0.68rem;
+}
+
+.okey-table.okey-table-v2 .discard-zone-label .zone-badge {
+    writing-mode: horizontal-tb;
+    transform: none;
+}
+
+.okey-table.okey-table-v2 .table-center-board {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    flex-direction: row;
+    gap: 18px;
+    padding: 14px 18px;
+    border-radius: 12px;
+}
+
+.okey-table.okey-table-v2 .turn-status-badge {
+    position: static;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    transform: none;
+}
+
+.okey-table.okey-table-v2 .okey-last-discard {
+    position: static;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    transform: none;
+}
+
+.okey-table.okey-table-v2 .bot-bubble {
+    position: static;
+    transform: none;
+    margin-top: 5px;
+}
+
+.okey-table.okey-table-v2 .bot-bubble.show {
+    transform: none;
+}
+
+@media (max-width: 900px) {
+    .okey-table.okey-table-v2 .okey-middle-row {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+    .okey-table.okey-table-v2 .okey-side-bot {
+        flex: 1 1 40%;
+    }
+    .okey-table.okey-table-v2 .table-center-board {
+        flex: 1 1 100%;
+        order: 3;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 760px) {
+    .okey-table.okey-table-v2 .okey-tabletop {
+        min-height: 0;
+        padding: 12px;
+    }
+    .okey-table.okey-table-v2 .okey-top-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+        gap: 4px;
+    }
+    .okey-table.okey-table-v2 .okey-top-row .okey-discard-zone {
+        width: 100%;
+        min-width: 0;
+        padding: 5px 3px;
+    }
+    .okey-table.okey-table-v2 .okey-top-row .discard-zone-label {
+        font-size: 0.55rem;
+        gap: 2px;
+    }
+    .okey-table.okey-table-v2 .okey-top-row .discard-slot,
+    .okey-table.okey-table-v2 .okey-top-row .discard-slot .okey-tile {
+        width: 36px;
+        height: 50px;
+    }
+    .okey-table.okey-table-v2 #botTopContainer .bot-avatar-box {
+        flex-direction: column;
+        gap: 2px;
+        padding: 4px 6px;
+    }
+    .okey-table.okey-table-v2 .okey-discard-zone {
+        min-width: 88px;
+        padding: 6px;
+    }
+    .okey-table.okey-table-v2 .okey-lower-discards-row {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+    }
+    .okey-table.okey-table-v2 .okey-last-discard { order: 4; }
+    .okey-table.okey-table-v2 .turn-status-badge { order: 5; }
+}
+
+/* === 13. TÜRK TARİHİ ZAMAN TÜNELİ TASARIMI === */
+
+.tarih-era-nav {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.tarih-era-btn {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid var(--border-gold);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.tarih-era-btn:hover, .tarih-era-btn.active {
+    background: var(--gold);
+    color: #080d1a;
+    font-weight: 700;
+    border-color: var(--gold);
+    box-shadow: 0 0 14px var(--gold-glow);
+}
+
+.tarih-hero {
+    text-align: center;
+    margin: 24px 0;
+}
+
+.tarih-hero-period {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    color: var(--gold);
+    margin-bottom: 8px;
+}
+
+.tarih-card-desc {
+    color: var(--text-muted);
+    margin: 12px 0;
+    font-size: 0.9rem;
+}
+
+.tarih-count-badge {
+    color: var(--gold);
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+.tarih-footnote {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+}
+
+.tarih-event {
+    margin: 12px 0;
+    padding: 8px;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(212,175,55,0.1);
+}
+
+.tarih-event-year {
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-size: 0.85rem;
+}
+
+.tarih-event-body h4 {
+    color: var(--text-main);
+    font-size: 0.95rem;
+    margin: 4px 0;
+}
+
+.tarih-event-body p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+/* === 14. HÜKÜMDAR MODALı PERİOD STİLİSİ === */
+
+.modal-period-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 8px 0;
+}
+
+.modal-period-list li {
+    font-size: 0.82rem;
+    color: var(--text-main);
+    padding: 6px 10px;
+    background: rgba(255,255,255,0.03);
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(212,175,55,0.1);
+}
+
+.modal-period-list li strong {
+    color: var(--gold);
+    font-size: 0.78rem;
+}
+
+/* Mangala chat box geri eklendi */
+.tavla-chat-box {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-gold);
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.07), rgba(193, 18, 31, 0.05));
+}
+
+.tavla-chat-title {
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-size: 1rem;
+    margin-bottom: 8px;
+}
+
+.tavla-chat-row {
+    display: flex;
 }

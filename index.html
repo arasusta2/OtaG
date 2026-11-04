@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Marcellus&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20261104e">
 </head>
 <body>
 
@@ -41,6 +41,7 @@
             <button class="nav-btn active" data-tab="tab-okey">🀄 Kıraathane Okeyi</button>
             <button class="nav-btn" data-tab="tab-tavla">🎲 Şark Tavlası</button>
             <button class="nav-btn" data-tab="tab-mangala">🪨 Mangala</button>
+            <button class="nav-btn" data-tab="tab-tarih">🕰️ Türk Tarihi</button>
             <button class="nav-btn" data-tab="tab-kemankes">🏹 Kemankeş Okçuluğu</button>
             <button class="nav-btn" data-tab="tab-ebru">🎨 Ebruzen Teknesi</button>
             <button class="nav-btn" data-tab="tab-mesk">🎵 Meşkhane</button>
@@ -190,7 +191,10 @@
                     <!-- 2 KATLI CEVİZ ISTAKA -->
                     <div class="player-area">
                         <div class="okey-dock-strip">
-                            <span id="okeyDockHandValue" class="okey-dock-badge" title="Eldeki taşların puanı">0</span>
+                            <span id="okeyDockPerTotal" class="okey-dock-per-total" hidden>
+                                <span class="okey-dock-caption">PER</span>
+                                <span id="okeyDockHandValue" class="okey-dock-badge" title="Yan yana geçerli perlerin toplam puanı">0</span>
+                            </span>
                             <span class="okey-dock-player">Siz</span>
                             <div class="okey-dock-sort">
                                 <button id="btnSortRuns" class="okey-dock-sort-btn">🀄 Seri Diz</button>
@@ -371,6 +375,43 @@
                     </div>
                 </div>
                 <div id="mangalaContainer" class="mangala-container"></div>
+                <div class="tavla-chat-box mangala-chat-box">
+                    <div class="tavla-chat-title">💬 Mangala Muhabbeti</div>
+                    <div class="tavla-chat-row">
+                        <input id="mangalaChatInput" type="text" maxlength="110" placeholder="Bilge Vezir'e bir laf at... (ör. 'Bu kuyular sizin kadar derin değil!')" aria-label="Mangalada söyleyeceğin söz">
+                        <button id="btnMangalaChat" class="btn-action-turk btn-sm">Gönder</button>
+                        <button id="btnMangalaChatRandom" class="btn-ottoman btn-sm">🎲 Rastgele</button>
+                    </div>
+                    <div id="mangalaChatBubble" class="tavla-chat-bubble" aria-live="polite"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2C. TÜRK TARİHİ ZAMAN TÜNELİ -->
+        <section id="tab-tarih" class="app-section">
+            <div class="seljuk-card tarih-card">
+                <div class="card-header-row">
+                    <div>
+                        <h2 class="card-title">🕰️ Türk Tarihi Zaman Tüneli</h2>
+                        <p class="card-desc">Bozkırın ilk devletlerinden Cumhuriyet’e uzanan süreci dönem dönem okuyun. Her dönem; siyasi olaylar, kurumlar, savaşlar ve kültürel mirasla birlikte anlatılır.</p>
+                    </div>
+                    <div class="tarih-count-badge" id="tarihCount">8 dönem yükleniyor…</div>
+                </div>
+
+                <div class="tarih-era-nav" id="tarihEraNav" role="tablist" aria-label="Türk tarihi dönemleri"></div>
+
+                <div class="tarih-hero">
+                    <span class="tarih-hero-period" id="tarihPeriod">MÖ 220 – MS 469</span>
+                    <h3 id="tarihTitle">Bozkırın İlk Büyük Türk İmparatorluğu</h3>
+                    <p id="tarihSummary">Dönem seçildiğinde tarihî olaylar burada görünecek.</p>
+                </div>
+
+                <div class="tarih-events" id="tarihEvents"></div>
+
+                <div class="tarih-footnote">
+                    <span>📚 Tarih, yalnızca savaşlardan değil; dil, töre, şehir, bilim ve sanat mirasından oluşur.</span>
+                    <span id="tarihEventCount">0 olay</span>
+                </div>
             </div>
         </section>
 
@@ -741,6 +782,7 @@
                 <div class="ruler-filters-row" id="rulerFiltersRow">
                     <button class="ruler-filter-btn active" data-era="all">⚔️ Tüm Dönemler</button>
                     <button class="ruler-filter-btn" data-era="hun">🐴 Hun İmparatorluğu</button>
+                    <button class="ruler-filter-btn" data-era="bozkir">🏕️ Bozkır Kağanlıkları</button>
                     <button class="ruler-filter-btn" data-era="gokturk">🌙 Göktürk Kağanlığı</button>
                     <button class="ruler-filter-btn" data-era="uygur">📜 Uygur Devletleri</button>
                     <button class="ruler-filter-btn" data-era="karahanli">🏰 Karahanlı</button>
@@ -748,6 +790,8 @@
                     <button class="ruler-filter-btn" data-era="selcuklu">🦅 Büyük Selçuklu</button>
                     <button class="ruler-filter-btn" data-era="anadoluselcuklu">🕌 Anadolu Selçuklu</button>
                     <button class="ruler-filter-btn" data-era="beylikler">🗡️ Anadolu Beylikleri</button>
+                    <button class="ruler-filter-btn" data-era="timurlu">🕌 Timurlular</button>
+                    <button class="ruler-filter-btn" data-era="memluk">🛡️ Memlükler</button>
                     <button class="ruler-filter-btn" data-era="osmanli">👑 Osmanlı İmparatorluğu</button>
                     <button class="ruler-filter-btn" data-era="cumhuriyet">🇹🇷 Türkiye Cumhuriyeti</button>
                 </div>
@@ -791,6 +835,7 @@
                 <div class="ruler-modal-portrait" id="rModalPortrait"></div>
                 <div class="ruler-modal-quote" id="rModalQuote"></div>
                 <div class="ruler-modal-bio" id="rModalBio"></div>
+                <div class="ruler-modal-period" id="rModalPeriod"></div>
                 <div class="ruler-modal-achievements" id="rModalAchievements"></div>
                 <div class="ruler-modal-tags" id="rModalTags"></div>
             </div>
@@ -956,9 +1001,12 @@
     <!-- Betikler -->
     <script src="audio.js"></script>
     <script src="rulers-data.js"></script>
-    <script src="game.js"></script>
+    <script src="rulers-extra-data.js?v=20261104e"></script>
+    <script src="history-data.js?v=20261104e"></script>
+    <script src="banter-data.js?v=20261104e"></script>
+    <script src="game.js?v=20261104e"></script>
     <script src="wisdom-data.js"></script>
     <script src="otag-extra-data.js"></script>
-    <script src="app.js"></script>
+    <script src="app.js?v=20261104e"></script>
 </body>
 </html>

@@ -21,6 +21,9 @@ class TavlaGame {
         this.isRolling = false;
         this.isAiPlaying = false;
         this.gameOver = false;
+        this.banterTimer = null;
+        this.lastPlayerActionAt = Date.now();
+        this.lastDirectedAt = 0;
 
         // Boyutlar
         this.width = 760;
@@ -67,10 +70,16 @@ class TavlaGame {
         this.isRolling = false;
         this.isAiPlaying = false;
         this.gameOver = false;
+        if (this.banterTimer) {
+            clearInterval(this.banterTimer);
+            this.banterTimer = null;
+        }
+        this.lastPlayerActionAt = Date.now();
 
         this.hideChatBubble();
         this.updateHUD("🎲 Yeni oyun başladı! 'Zar At' butonuna tıklayarak ilk hamlenizi yapın.");
         this.render();
+        this.startBanterLoop();
     }
 
     bindEvents() {
@@ -108,6 +117,7 @@ class TavlaGame {
     }
 
     rollDice() {
+        this.lastPlayerActionAt = Date.now();
         this.isRolling = true;
         if (window.turkishSound) window.turkishSound.playDiceRoll();
 
@@ -155,6 +165,7 @@ class TavlaGame {
     }
 
     handleCanvasClick(x, y) {
+        this.lastPlayerActionAt = Date.now();
         // Tıklanan haneyi ya da barı bul
         const clickedTarget = this.getPointFromCoords(x, y);
         if (!clickedTarget) {
@@ -483,6 +494,7 @@ class TavlaGame {
 
     handleWin(winner) {
         this.gameOver = true;
+        this.stopBanterLoop();
         if (winner === 'white') {
             this.updateHUD("🎉 TEBRİKLER! Tüm pullarınızı toplayarak tavla maçını kazandınız! Şampiyonsunuz!");
             if (window.turkishSound) window.turkishSound.playOkeyWin();
@@ -494,6 +506,7 @@ class TavlaGame {
     say(text) {
         const message = (text || '').trim();
         if (!message) return;
+        this.lastPlayerActionAt = Date.now();
         this.showChatBubble(`Siz: "${message}"`, 'player');
         if (window.turkishSound) window.turkishSound.playClick();
 
@@ -506,12 +519,51 @@ class TavlaGame {
                 "Hele bir zar at da görelim bakalım kim konuşuyor.",
                 "Kıraathane ahalisi duydu bunu, şimdi oynamak zorundasın!",
                 "Lafını aldım, sıra pulunu görmeye geldi.",
-                "Zar senden yana dönerse hatırlatırsın bu lafı."
+                "Zar senden yana dönerse hatırlatırsın bu lafı.",
+                ...((window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla && window.KIRAATHANE_BANTER.tavla.retorts) || [])
             ];
             const reply = replies[Math.floor(Math.random() * replies.length)];
             this.showChatBubble(`Bilgisayar: "${reply}"`, 'bot');
             if (window.turkishSound) window.turkishSound.playCheckerMove();
         }, 1250);
+    }
+
+    startBanterLoop() {
+        if (this.banterTimer) clearInterval(this.banterTimer);
+        const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla;
+        if (!data) return;
+        this.banterTimer = setInterval(() => this.maybeBanter(), 17000);
+    }
+
+    stopBanterLoop() {
+        if (this.banterTimer) {
+            clearInterval(this.banterTimer);
+            this.banterTimer = null;
+        }
+    }
+
+    maybeBanter() {
+        if (this.gameOver) return;
+        const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla;
+        if (!data) return;
+        const idle = Date.now() - (this.lastPlayerActionAt || Date.now());
+        if (idle > 26000 && Date.now() - (this.lastDirectedAt || 0) > 30000 && Math.random() < 0.6) {
+            const lines = data.toPlayer || [];
+            if (!lines.length) return;
+            const item = lines[Math.floor(Math.random() * lines.length)];
+            this.lastDirectedAt = Date.now();
+            this.showChatBubble(`${item.speaker}: "${item.line}"`, 'bot');
+            return;
+        }
+        const pairs = data.crossTalk || [];
+        if (!pairs.length) return;
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        this.showChatBubble(`${pair.from}: "${pair.line}"`, 'bot');
+        if (pair.reply) {
+            setTimeout(() => {
+                if (!this.gameOver) this.showChatBubble(`${pair.to}: "${pair.reply}"`, 'bot');
+            }, 1500);
+        }
     }
 
     showChatBubble(text, who = 'player') {
@@ -1176,6 +1228,9 @@ class OkeyGame {
         this.hasDrawn = false; // Turunda taş çekti mi?
         this.gameOver = false;
         this.botTimeout = null;
+        this.banterTimer = null;
+        this.lastPlayerActionAt = Date.now();
+        this.lastDirectedAt = 0;
 
         // Iskartalar (4 Oyuncunun Atılan Taşları)
         // Sıra: Siz (0) -> Ali Dayı (1) -> Mehmet Usta (2) -> Hasan Amca (3) -> Siz (0)
@@ -1272,6 +1327,7 @@ class OkeyGame {
         this.scoreHistoryEl = document.getElementById('okeyScoreHistory');
         this.scoreNoteEl = document.getElementById('okeyScoreNote');
         this.matchTargetEl = document.getElementById('okeyMatchTarget');
+        this.dockPerTotalEl = document.getElementById('okeyDockPerTotal');
         this.dockHandValueEl = document.getElementById('okeyDockHandValue');
         this.dockTargetEl = document.getElementById('okeyDockTarget');
         this.dockScoreEl = document.getElementById('okeyDockScore');
@@ -1532,11 +1588,17 @@ class OkeyGame {
     updateDockStats() {
         if (!this.dockHandValueEl && !this.dockTargetEl && !this.dockScoreEl) return;
         const is101 = this.is101Mode();
+        if (this.dockPerTotalEl) this.dockPerTotalEl.hidden = !is101;
         if (this.dockHandValueEl) {
-            const handValue = this.playerRack
-                .filter(Boolean)
-                .reduce((sum, tile) => sum + this.tileScore(tile), 0);
-            this.dockHandValueEl.textContent = handValue;
+            const summary = this.getRackMeldSummary();
+            const breakdown = summary.melds.map(meld => this.meldValue(meld)).join(' + ');
+            this.dockHandValueEl.textContent = summary.score;
+            this.dockHandValueEl.title = summary.melds.length > 0
+                ? `${breakdown} = ${summary.score} puan · ${summary.groupedTiles} taş yan yana`
+                : 'Yan yana geçerli per yok; tek taşlar toplanmaz';
+            this.dockHandValueEl.setAttribute('aria-label', summary.melds.length > 0
+                ? `Yan yana perlerin puanı ${summary.score}`
+                : 'Yan yana geçerli per yok');
         }
         if (this.dockTargetEl) {
             const myScore = this.isTeamMode() ? this.teamScores.biz : this.matchScores.player;
@@ -1553,6 +1615,10 @@ class OkeyGame {
         if (!this.chatModal) return;
         this.chatModal.classList.add('show');
         if (this.chatSearchInput) this.chatSearchInput.value = '';
+        const allTab = this.chatModal.querySelector('.chat-cat-btn[data-cat="all"]');
+        if (allTab) allTab.textContent = `Tümü (${OKEY_PHRASES_200.length})`;
+        const chatSub = this.chatModal.querySelector('.chat-modal-sub');
+        if (chatSub) chatSub.textContent = `Masanın havasını değiştir, rakiplere laf at (${OKEY_PHRASES_200.length} Çeşit Söz)`;
         this.renderChatPhrases('', this.currentChatCategory);
     }
 
@@ -1595,6 +1661,7 @@ class OkeyGame {
     }
 
     playerSay(text) {
+        this.lastPlayerActionAt = Date.now();
         if (this.playerBubbleEl) {
             this.playerBubbleEl.textContent = `Siz: "${text}"`;
             this.playerBubbleEl.classList.add('show');
@@ -1621,7 +1688,8 @@ class OkeyGame {
                     "Hasan Amca'nı hafife alma, bu el bende bilesin!",
                     "Taşın konuşsun, dilin değil usta!",
                     "Ali Dayı'ya racon kesilmez, taş kesilir!",
-                    "İddialı laflar bunlar, masada göreceğiz!"
+                    "İddialı laflar bunlar, masada göreceğiz!",
+                    ...((window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey && window.KIRAATHANE_BANTER.okey.retorts) || [])
                 ];
                 const retort = retorts[Math.floor(Math.random() * retorts.length)];
                 if (bubble) {
@@ -1631,6 +1699,56 @@ class OkeyGame {
                 }
             }, 1100);
         }
+    }
+
+    startBanterLoop() {
+        if (this.banterTimer) clearInterval(this.banterTimer);
+        const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey;
+        if (!data) return;
+        this.banterTimer = setInterval(() => this.maybeBanter(), 17000);
+    }
+
+    stopBanterLoop() {
+        if (this.banterTimer) {
+            clearInterval(this.banterTimer);
+            this.banterTimer = null;
+        }
+    }
+
+    maybeBanter() {
+        if (this.gameOver) return;
+        const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey;
+        if (!data) return;
+        const idle = Date.now() - (this.lastPlayerActionAt || Date.now());
+        if (idle > 26000 && Date.now() - (this.lastDirectedAt || 0) > 30000 && Math.random() < 0.62) {
+            const lines = data.toPlayer || [];
+            if (!lines.length) return;
+            const item = lines[Math.floor(Math.random() * lines.length)];
+            this.lastDirectedAt = Date.now();
+            this.showBotLine(item.speaker, item.line, 3800);
+            return;
+        }
+        const pairs = data.crossTalk || [];
+        if (!pairs.length) return;
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        this.showBotLine(pair.from, pair.line, 2800);
+        if (pair.reply) {
+            setTimeout(() => {
+                if (!this.gameOver) this.showBotLine(pair.to, pair.reply, 2800);
+            }, 1500);
+        }
+    }
+
+    showBotLine(name, text, duration = 2800) {
+        if (!name || !text) return;
+        const index = this.bots.findIndex(bot => bot.name === name);
+        const bubbles = [this.botRightBubble, this.botTopBubble, this.botLeftBubble];
+        const bubble = bubbles[index] || this.botTopBubble;
+        if (!bubble) return;
+        if (bubble._banterHideTimer) clearTimeout(bubble._banterHideTimer);
+        bubble.textContent = `${name}: "${text}"`;
+        bubble.classList.add('show');
+        bubble._banterHideTimer = setTimeout(() => bubble.classList.remove('show'), duration);
     }
 
     createDeck() {
@@ -1666,6 +1784,12 @@ class OkeyGame {
 
     startNewGame() {
         if (this.botTimeout) clearTimeout(this.botTimeout);
+        if (this.banterTimer) {
+            clearInterval(this.banterTimer);
+            this.banterTimer = null;
+        }
+        this.lastPlayerActionAt = Date.now();
+        this.lastDirectedAt = 0;
         this.gameOver = false;
         this.deck = this.createDeck();
         const is101 = this.is101Mode();
@@ -1734,6 +1858,7 @@ class OkeyGame {
                 ? '101 Okey başladı! 22 taşınız var. Perleri kurup “Eli Aç (101)” ile açabilir veya bir taş atabilirsiniz.'
                 : "Oyun başladı! Sıra sizde: Desteden veya Hasan Amca'nın attığı taşa tıklayarak taş çekin."));
         if (window.turkishSound) window.turkishSound.playTileDraw();
+        this.startBanterLoop();
     }
 
     /* ========================================================
@@ -2233,6 +2358,7 @@ class OkeyGame {
         }
 
         this.updateSelectedPreview();
+        this.updateDockStats();
     }
 
     updateSelectedPreview() {
@@ -2348,6 +2474,7 @@ class OkeyGame {
 
     playerDiscardSelected() {
         if (this.gameOver || this.turn !== 0) return;
+        this.lastPlayerActionAt = Date.now();
         if (!this.hasDrawn) {
             this.setStatus("Önce desteden veya Hasan Amca'dan taş çekmelisiniz!");
             return;
@@ -2640,6 +2767,117 @@ class OkeyGame {
 
     meldScore(melds) {
         return (melds || []).reduce((sum, meld) => sum + this.meldValue(meld), 0);
+    }
+
+    // Istakada yan yana duran taşlardan yalnızca geçerli perleri toplar.
+    // Tek başına kalan taşlar bu toplama girmez.
+    getRackMeldSummary() {
+        if (!this.playerRack) return { melds: [], score: 0, groupedTiles: 0, ungroupedTiles: 0 };
+        const melds = [];
+        const rows = [this.playerRack.slice(0, 14), this.playerRack.slice(14, 28)];
+
+        for (const row of rows) {
+            let block = [];
+            const flushBlock = () => {
+                if (block.length >= 2) melds.push(...this.findRackBlockMelds(block));
+                block = [];
+            };
+            for (const tile of row) {
+                if (tile) block.push(tile);
+                else flushBlock();
+            }
+            flushBlock();
+        }
+
+        const score = melds.reduce((sum, meld) => sum + this.meldValue(meld), 0);
+        const groupedTiles = melds.reduce((sum, meld) => sum + meld.length, 0);
+        const totalTiles = this.playerRack.filter(Boolean).length;
+        return { melds, score, groupedTiles, ungroupedTiles: totalTiles - groupedTiles };
+    }
+
+    isRackMeld(meld) {
+        if (!meld || meld.length < 2) return false;
+        const wildcardFlags = meld.map(tile => this.isRealOkey(tile));
+        const regulars = meld
+            .map((tile, index) => ({ tile, index, value: this.tileBaseValue(tile), wildcard: wildcardFlags[index] }))
+            .filter(item => !item.wildcard);
+
+        if (meld.length === 2) {
+            if (regulars.length <= 1) return true;
+            return regulars[0].value === regulars[1].value && regulars[0].tile.color === regulars[1].tile.color;
+        }
+
+        if (regulars.length === 0) return true;
+
+        // Aynı sayıdan farklı renklerle oluşan per.
+        const sameNumber = regulars.every(item => item.value === regulars[0].value);
+        if (sameNumber) {
+            const colors = new Set(regulars.map(item => item.tile.color));
+            return meld.length >= 3 && meld.length <= 4 && colors.size === regulars.length;
+        }
+
+        // Aynı renkte, yan yana dizilmiş ve arada yalnızca okey bulunan seri.
+        if (regulars.length < 1 || meld.length < 3) return false;
+        const colors = new Set(regulars.map(item => item.tile.color));
+        if (colors.size !== 1) return false;
+
+        for (let i = 1; i < regulars.length; i++) {
+            const numberGap = regulars[i].value - regulars[i - 1].value;
+            const slotGap = regulars[i].index - regulars[i - 1].index;
+            if (numberGap !== slotGap) return false;
+        }
+
+        const startValue = regulars[0].value - regulars[0].index;
+        const last = regulars[regulars.length - 1];
+        const endValue = last.value + (meld.length - 1 - last.index);
+        return startValue >= 1 && endValue <= 13;
+    }
+
+    findRackBlockMelds(block) {
+        if (!block || block.length < 2) return [];
+        const candidatesByStart = Array.from({ length: block.length }, () => []);
+
+        // Yalnızca yan yana duran taşlardan oluşan adayları üret.
+        for (let start = 0; start < block.length; start++) {
+            const maxEnd = Math.min(block.length - 1, start + 12);
+            for (let end = start + 1; end <= maxEnd; end++) {
+                const meld = block.slice(start, end + 1);
+                if (this.isRackMeld(meld)) {
+                    candidatesByStart[start].push({
+                        meld,
+                        end,
+                        score: this.meldValue(meld)
+                    });
+                }
+            }
+        }
+
+        const memo = new Map();
+        const better = (current, candidate) => {
+            if (candidate.count > current.count) return candidate;
+            if (candidate.count === current.count && candidate.score > current.score) return candidate;
+            return current;
+        };
+
+        const search = (index) => {
+            if (index >= block.length) return { melds: [], count: 0, score: 0 };
+            if (memo.has(index)) return memo.get(index);
+
+            let best = search(index + 1);
+            for (const candidate of candidatesByStart[index]) {
+                const rest = search(candidate.end + 1);
+                best = better(best, {
+                    melds: [candidate.meld, ...rest.melds],
+                    count: candidate.meld.length + rest.count,
+                    score: candidate.score + rest.score
+                });
+            }
+
+            memo.set(index, best);
+            return best;
+        };
+
+        return search(0).melds;
     }
 
     checkPairsCount(tiles, targetPairs = 7) {

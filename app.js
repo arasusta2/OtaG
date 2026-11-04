@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initTurkishBackground();
     initThemeAndSound();
     initTabs();
+    initNavDragScroll();
     initScrollTools();
     initOkeyTable();
     initTavlaTable();
@@ -13,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGokturkTranslator();
     initAnatoliaAtlas();
     initRulers();
+    initTurkishTimeline();
     initAtasozleri();
     initDailyWisdom();
     initHikmetQuiz();
@@ -206,10 +208,91 @@ function initTabs() {
     });
 }
 
+/* Üstteki bölüm çubuğunu fareyle tutup yana kaydırma */
+function initNavDragScroll() {
+    const nav = document.querySelector('.portal-nav');
+    if (!nav) return;
+    if (nav.scrollWidth > nav.clientWidth) {
+        nav.title = 'Bölüm çubuğunu fareyle sürükleyerek kaydırabilirsiniz';
+    }
+
+    let isDown = false;
+    let isDragging = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+    let pointerId = null;
+    let suppressClick = false;
+
+    nav.addEventListener('pointerdown', (event) => {
+        if (event.pointerType === 'touch') return;
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        isDown = true;
+        isDragging = false;
+        startX = event.clientX;
+        startScrollLeft = nav.scrollLeft;
+        pointerId = event.pointerId;
+    });
+
+    nav.addEventListener('pointermove', (event) => {
+        if (!isDown || event.pointerId !== pointerId) return;
+        const deltaX = event.clientX - startX;
+        if (!isDragging && Math.abs(deltaX) > 5) {
+            isDragging = true;
+            nav.classList.add('nav-dragging');
+            if (nav.setPointerCapture) {
+                try { nav.setPointerCapture(pointerId); } catch (error) { /* sentetik olaylarda kapsam gerekmez */ }
+            }
+        }
+        if (!isDragging) return;
+        nav.scrollLeft = startScrollLeft - deltaX;
+        event.preventDefault();
+    });
+
+    const endDrag = () => {
+        if (!isDown) return;
+        isDown = false;
+        if (isDragging) {
+            suppressClick = true;
+            setTimeout(() => { suppressClick = false; }, 0);
+        }
+        isDragging = false;
+        pointerId = null;
+        nav.classList.remove('nav-dragging');
+    };
+
+    nav.addEventListener('pointerup', endDrag);
+    nav.addEventListener('pointercancel', endDrag);
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+
+    nav.addEventListener('click', (event) => {
+        if (!suppressClick) return;
+        event.preventDefault();
+        event.stopPropagation();
+        suppressClick = false;
+    }, true);
+
+    nav.addEventListener('dragstart', (event) => event.preventDefault());
+}
+
 /* ========================================================
    4. KIRAATHANE OKEY MASASI
    ======================================================== */
+function expandOkeyPhrases() {
+    if (typeof OKEY_PHRASES_200 === 'undefined') return;
+    const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey;
+    const extras = (data && data.playerPhrases) || [];
+    const seen = new Set(OKEY_PHRASES_200.map(item => item.text));
+    let nextId = OKEY_PHRASES_200.reduce((max, item) => Math.max(max, Number(item.id) || 0), 0) + 1;
+    extras.forEach(text => {
+        if (!text || seen.has(text)) return;
+        OKEY_PHRASES_200.push({ id: nextId++, cat: 'takilma', icon: '💬', text });
+        seen.add(text);
+    });
+}
+
 function initOkeyTable() {
+    expandOkeyPhrases();
     window.okeyInstance = new window.OkeyGame();
     window.okeyInstance.startNewGame();
 
@@ -273,6 +356,10 @@ function initTavlaTable() {
         "Lafın büyüğü masada değil, zarda konuşulur.",
         "Bakalım senin zarın mı, benim pulum mu güçlü?"
     ];
+    const tavlaExtras = (window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla && window.KIRAATHANE_BANTER.tavla.playerPhrases) || [];
+    tavlaExtras.forEach(line => {
+        if (line && !randomTavlaLines.includes(line)) randomTavlaLines.push(line);
+    });
 
     const sendTavlaChat = () => {
         if (!chatInput || !window.tavlaInstance) return;
@@ -335,6 +422,83 @@ function initMangala() {
             if (e.target === resultModal) resultModal.classList.remove('show');
         });
     }
+
+    // Mangala muhabbeti: oyuncu laf atar, Vezir ve Çırak kendi aralarında atışır.
+    const mangalaChatInput = document.getElementById('mangalaChatInput');
+    const mangalaChatButton = document.getElementById('btnMangalaChat');
+    const mangalaRandomButton = document.getElementById('btnMangalaChatRandom');
+    const mangalaBubble = document.getElementById('mangalaChatBubble');
+    const mangalaData = (window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.mangala) || {};
+    let mangalaLastAction = Date.now();
+    let mangalaLastDirected = 0;
+
+    const showMangalaBubble = (text, who = 'bot') => {
+        if (!mangalaBubble || !text) return;
+        mangalaBubble.textContent = text;
+        mangalaBubble.className = `tavla-chat-bubble show ${who}`;
+    };
+
+    const sendMangalaChat = () => {
+        if (!mangalaChatInput) return;
+        const text = mangalaChatInput.value.trim();
+        if (!text) {
+            showToast('Laf atmak için önce bir şey yaz.', '💬');
+            return;
+        }
+        mangalaLastAction = Date.now();
+        showMangalaBubble(`Siz: "${text}"`, 'player');
+        mangalaChatInput.value = '';
+        if (window.turkishSound) window.turkishSound.playTileClick();
+        setTimeout(() => {
+            if (window.mangalaInstance && window.mangalaInstance.gameOver) return;
+            const replies = mangalaData.toPlayer || [];
+            if (!replies.length) return;
+            const reply = replies[Math.floor(Math.random() * replies.length)];
+            showMangalaBubble(`${reply.speaker}: "${reply.line}"`, 'bot');
+        }, 1300);
+    };
+
+    if (mangalaChatButton) mangalaChatButton.addEventListener('click', sendMangalaChat);
+    if (mangalaChatInput) {
+        mangalaChatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendMangalaChat();
+            }
+        });
+    }
+    if (mangalaRandomButton && mangalaChatInput) {
+        mangalaRandomButton.addEventListener('click', () => {
+            const lines = mangalaData.playerPhrases || [];
+            if (!lines.length) return;
+            mangalaChatInput.value = lines[Math.floor(Math.random() * lines.length)];
+            mangalaChatInput.focus();
+        });
+    }
+    const mangalaContainer = document.getElementById('mangalaContainer');
+    if (mangalaContainer) mangalaContainer.addEventListener('pointerdown', () => { mangalaLastAction = Date.now(); });
+
+    const mangalaBanterTimer = setInterval(() => {
+        if (!window.mangalaInstance || window.mangalaInstance.gameOver) return;
+        const idle = Date.now() - mangalaLastAction;
+        const pairs = mangalaData.crossTalk || [];
+        const directed = mangalaData.toPlayer || [];
+        if (idle > 26000 && Date.now() - mangalaLastDirected > 30000 && directed.length && Math.random() < 0.6) {
+            const item = directed[Math.floor(Math.random() * directed.length)];
+            mangalaLastDirected = Date.now();
+            showMangalaBubble(`${item.speaker}: "${item.line}"`, 'bot');
+            return;
+        }
+        if (!pairs.length) return;
+        const pair = pairs[Math.floor(Math.random() * pairs.length)];
+        showMangalaBubble(`${pair.from}: "${pair.line}"`, 'bot');
+        setTimeout(() => {
+            if (window.mangalaInstance && !window.mangalaInstance.gameOver) {
+                showMangalaBubble(`${pair.to}: "${pair.reply}"`, 'bot');
+            }
+        }, 1500);
+    }, 17000);
+    window.mangalaBanterTimer = mangalaBanterTimer;
 }
 
 /* ========================================================
@@ -1388,7 +1552,68 @@ function initRulers() {
             tags: ['Serbest Piyasa', 'Liberalleşme', 'Kalkınma']
         }
     ];
-    const rulersData = (window.TURKISH_RULERS_DATA && window.TURKISH_RULERS_DATA.length) ? window.TURKISH_RULERS_DATA : fallbackRulers;
+    const baseRulers = (window.TURKISH_RULERS_DATA && window.TURKISH_RULERS_DATA.length) ? window.TURKISH_RULERS_DATA : fallbackRulers;
+    const rulersData = baseRulers.concat(window.TURKISH_RULERS_EXTRA || []);
+
+    // Mevcut büyük hükümdarlar için dönem panoraması notları.
+    const periodNotes = {
+        2: [
+            { year: 'MÖ 209', text: 'Onluk ordu teşkilatını kurdu; Hun boylarını tek merkezde topladı.' },
+            { year: 'MÖ 201', text: 'Çin’i vergiye bağlayan Baideng Kuşatması’nı kazandı; bozkır diplomasisini güçlendirdi.' }
+        ],
+        7: [
+            { year: '434', text: 'Doğu Roma ile Margus Antlaşması’nı yaptı; Hun yönetimini iki kardeş arasında düzenledi.' },
+            { year: '451', text: 'Katalon Ovası’nda Batı Roma ve müttefikleriyle büyük bir meydan savaşı yaptı.' },
+            { year: '452', text: 'İtalya seferine çıktı; Roma kapılarına kadar ilerledi ve Papa I. Leo ile görüştü.' }
+        ],
+        13: [
+            { year: '716', text: 'Ağabeyi Kapgan’ın ardından tahta çıktı; devleti iç karışıklıktan çıkardı.' },
+            { year: '724', text: 'Orhun Yazıtları’nı diktirdi; Türk milletine töre ve bağımsızlık vasiyeti bıraktı.' },
+            { year: '734', text: 'Kardeşi Kül Tigin’in ardından vefat etti; yerine oğulları geçti.' }
+        ],
+        19: [
+            { year: '920', text: 'İslamiyet’i kabul ederek Karahanlı sarayında yeni bir kültürel dönem başlattı.' },
+            { year: '955', text: 'Kaşgar merkezli Türk-İslam medeniyetinin temelini attı.' }
+        ],
+        24: [
+            { year: '1064', text: 'Ani kalesini fethetti; “Ebü’l-Feth” unvanını aldı.' },
+            { year: '1071', text: 'Malazgirt’te Bizans ordusunu yendi; Anadolu’nun kapılarını Türklere açtı.' }
+        ],
+        25: [
+            { year: '1072', text: 'Tahta çıktı; Nizamülmülk’ü vezir olarak görevlendirdi.' },
+            { year: '1074', text: 'Celali Takvimi’ni hazırlattı; ilim ve ticaret kurumlarını destekledi.' },
+            { year: '1092', text: 'Bağdat’ta vefat etti; imparatorluk en geniş sınırlarına ulaşmıştı.' }
+        ],
+        101: [
+            { year: '1299', text: 'Söğüt merkezli beyliği bağımsız bir siyasi güç hâline getirdi.' },
+            { year: '1302', text: 'Koyunhisar’da Bizans kuvvetlerini yendi; Osmanlı’nın kuruluş sürecini hızlandırdı.' },
+            { year: '1326', text: 'Bursa’nın fethine giden süreci başlattı; beyliği Marmara’ya taşıdı.' }
+        ],
+        107: [
+            { year: '1451', text: 'İkinci kez tahta çıktı; İstanbul’un fethi için hazırlıklara başladı.' },
+            { year: '1453', text: 'Konstantinopolis’i fethederek Bizans İmparatorluğu’na son verdi.' },
+            { year: '1461', text: 'Trabzon’u aldı; Karadeniz ticaretini Osmanlı denetimine soktu.' },
+            { year: '1475', text: 'Kırım’ı Osmanlı etkisine aldı; Karadeniz’i bir Türk gölü hâline getirdi.' }
+        ],
+        109: [
+            { year: '1512', text: 'Tahta çıktı; Safevi tehdidine karşı doğu seferine hazırlandı.' },
+            { year: '1514', text: 'Çaldıran’da Safevi ordusunu yendi; Doğu Anadolu’da denetim sağladı.' },
+            { year: '1517', text: 'Mısır’ı alarak Memlük Devleti’ne son verdi; halifelik Osmanlı’ya geçti.' }
+        ],
+        110: [
+            { year: '1520', text: 'Tahta çıktı; Osmanlı’nın en uzun saltanatlarından birini başlattı.' },
+            { year: '1526', text: 'Mohaç’ta Macar ordusunu yendi; Orta Avrupa’da güç dengesini değiştirdi.' },
+            { year: '1538', text: 'Preveze’de Akdeniz’de Osmanlı üstünlüğünü pekiştirdi.' },
+            { year: '1550–1557', text: 'Süleymaniye Külliyesi’ni inşa ettirdi; hukuk ve idare alanında kanunlaştırma yaptı.' }
+        ],
+        201: [
+            { year: '1923', text: 'Cumhuriyet’i ilan etti; egemenliği millete devreden yeni devletin ilk Cumhurbaşkanı oldu.' },
+            { year: '1924', text: 'Tevhid-i Tedrisat ile eğitimi birleştirdi; laik hukuk düzeninin temellerini attı.' },
+            { year: '1928', text: 'Harf Devrimi’ni gerçekleştirdi; okuma-yazma seferberliği başlattı.' },
+            { year: '1934', text: 'Kadınlara seçme ve seçilme hakkı verdi; modern Türkiye’nin kurumlarını güçlendirdi.' }
+        ]
+    };
+    rulersData.forEach(r => { if (!r.period && periodNotes[r.id]) r.period = periodNotes[r.id]; });
 
     const rulerGrid = document.getElementById('rulerGrid');
     const rulerTimeline = document.getElementById('rulerTimeline');
@@ -1419,19 +1644,22 @@ function initRulers() {
         hun: '#e74c3c', gokturk: '#3498db', uygur: '#9b59b6',
         karahanli: '#1abc9c', gazneli: '#f39c12', selcuklu: '#e67e22',
         anadoluselcuklu: '#27ae60', beylikler: '#d4af37', osmanli: '#8e44ad',
+        bozkir: '#b9770e', timurlu: '#16a085', memluk: '#7f8c8d',
         cumhuriyet: '#c0392b'
     };
     const eraLabels = {
         hun: 'Hun İmparatorluğu', gokturk: 'Göktürk Kağanlığı', uygur: 'Uygur Devletleri',
         karahanli: 'Karahanlılar', gazneli: 'Gazneliler', selcuklu: 'Büyük Selçuklu',
         anadoluselcuklu: 'Anadolu Selçuklu', beylikler: 'Anadolu Beylikleri',
-        osmanli: 'Osmanlı İmparatorluğu', cumhuriyet: 'Türkiye Cumhuriyeti'
+        osmanli: 'Osmanlı İmparatorluğu', cumhuriyet: 'Türkiye Cumhuriyeti',
+        bozkir: 'Bozkır Kağanlıkları', timurlu: 'Timurlular', memluk: 'Memlükler'
     };
 
     function getFiltered() {
         let data = rulersData.filter(r => {
             const matchEra = currentEra === 'all' || r.era === currentEra;
-            const haystack = (r.name + r.dynasty + r.quote + r.bio + (r.tags || []).join(' ')).toLowerCase();
+            const periodText = (r.period || []).map(p => `${p.year} ${p.text}`).join(' ');
+            const haystack = (r.name + r.dynasty + r.quote + r.bio + periodText + (r.tags || []).join(' ')).toLowerCase();
             const matchSearch = currentQuery === '' || haystack.includes(currentQuery);
             return matchEra && matchSearch;
         });
@@ -1532,6 +1760,16 @@ function initRulers() {
         document.getElementById('rModalPortrait').textContent = r.icon;
         document.getElementById('rModalQuote').textContent = r.quote;
         document.getElementById('rModalBio').textContent = r.bio;
+        const periodEl = document.getElementById('rModalPeriod');
+        if (periodEl) {
+            if (r.period && r.period.length) {
+                periodEl.style.display = 'block';
+                periodEl.innerHTML = `<h4 class="modal-achieve-title">🕰️ Döneminde Neler Oldu?</h4><ul class="modal-period-list">${r.period.map(p => `<li><strong>${p.year}</strong> ${p.text}</li>`).join('')}</ul>`;
+            } else {
+                periodEl.style.display = 'none';
+                periodEl.innerHTML = '';
+            }
+        }
         document.getElementById('rModalAchievements').innerHTML = `<h4 class="modal-achieve-title">🏅 Başlıca Başarılar</h4><ul class="modal-achieve-list">${(r.achievements||[]).map(a=>`<li>${a}</li>`).join('')}</ul>`;
         document.getElementById('rModalTags').innerHTML = (r.tags||[]).map(t=>`<span class="ruler-tag" style="border-color:${color};color:${color}">${t}</span>`).join('');
         modal.classList.add('show');
@@ -1821,4 +2059,65 @@ function initHikmetQuiz() {
         nextQuestion();
     });
     nextButton.addEventListener('click', nextQuestion);
+}
+
+/* ========================================================
+   TÜRK TARİHİ ZAMAN TÜNELİ
+   ======================================================== */
+function initTurkishTimeline() {
+    const nav = document.getElementById('tarihEraNav');
+    const eventsEl = document.getElementById('tarihEvents');
+    const titleEl = document.getElementById('tarihTitle');
+    const periodEl = document.getElementById('tarihPeriod');
+    const summaryEl = document.getElementById('tarihSummary');
+    const countEl = document.getElementById('tarihCount');
+    const eventCountEl = document.getElementById('tarihEventCount');
+    if (!nav || !eventsEl) return;
+
+    const eras = window.TURKISH_HISTORY_TIMELINE || [];
+    if (!eras.length) {
+        eventsEl.innerHTML = '<div class="tarih-empty">Tarih verisi yüklenemedi.</div>';
+        return;
+    }
+
+    const totalEvents = eras.reduce((sum, era) => sum + (era.events || []).length, 0);
+    if (countEl) countEl.textContent = `${eras.length} dönem · ${totalEvents} olay`;
+
+    const renderEra = (index) => {
+        const era = eras[index];
+        if (!era) return;
+        nav.querySelectorAll('.tarih-era-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+            btn.setAttribute('aria-selected', i === index ? 'true' : 'false');
+        });
+        if (titleEl) titleEl.textContent = era.title;
+        if (periodEl) periodEl.textContent = era.period;
+        if (summaryEl) summaryEl.textContent = era.summary;
+        if (eventCountEl) eventCountEl.textContent = `${era.events.length} olay`;
+        eventsEl.innerHTML = era.events.map((event, eventIndex) => `
+            <article class="tarih-event" style="--event-index:${eventIndex}">
+                <span class="tarih-event-year">${event.year}</span>
+                <div class="tarih-event-body">
+                    <h4>${event.title}</h4>
+                    <p>${event.text}</p>
+                </div>
+            </article>
+        `).join('');
+    };
+
+    eras.forEach((era, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'tarih-era-btn' + (index === 0 ? ' active' : '');
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+        button.innerHTML = `<span>${era.label}</span><small>${era.period}</small>`;
+        button.addEventListener('click', () => {
+            renderEra(index);
+            if (window.turkishSound) window.turkishSound.playClick();
+        });
+        nav.appendChild(button);
+    });
+
+    renderEra(0);
 }
