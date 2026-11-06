@@ -1,430 +1,741 @@
-// OTAĞ — EKSTRA TÜRK HÜKÜMDARLARI
-// Zaman tüneli ve modal period notları için ek hükümdarlar (ID 301–331)
+// OTAĞ — EKSTRA TÜRK HÜKÜMDARLARI (1. BÖLÜM: ID 301–328)
+// Her hükümdarın "Döneminde Neler Oldu?" verisi ayrıntılı olarak yazılmıştır.
 
 window.TURKISH_RULERS_EXTRA = [
-    // ─── BOZKIR KAĞANLIĞI ──────────────────────────────────────────────
-    // ID 301–305
+    // ─── AVRUPA HUNLARI ──────────────────────────────────────────────
     {
-        id: 301, era: 'bozkir', name: 'Hazar Kağan', dates: 'MÖ 652 – MÖ 620',
-        dynasty: 'BOZKİR KAĞANLIĞI', icon: '🏕️',
-        sortYear: -652,
-        quote: '"Bozkırın kanı, Türklerin kanıyla beslenir."',
-        bio: 'Bozkır kağanlığının kurucusu. Hazar jeorajını yöneterek ilk bozkır İmparatorluğunu Organize etti ve Türk boylarını coğrafya çizgisine göre teşkil etmesi sağladı.',
-        achievements: ['🏛️ Bozkır kağanlığının kurucusu ve ilk kağan', '🌅 Hazar jeorajını merkeze alarak devlet teşkilatı kurdu', '🤝 Türk boylarını ilk kez coğrafya çizgisiyle düzenledi'],
-        tags: ['Bozkır Kurucusu', 'Jeoraj Şefi', 'Türk Teşkilatı'],
+        id: 301, era: "hun", name: "Oktar Han", dates: "425 – 430", dynasty: "AVRUPA HUN İMPARATORLUĞU",
+        icon: "🏹", sortYear: 425, quote: "“İki han bir orduyu paylaşmaz.”",
+        bio: "Attila’nın amcası. Kardeşi Rua ile birlikte Hunları yönetti; Ren boyunca Burgundlara karşı sefer düzenledi ve 430’da bu seferde öldü.",
+        achievements: ["Ren boyunda Burgund seferi", "Kardeşi Rua ile ortak yönetim", "Batı kanadının savunması"],
+        tags: ["Ortak Yönetim", "Burgund Seferi", "Batı Kanadı"],
         period: [
-            { year: 'MÖ 652', text: 'Bozkır kağanlığını kurarak ilk Türk jeoraj teşkilati oluşturdu' },
-            { year: 'MÖ 630', text: 'Hazar jeorajını merkeze alarak devlet sınırlarını organize etti' }
+            { year: "425", text: "Attila’nın babası Mundzuk’un ardından kardeşi Rua ile birlikte Hun tahtına ortak oldu." },
+            { year: "427", text: "Tuna boyundaki Hun boylarını tek merkezde toplayarak batı kanadını güçlendirdi." },
+            { year: "429", text: "Ren nehri boyunca ilerleyerek Burgund krallığına karşı büyük bir akın başlattı." },
+            { year: "430", text: "Burgund seferi sırasında hayatını kaybetti; Hun yönetimi kardeşi Rua’ya kaldı." }
         ]
     },
     {
-        id: 302, era: 'bozkir', name: 'Türgiş Han', dates: 'MÖ 620 – MÖ 580',
-        dynasty: 'BOZKİR KAĞANLIĞI', icon: '🏹',
-        sortYear: -620,
-        quote: '"Türk milleti bir, bozkır gökyüzü beraberindir."',
-        bio: 'Hazar Kağanın successor. Sınırları Hazar Denizi'ye geniştiren seferlerle bozkır kağanlığının kuzeye doğru yayılmasını sağladı ve askeri teşkilatını güçlendirdi.',
-        achievements: ['🌅 Kuzeye doğru sınırlar geniştirdi', '⚔️ İlk büyük bozkır seferlerini düzenledi', '🏹 Askeri teşkilatını onluk sistemine uygun olarak yenidenledi'],
-        tags: ['Kuzey Yönlendirme', 'Askı Geliştirme', 'Türk Teşkilatı'],
+        id: 302, era: "hun", name: "Rua (Rugila) Han", dates: "430 – 434", dynasty: "AVRUPA HUN İMPARATORLUĞU",
+        icon: "🐎", sortYear: 430, quote: "“Vergi istemeyen han, han değildir.”",
+        bio: "Oktar’ın ölümünden sonra Hunları tek elde topladı. Doğu Roma’ya baskı kurarak vergiyi artırdı ve 434’te öldü; yerine Attila ile Bleda geçti.",
+        achievements: ["Hun birliğini tek elde topladı", "Doğu Roma vergisini artırdı", "Attila ve Bleda’nın yolunu açtı"],
+        tags: ["Hun Birliği", "Bizans Vergisi", "Merkezî Yönetim"],
         period: [
-            { year: 'MÖ 610', text: 'Hazar Denizi'nin kuzey kıyılarını fethederek bozkır alanlarını geniştirdi' },
-            { year: 'MÖ 590', text: 'Askeri teşkilatını onluk sistemine uygun olarak yenidenledi' }
+            { year: "430", text: "Kardeşi Oktar’ın ölümüyle Hunların tek hükümdarı oldu ve boylar arası birliği sağladı." },
+            { year: "431", text: "Doğu Roma’ya elçi göndererek Hun askerlerinin ücretini ve sınır ticaretini yeniden düzenledi." },
+            { year: "432", text: "Tuna sınırında Roma kalelerine baskı kurdu; Bizans’tan yıllık verginin artırılmasını istedi." },
+            { year: "434", text: "Vergi 350 pound altına çıkarıldı; kısa süre sonra öldü ve taht Attila ile Bleda’ya kaldı." }
         ]
     },
     {
-        id: 303, era: 'bozkir', name: 'Kırgız Han', dates: 'MÖ 580 – MÖ 540',
-        dynasty: 'BOZKİR KAĞANLIĞI', icon: '🐎',
-        sortYear: -580,
-        quote: '"Kurt gibi acı, bozkır gibi özgür."',
-        bio: 'Bozkır kağanlığının kuzey kuşak hanı. Kırgız tayınlarıyla genişliğini Artırdı ve kuzey bozkır bölgelerine Türk hakimiyetini yaylaştırdı.',
-        achievements: ['🐎 Kırgız tayınlarıyla kuzey bölgelerine genişledi', '🛡️ Kuzey bozkır Türk hakimiyetini pekiştirdi', '📜 İlk Kırgız kanunnamesi hazırladı'],
-        tags: ['Kuzey Genişleme', 'Kırgız Tanımı', 'Kanun Hazinesi'],
+        id: 303, era: "hun", name: "Ellak Han", dates: "453 – 454", dynasty: "AVRUPA HUN İMPARATORLUĞU",
+        icon: "⚔️", sortYear: 453, quote: "“Babamın gölgesi kılıcımdan uzundur.”",
+        bio: "Attila’nın en büyük oğlu. Tuna boyu Hunlarının başına geçti; 454’te Nedao Savaşı’nda Gepidlere karşı savaşırken öldü.",
+        achievements: ["Tuna boyu Hunlarının hükümdarı", "Nedao Savaşı’nda ordunun başında", "Hun birliğini koruma çabası"],
+        tags: ["Attila’nın Oğlu", "Nedao", "Tuna Boyu"],
         period: [
-            { year: 'MÖ 570', text: 'Kırgız tayınlarıyla kuzey bozkır bölgelerine Türk hakimiyetini yaylaştırdı' },
-            { year: 'MÖ 550', text: 'İlk Kırgız kanunnamesi ile coğrafya düzenlemeleri yaptı' }
+            { year: "453", text: "Attila’nın ölümüyle Tuna boyundaki Hun ordusunun başına geçti." },
+            { year: "453", text: "Kardeşleri Dengizik ve Ernak ile mirası paylaşarak üç ayrı Hun kanadı oluşturdu." },
+            { year: "454", text: "Gepid, Ostrogot ve Herul kuvvetlerine karşı Nedao Savaşı’na girdi." },
+            { year: "454", text: "Savaşta öldü; Avrupa Hun İmparatorluğu’nun dağılma süreci hızlandı." }
         ]
     },
     {
-        id: 304, era: 'bozkir', name: 'Bulgar Han', dates: 'MÖ 540 – MÖ 500',
-        dynasty: 'BOZKİR KAĞANLIĞI', icon: '⚔️',
-        sortYear: -540,
-        quote: '"Bulgar, bozkırın kuzey savcısıdır."',
-        bio: 'Bozkır kağanlığının kuzey bölgesi yöneticisi. Bulgar ayrıcığını Türk devletlerine kat ve bozkır kuzey sınırlarını güvenli kılar; Bulgar adı kuzey bozkır coğrafyasının isim kalıcılaştırdı.',
-        achievements: ['🏴 Bulgar ayrıcılığını Türk devletlerine katetti', '🛡️ Kuzey bozkır sınırlarını güvenli kıldı', '🏰 Bulgar kalesi kompleksi inşaatı'],
-        tags: ['Kuzey Savcı', 'Sınır Güvenliği', 'Ad Kalemi'],
+        id: 304, era: "hun", name: "Dengizik Han", dates: "453 – 469", dynasty: "AVRUPA HUN İMPARATORLUĞU",
+        icon: "🛡️", sortYear: 453, quote: "“Bozkırda düşen at, yolunu kaybetmez.”",
+        bio: "Attila’nın oğlu. Karadeniz kuzeyindeki Hunları yönetti; Ostrogotlara karşı mücadele etti ve 469’da Trakya’da öldü.",
+        achievements: ["Karadeniz Hunlarını yönetti", "Ostrogotlara karşı direniş", "Trakya’ya kadar akınlar"],
+        tags: ["Karadeniz Hunları", "Ostrogot Mücadelesi", "Trakya Akınları"],
         period: [
-            { year: 'MÖ 520', text: 'Bulgar ayrıcılığını Türk devletlerine katkı sağlayarak sınırları güvenli kıldı' },
-            { year: 'MÖ 505', text: 'Bulgar kalesi kompleksi inşaatı ile kuzey savunma sistemini güçlü kıldı' }
+            { year: "453", text: "Attila’nın mirasından Karadeniz kuzeyi ve Dobruca bölgesini aldı." },
+            { year: "460", text: "Ostrogotların Tuna boyunda güçlenmesine karşı Hun boylarını yeniden bir araya getirdi." },
+            { year: "466", text: "Bizans topraklarına akınlar düzenleyerek Trakya’da baskı oluşturdu." },
+            { year: "469", text: "Trakya seferi sırasında öldü; Hun gücü Balkanlar’da etkisini yitirdi." }
+        ]
+    },
+
+    // ─── GÖKTÜRK KAĞANLIĞI ──────────────────────────────────────────────
+    {
+        id: 305, era: "gokturk", name: "Tardu Yabgu", dates: "576 – 603", dynasty: "BATI GÖKTÜRK KAĞANLIĞI",
+        icon: "🌙", sortYear: 576, quote: "“İpek yolu, kılıçla açılır; akılla korunur.”",
+        bio: "Batı Göktürk Kağanlığı’nın en güçlü yabgusu. Sogdiana ve Horasan’a seferler düzenledi, Sasani ve Bizans arasında denge siyaseti yürüttü.",
+        achievements: ["Sogdiana ve Horasan seferleri", "Sasani-Bizans dengesi", "Batı Göktürk gücünün zirvesi"],
+        tags: ["Yabgu", "İpek Yolu", "Horasan"],
+        period: [
+            { year: "576", text: "İstemi Yabgu’nun ölümüyle Batı Göktürk tahtına geçti." },
+            { year: "585", text: "Sogd tüccarlarını koruyarak İpek Yolu ticaretini Göktürk denetimine aldı." },
+            { year: "598", text: "Sasani sınırına sefer düzenledi; Horasan’da Göktürk etkisini genişletti." },
+            { year: "603", text: "İç isyanlar ve boy mücadeleleri sonucu gücünü kaybetti; kısa süre sonra öldü." }
         ]
     },
     {
-        id: 305, era: 'bozkir', name: 'Altın Orda Başı', dates: 'MÖ 500 – MÖ 469',
-        dynasty: 'BOZKİR KAĞANLIĞI', icon: '💰',
-        sortYear: -500,
-        quote: '"Altın, ittifakı bağlar, bozkırı besler."',
-        bio: 'Bozkır kağanlığının son kağanı. Altın Orda Devlet Merkezi olan ilk ekonomik-teşkilati kurarak bozkır kağanlığının paraya dayalı ittifak sistemini başlattı; bu sistem sonralıkla Türk devletlerinde yayıldı.',
-        achievements: ['💰 Altın Orda ekonomik-merkezi kurdu', '📊 Paraya dayalı ittifak sistemini başlattı', '🏛️ İlk bozkır darbesi teşkilatını tamamladı'],
-        tags: ['Ekonomik Sistem', 'İttifak Kurucusu', 'Darbe Teşkilatı'],
+        id: 306, era: "gokturk", name: "Taspar Kağan", dates: "572 – 581", dynasty: "DOĞU GÖKTÜRK KAĞANLIĞI",
+        icon: "📜", sortYear: 572, quote: "“Bilge han, kılıcı kınında da taşır.”",
+        bio: "Doğu Göktürk kağanı. Budizm’i destekledi, Nirvana Sutra’nın Türkçeye çevrilmesini sağladı ve Çin ile barış siyaseti izledi.",
+        achievements: ["Budizm’i destekledi", "Nirvana Sutra’nın Türkçe çevirisi", "Çin ile barış siyaseti"],
+        tags: ["Budizm", "Sutra Çevirisi", "Barış Siyaseti"],
         period: [
-            { year: 'MÖ 500', text: 'Altın Orda ekonomik-merkezi kurduğu ile bozkır kağanlığını paraya dayalı sisteme dönüştü' },
-            { year: 'MÖ 470', text: 'İlk bozkır darbesi teşkilatını tamamlayarak sistemleri normalize etti' }
+            { year: "572", text: "Mukan Kağan’ın ölümüyle Doğu Göktürk tahtına çıktı." },
+            { year: "575", text: "Budist rahipleri saraya kabul ederek ilk Göktürk manastırının kurulmasına izin verdi." },
+            { year: "578", text: "Nirvana Sutra’nın Türkçeye çevrilmesini emretti; bozkırda yazılı kültürü güçlendirdi." },
+            { year: "581", text: "Öldü; yerine geçen kağanlar döneminde devlet Çin baskısı altına girdi." }
+        ]
+    },
+    {
+        id: 307, era: "gokturk", name: "İşbara Kağan", dates: "581 – 587", dynasty: "DOĞU GÖKTÜRK KAĞANLIĞI",
+        icon: "🏹", sortYear: 581, quote: "“Boyun eğmek, atı eyerlemek gibidir; bir kez olursa alışkanlık olur.”",
+        bio: "Taspar’ın ardından tahta çıktı. Sui Hanedanı ile mücadele etti; ağır yenilgiler sonrası Çin’e bağlılık antlaşması imzalamak zorunda kaldı.",
+        achievements: ["Sui Hanedanı ile mücadele", "Göktürk boylarını koruma", "Çin ile bağlılık antlaşması"],
+        tags: ["Sui Mücadelesi", "Boy Birliği", "Antlaşma"],
+        period: [
+            { year: "581", text: "Taspar’ın ölümüyle tahta çıktı; Çin’de Sui Hanedanı’nın kurulmasıyla dengeler değişti." },
+            { year: "583", text: "Sui ordularının kuzey seferlerine karşı Göktürk boylarını savundu." },
+            { year: "585", text: "Ağır kayıplar sonrası Çin’e bağlılık antlaşması imzaladı ve vergi ödemeyi kabul etti." },
+            { year: "587", text: "Taht mücadeleleri içinde öldü; Doğu Göktürkler bir süre Çin etkisinde kaldı." }
+        ]
+    },
+    {
+        id: 308, era: "gokturk", name: "Tong Yabgu Kağan", dates: "618 – 630", dynasty: "BATI GÖKTÜRK KAĞANLIĞI",
+        icon: "🦅", sortYear: 618, quote: "“Bozkırın sınırı, atın gittiği yerdir.”",
+        bio: "Batı Göktürklerin en parlak döneminin hükümdarı. Sasani ve Bizans ile ittifak kurdu, Kafkasya’ya indi; 630’da iç isyanla öldürüldü.",
+        achievements: ["Kafkasya seferleri", "Bizans ile ittifak", "Batı Göktürk zirvesi"],
+        tags: ["Kafkasya", "Bizans İttifakı", "Zirve Dönemi"],
+        period: [
+            { year: "618", text: "Batı Göktürk tahtına geçti; Maveraünnehir ve Kafkasya’ya yöneldi." },
+            { year: "626", text: "Bizans ile ittifak kurarak Sasanilere karşı ortak sefer hazırlığı yaptı." },
+            { year: "627", text: "Kafkasya’ya girerek Tiflis’i kuşattı; bölgede Göktürk egemenliğini kurdu." },
+            { year: "630", text: "Boy isyanı sonucu öldürüldü; Batı Göktürk Kağanlığı dağılma sürecine girdi." }
+        ]
+    },
+    {
+        id: 309, era: "gokturk", name: "Bağa Kağan", dates: "587 – 589", dynasty: "DOĞU GÖKTÜRK KAĞANLIĞI",
+        icon: "🐺", sortYear: 587, quote: "“Dağılan boy, toplanınca yeniden ordu olur.”",
+        bio: "İşbara’nın kardeşi. Kısa saltanatında Çin esaretinden kaçan Türk boylarını topladı; 589’da öldü.",
+        achievements: ["Dağılan boyları topladı", "Çin esaretinden dönüşleri düzenledi", "Kısa ama toparlayıcı saltanat"],
+        tags: ["Boy Toplama", "Esaret Dönüşü", "Toparlanma"],
+        period: [
+            { year: "587", text: "İşbara’nın ardından Doğu Göktürk tahtına çıktı." },
+            { year: "588", text: "Çin’e giden Türk boylarının bir kısmını geri getirerek orduyu yeniden düzenledi." },
+            { year: "589", text: "Kısa saltanatının sonunda öldü; devlet yeniden taht kavgalarına sürüklendi." }
+        ]
+    },
+
+    // ─── UYGUR KAĞANLIĞI ──────────────────────────────────────────────
+    {
+        id: 310, era: "uygur", name: "Ay Tengride Kut Bulmış Bilge Kağan", dates: "779 – 789", dynasty: "UYGUR KAĞANLIĞI",
+        icon: "☀️", sortYear: 779, quote: "“Gökten kut, yerden bereket; ikisi de emekle gelir.”",
+        bio: "Uygur Kağanlığı’nın güçlü hükümdarı. Maniheizm’i devlet dini olarak destekledi ve Tang Hanedanı ile ittifakı sürdürdü.",
+        achievements: ["Maniheizm’i devlet dini yaptı", "Tang ile ittifak", "Uygur kültürünün altın çağı"],
+        tags: ["Maniheizm", "Tang İttifakı", "Kültür"],
+        period: [
+            { year: "779", text: "Bögü Kağan’ın ardından Uygur tahtına çıktı." },
+            { year: "780", text: "Maniheist tapınakların sayısını artırdı; din adamlarına vergi muafiyeti tanıdı." },
+            { year: "783", text: "Tang Hanedanı ile askerî ittifakı yeniledi; İpek Yolu ticaretini güvence altına aldı." },
+            { year: "789", text: "Öldü; yerine oğlu Küçlüg Bilge geçti." }
+        ]
+    },
+    {
+        id: 311, era: "uygur", name: "Küçlüg Bilge Kağan", dates: "789 – 790", dynasty: "UYGUR KAĞANLIĞI",
+        icon: "🏕️", sortYear: 789, quote: "“Taht, sabır ister; sabır da zaman.”",
+        bio: "Ay Tengride’nin oğlu. Kısa saltanatında Maniheist kurumları korudu; 790’da tahttan indirildi.",
+        achievements: ["Maniheist kurumları korudu", "Saray düzenini sürdürdü", "Kısa saltanat"],
+        tags: ["Maniheizm", "Saray Düzeni", "Kısa Saltanat"],
+        period: [
+            { year: "789", text: "Babasının ardından Uygur tahtına çıktı." },
+            { year: "790", text: "Saray içi muhalefet ve boy baskısı sonucu tahttan indirildi." }
+        ]
+    },
+    {
+        id: 312, era: "uygur", name: "Külüg Bilge Kağan", dates: "790 – 795", dynasty: "UYGUR KAĞANLIĞI",
+        icon: "📜", sortYear: 790, quote: "“Yazı bilen boy, yolunu şaşırmaz.”",
+        bio: "Uygur tahtında kısa süre kaldı. Maniheist rahiplerin etkisini dengelemeye çalıştı; 795’te öldü.",
+        achievements: ["Maniheist etkiyi dengeledi", "Boylar arası uzlaşı", "Yazılı kültürün korunması"],
+        tags: ["Denge Siyaseti", "Boy Uzlaşısı", "Yazılı Kültür"],
+        period: [
+            { year: "790", text: "Küçlüg Bilge’nin ardından Uygur tahtına çıktı." },
+            { year: "793", text: "Maniheist rahiplerin siyasi etkisini sınırlayan düzenlemeler yaptı." },
+            { year: "795", text: "Öldü; Uygur Kağanlığı’nda yeni bir hanedan dönemi başladı." }
+        ]
+    },
+
+    // ─── KARAHANLILAR ──────────────────────────────────────────────
+    {
+        id: 313, era: "karahanli", name: "Bilge Kül Kadir Han", dates: "840 – 893", dynasty: "KARAHANLILAR",
+        icon: "🏰", sortYear: 840, quote: "“Devlet, bir çadırda kurulur; bir töreyle yaşar.”",
+        bio: "Karahanlı Devleti’nin kurucusu. Kaşgar ve Balasagun’u merkez yaptı; Türk boylarını tek çatı altında topladı.",
+        achievements: ["Karahanlı Devleti’ni kurdu", "Kaşgar ve Balasagun merkezleri", "Türk boylarını birleştirdi"],
+        tags: ["Kurucu", "Kaşgar", "Boy Birliği"],
+        period: [
+            { year: "840", text: "Karluk, Yağma ve Çiğil boylarını birleştirerek Karahanlı Devleti’ni kurdu." },
+            { year: "860", text: "Balasagun’u başkent yaparak Maveraünnehir ticaret yollarını denetim altına aldı." },
+            { year: "880", text: "Kaşgar’ı ikinci merkez hâline getirdi; Türk-İslam kültürünün temelini attı." },
+            { year: "893", text: "Öldü; yerine oğlu Oğulçak Kadir Han geçti." }
+        ]
+    },
+    {
+        id: 314, era: "karahanli", name: "Oğulçak Kadir Han", dates: "893 – 910", dynasty: "KARAHANLILAR",
+        icon: "⚖️", sortYear: 893, quote: "“Töre olmayan yerde taht da durmaz.”",
+        bio: "Bilge Kül’ün oğlu. Kaşgar merkezli yönetimi sürdürdü; İslam ile Türk töresini bir arada tutmaya çalıştı.",
+        achievements: ["Kaşgar merkezli yönetim", "Töre ve İslam dengesi", "Ticaret yollarının korunması"],
+        tags: ["Kaşgar", "Töre", "Ticaret"],
+        period: [
+            { year: "893", text: "Babasının ardından Karahanlı tahtına çıktı." },
+            { year: "900", text: "Kaşgar’da töre mahkemeleri ile İslam kadılarını bir arada çalıştıran düzen kurdu." },
+            { year: "910", text: "Öldü; Karahanlı toprakları doğu ve batı kanatlarına ayrıldı." }
+        ]
+    },
+    {
+        id: 315, era: "karahanli", name: "Ali Arslan Han", dates: "970 – 998", dynasty: "KARAHANLILAR",
+        icon: "⚔️", sortYear: 970, quote: "“Buhara’nın kapısı, bozkırın anahtarıdır.”",
+        bio: "Karahanlı hükümdarı. 992’de Buhara’yı aldı; Maveraünnehir’de Samanoğulları ile uzun süre mücadele etti.",
+        achievements: ["Buhara’yı fethetti", "Samanoğulları ile mücadele", "Maveraünnehir egemenliği"],
+        tags: ["Buhara", "Samanoğulları", "Maveraünnehir"],
+        period: [
+            { year: "970", text: "Karahanlı tahtına çıktı; Maveraünnehir’e yönelik seferlere başladı." },
+            { year: "992", text: "Buhara’yı ele geçirerek Samanoğulları’nın merkezine girdi." },
+            { year: "996", text: "Horasan sınırlarında Samanoğulları ile yeni bir sefer düzenledi." },
+            { year: "998", text: "Öldü; Karahanlılar Maveraünnehir’in en güçlü devleti hâline geldi." }
+        ]
+    },
+    {
+        id: 316, era: "karahanli", name: "Ahmed Togan Han", dates: "998 – 1017", dynasty: "KARAHANLILAR",
+        icon: "📚", sortYear: 998, quote: "“İlim, kılıcın kınıdır; onu korur.”",
+        bio: "Karahanlıları yeniden birleştirdi. Kaşgar’da ilim meclisleri kurdu; İslami kurumları güçlendirdi.",
+        achievements: ["Karahanlıları birleştirdi", "Kaşgar ilim meclisleri", "İslami kurumların güçlendirilmesi"],
+        tags: ["Birleşme", "İlim Meclisi", "Kaşgar"],
+        period: [
+            { year: "998", text: "Bölünen Karahanlı topraklarını yeniden tek yönetim altında topladı." },
+            { year: "1006", text: "Hotan’a sefer düzenleyerek güney ticaret yollarını denetim altına aldı." },
+            { year: "1010", text: "Kaşgar’da medrese ve ilim meclisleri kurdu; âlimleri saraya davet etti." },
+            { year: "1017", text: "Öldü; Karahanlı Devleti bir süre daha güçlü kaldı." }
+        ]
+    },
+    {
+        id: 317, era: "karahanli", name: "İbrahim Tamgaç Buğra Han", dates: "1041 – 1068", dynasty: "BATI KARAHANLILAR",
+        icon: "🕌", sortYear: 1041, quote: "“Şehir, camisiyle kurulur; medresesiyle büyür.”",
+        bio: "Batı Karahanlı hükümdarı. Meliküşşark ve’s-Sin unvanını aldı; Buhara’da büyük cami ve medrese yaptırdı.",
+        achievements: ["Meliküşşark ve’s-Sin unvanı", "Buhara’da büyük cami", "Medrese ve imar faaliyetleri"],
+        tags: ["Unvan", "Buhara", "İmar"],
+        period: [
+            { year: "1041", text: "Batı Karahanlı tahtına çıktı; Maveraünnehir’de düzeni sağladı." },
+            { year: "1043", text: "Meliküşşark ve’s-Sin unvanını alarak doğu ve batı Karahanlıları üzerinde üstünlük kurdu." },
+            { year: "1050", text: "Buhara’da büyük bir cami ve medrese yaptırdı; şehri yeniden imar etti." },
+            { year: "1068", text: "Öldü; geride güçlü bir imar mirası bıraktı." }
+        ]
+    },
+
+    // ─── GAZNELİLER ──────────────────────────────────────────────
+    {
+        id: 318, era: "gazneli", name: "İsmail bin Sebüktegin", dates: "997 – 998", dynasty: "GAZNELİLER",
+        icon: "💎", sortYear: 997, quote: "“Taht, kardeşten önce sabır ister.”",
+        bio: "Sebük Tegin’in oğlu. Kısa saltanatında Gazne’yi korudu; kardeşi Mahmud tarafından tahttan indirildi.",
+        achievements: ["Gazne’yi korudu", "Kısa saltanat", "Gazneli taht mücadelesi"],
+        tags: ["Gazne", "Taht Mücadelesi", "Kısa Saltanat"],
+        period: [
+            { year: "997", text: "Babası Sebük Tegin’in ölümüyle Gazneli tahtına çıktı." },
+            { year: "998", text: "Kardeşi Mahmud ile giriştiği taht mücadelesini kaybetti ve tahttan indirildi." }
+        ]
+    },
+    {
+        id: 319, era: "gazneli", name: "Mevdud", dates: "1041 – 1050", dynasty: "GAZNELİLER",
+        icon: "🏹", sortYear: 1041, quote: "“Horasan’da at koşturan, sözünü de koşturur.”",
+        bio: "Gazneli sultanı. Selçuklulara karşı seferler düzenledi; 1042’de onları yendi ve Horasan’da denge kurdu.",
+        achievements: ["Selçuklulara karşı seferler", "Horasan’da denge", "Gazneli ordusunun güçlendirilmesi"],
+        tags: ["Selçuklu Seferi", "Horasan", "Ordu"],
+        period: [
+            { year: "1041", text: "Gazneli tahtına çıktı; Selçuklu ilerleyişine karşı doğu sınırlarını güçlendirdi." },
+            { year: "1042", text: "Selçuklu kuvvetlerine karşı kazandığı zaferle Horasan’da Gazneli etkisini korudu." },
+            { year: "1044", text: "Hindistan’a sefer düzenleyerek ganimet ve vergi düzenini yeniledi." },
+            { year: "1050", text: "Öldü; yerine geçen sultanlar döneminde Gazneli gücü zayıfladı." }
+        ]
+    },
+    {
+        id: 320, era: "gazneli", name: "İbrahim bin Mesud", dates: "1059 – 1099", dynasty: "GAZNELİLER",
+        icon: "📜", sortYear: 1059, quote: "“Barış, en uzun seferdir.”",
+        bio: "Gaznelilerin en uzun saltanatlarından birini yaptı. İç barışa önem verdi; sarayda edebiyat ve ilmi destekledi.",
+        achievements: ["Uzun ve barışçıl saltanat", "Edebiyat ve ilim desteği", "İç barışın sağlanması"],
+        tags: ["Barış", "Edebiyat", "Uzun Saltanat"],
+        period: [
+            { year: "1059", text: "Gazneli tahtına çıktı; iç karışıklıkları bastırarak merkezî otoriteyi kurdu." },
+            { year: "1070", text: "Vergi ve adalet düzenlemeleriyle halkın desteğini kazandı." },
+            { year: "1080", text: "Sarayda edebiyat meclisleri kurdu; şair ve âlimleri himaye etti." },
+            { year: "1099", text: "Uzun saltanatının ardından öldü; Gazneliler son parlak dönemini yaşadı." }
+        ]
+    },
+
+    // ─── BÜYÜK SELÇUKLULAR ──────────────────────────────────────────────
+    {
+        id: 321, era: "selcuklu", name: "Mahmud bin Melikşah", dates: "1092 – 1094", dynasty: "BÜYÜK SELÇUKLU",
+        icon: "👑", sortYear: 1092, quote: "“Taht kavgası, devletin en pahalı savaşıdır.”",
+        bio: "Melikşah’ın oğlu. Taht kavgaları içinde kısa süre hüküm sürdü; 1094’te çiçek hastalığından öldü.",
+        achievements: ["Selçuklu tahtına çıktı", "Taht kavgalarıyla mücadele", "Kısa saltanat"],
+        tags: ["Taht Kavgası", "Kısa Saltanat", "Melikşah’ın Oğlu"],
+        period: [
+            { year: "1092", text: "Melikşah’ın ölümüyle Büyük Selçuklu tahtına çıktı." },
+            { year: "1093", text: "Kardeşleri ve amcalarıyla taht mücadelesine girdi; devlet iç savaşa sürüklendi." },
+            { year: "1094", text: "Çiçek hastalığından öldü; Selçuklu tahtı yeniden boş kaldı." }
+        ]
+    },
+    {
+        id: 322, era: "selcuklu", name: "Mesud bin Melikşah", dates: "1134 – 1152", dynasty: "BÜYÜK SELÇUKLU",
+        icon: "🦅", sortYear: 1134, quote: "“Irak’ta düzen, hilafetin gölgesinde kurulur.”",
+        bio: "Büyük Selçuklu sultanı. Irak ve Batı İran’da otoriteyi yeniden kurdu; Abbasi halifeliğiyle ilişkileri düzenledi.",
+        achievements: ["Irak ve Batı İran’da otorite", "Halifelikle ilişkiler", "Selçuklu toparlanması"],
+        tags: ["Irak", "Halifelik", "Toparlanma"],
+        period: [
+            { year: "1134", text: "Büyük Selçuklu tahtına çıktı; dağılan eyaletleri yeniden merkeze bağlamaya çalıştı." },
+            { year: "1140", text: "Abbasi halifesiyle anlaşarak Irak’ta Selçuklu otoritesini pekiştirdi." },
+            { year: "1148", text: "Musul ve Cezire’ye sefer düzenleyerek yerel beylikleri denetim altına aldı." },
+            { year: "1152", text: "Öldü; Büyük Selçuklu Devleti dağılma sürecine girdi." }
+        ]
+    },
+    {
+        id: 323, era: "selcuklu", name: "II. Tuğrul", dates: "1194", dynasty: "BÜYÜK SELÇUKLU",
+        icon: "🕯️", sortYear: 1194, quote: "“Son kıvılcım da ateşin adını taşır.”",
+        bio: "Büyük Selçuklu Devleti’nin son sultanı. Kısa saltanatında Harzemşahlara karşı direndi; 1194’te Rey yakınlarında öldü.",
+        achievements: ["Son Büyük Selçuklu sultanı", "Harzemşahlara karşı direniş", "Rey savunması"],
+        tags: ["Son Sultan", "Harzemşahlar", "Rey"],
+        period: [
+            { year: "1194", text: "Büyük Selçuklu tahtına çıktı; devlet artık Irak ve İran’la sınırlıydı." },
+            { year: "1194", text: "Harzemşah Tekiş’e karşı Rey yakınlarında savaştı ve hayatını kaybetti." },
+            { year: "1194", text: "Ölümüyle Büyük Selçuklu Devleti tarih sahnesinden çekildi." }
+        ]
+    },
+
+    // ─── ANADOLU BEYLİKLERİ ──────────────────────────────────────────────
+    {
+        id: 324, era: "beylikler", name: "Karesi Bey", dates: "1300 – 1328", dynasty: "KARESİOĞULLARI",
+        icon: "⚓", sortYear: 1300, quote: "“Deniz, atın gidemediği yerde yol olur.”",
+        bio: "Karesioğulları Beyliği’nin kurucusu. Balıkesir ve Çanakkale çevresinde donanma kurdu; Rumeli’ye ilk Türk akınlarını başlattı.",
+        achievements: ["Karesioğulları’nı kurdu", "İlk Türk donanması", "Rumeli’ye ilk akınlar"],
+        tags: ["Kurucu", "Donanma", "Rumeli Akınları"],
+        period: [
+            { year: "1300", text: "Balıkesir merkezli Karesioğulları Beyliği’ni kurdu." },
+            { year: "1310", text: "Çanakkale ve Marmara kıyılarında donanma oluşturdu." },
+            { year: "1320", text: "Rumeli’ye ilk Türk akınlarını düzenleyerek beylikler arasında öne çıktı." },
+            { year: "1328", text: "Öldü; beyliği kısa süre sonra Osmanlı topraklarına katıldı." }
+        ]
+    },
+    {
+        id: 325, era: "beylikler", name: "Saruhan Bey", dates: "1313 – 1346", dynasty: "SARUHANOĞULLARI",
+        icon: "🏛️", sortYear: 1313, quote: "“Manisa’yı tutan, Ege’yi dinler.”",
+        bio: "Saruhanoğulları Beyliği’nin kurucusu. Manisa’yı alarak beyliğin merkezi yaptı; Ege’de deniz ticaretini geliştirdi.",
+        achievements: ["Saruhanoğulları’nı kurdu", "Manisa’yı merkez yaptı", "Ege deniz ticaretini geliştirdi"],
+        tags: ["Kurucu", "Manisa", "Deniz Ticareti"],
+        period: [
+            { year: "1313", text: "Manisa ve çevresinde Saruhanoğulları Beyliği’ni kurdu." },
+            { year: "1315", text: "Manisa’yı beyliğin merkezi yaparak imar faaliyetlerine başladı." },
+            { year: "1330", text: "Ege kıyılarında deniz ticaretini geliştirdi; limanları beyliğe bağladı." },
+            { year: "1346", text: "Öldü; beyliği Osmanlı’nın Rumeli fetihlerine üs oldu." }
+        ]
+    },
+    {
+        id: 326, era: "beylikler", name: "Aydınoğlu Umur Bey", dates: "1334 – 1348", dynasty: "AYDINOĞULLARI",
+        icon: "🚢", sortYear: 1334, quote: "“Ege’de söz, güvertede söylenir.”",
+        bio: "Aydınoğulları’nın en ünlü beyi. İzmir’i üs yaparak güçlü bir donanma kurdu; Bizans ve Venedik ile mücadele etti.",
+        achievements: ["İzmir merkezli güçlü donanma", "Ege seferleri", "Bizans ve Venedik ile mücadele"],
+        tags: ["İzmir", "Donanma", "Ege Seferleri"],
+        period: [
+            { year: "1334", text: "Aydınoğulları’nın başına geçti; İzmir’i deniz üssü yaptı." },
+            { year: "1335", text: "İzmir limanını donanma merkezi hâline getirerek Ege ticaretini denetledi." },
+            { year: "1340", text: "Ege adalarına ve Yunan kıyılarına seferler düzenledi." },
+            { year: "1344", text: "Haçlı donanmasının İzmir saldırısına karşı şehri savundu." },
+            { year: "1348", text: "İzmir’i geri almak için giriştiği seferde öldü." }
+        ]
+    },
+    {
+        id: 327, era: "beylikler", name: "Menteşeoğlu Menteşe Bey", dates: "1261 – 1290", dynasty: "MENTEŞEOĞULLARI",
+        icon: "🌊", sortYear: 1261, quote: "“Kıyıyı tutan bey, iki denize hükmeder.”",
+        bio: "Menteşeoğulları Beyliği’nin kurucusu. Muğla, Milas ve Bodrum çevresini Türk yönetimine kattı.",
+        achievements: ["Menteşeoğulları’nı kurdu", "Muğla ve Milas’ın fethi", "Kıyı kalelerinin düzenlenmesi"],
+        tags: ["Kurucu", "Muğla", "Kıyı Kaleleri"],
+        period: [
+            { year: "1261", text: "Muğla çevresinde Menteşeoğulları Beyliği’ni kurdu." },
+            { year: "1270", text: "Milas ve çevresini alarak beyliğin sınırlarını genişletti." },
+            { year: "1280", text: "Bodrum ve kıyı kalelerini düzenleyerek deniz güvenliğini sağladı." },
+            { year: "1290", text: "Öldü; beyliği Ege’nin önemli denizci beyliklerinden biri oldu." }
+        ]
+    },
+    {
+        id: 328, era: "beylikler", name: "Germiyanoğlu Yakub Bey", dates: "1300 – 1340", dynasty: "GERMİYANOĞULLARI",
+        icon: "🎨", sortYear: 1300, quote: "“Saray, şairi ağırlarsa taşları da konuşur.”",
+        bio: "Germiyanoğulları beyi. Kütahya’yı kültür merkezi yaptı; sarayında şair ve âlimleri ağırladı.",
+        achievements: ["Kütahya’yı kültür merkezi yaptı", "Şair ve âlimlerin himayesi", "Germiyan imar faaliyetleri"],
+        tags: ["Kütahya", "Kültür", "Himaye"],
+        period: [
+            { year: "1300", text: "Kütahya merkezli Germiyanoğulları Beyliği’nin başına geçti." },
+            { year: "1310", text: "Kütahya’da saray ve medrese yaptırarak şehri kültür merkezine dönüştürdü." },
+            { year: "1320", text: "Şair ve âlimleri himaye ederek Germiyan edebiyat çevresini oluşturdu." },
+            { year: "1340", text: "Öldü; beyliği Osmanlı ile akrabalık ilişkileri kurdu." }
+        ]
+    }
+,
+    // ─── ANADOLU BEYLİKLERİ (devam) ──────────────────────────────────────
+    {
+        id: 329, era: "beylikler", name: "Candaroğlu İsfendiyar Bey", dates: "1385 – 1440", dynasty: "CANDAROĞULLARI",
+        icon: "🏰", sortYear: 1385, quote: "“İki büyük dağ arasında yol, sabırla açılır.”",
+        bio: "Candaroğulları beyi. Kastamonu ve Sinop’u yönetti; Osmanlı ile Timur arasında denge siyaseti izledi.",
+        achievements: ["Kastamonu ve Sinop yönetimi", "Osmanlı-Timur dengesi", "Karadeniz ticaretinin korunması"],
+        tags: ["Kastamonu", "Sinop", "Denge Siyaseti"],
+        period: [
+            { year: "1385", text: "Candaroğulları beyliğinin başına geçti; Kastamonu’yu merkez yaptı." },
+            { year: "1402", text: "Ankara Savaşı sonrası Timur’un Anadolu’dan çekilmesiyle topraklarını genişletti." },
+            { year: "1420", text: "Sinop limanını Karadeniz ticaretinin önemli merkezlerinden biri hâline getirdi." },
+            { year: "1440", text: "Öldü; beyliği kısa süre sonra Osmanlı topraklarına katıldı." }
+        ]
+    },
+    {
+        id: 330, era: "beylikler", name: "Karamanoğlu Alaeddin Ali Bey", dates: "1361 – 1398", dynasty: "KARAMANOĞULLARI",
+        icon: "⚔️", sortYear: 1361, quote: "“Konya, Türk’ün eski başkentidir; unutulmaz.”",
+        bio: "Karamanoğulları’nın güçlü beyi. Konya’yı ele geçirdi; Osmanlı ile uzun süre mücadele etti.",
+        achievements: ["Konya’yı ele geçirdi", "Osmanlı ile mücadele", "Karamanoğlu gücünün zirvesi"],
+        tags: ["Konya", "Osmanlı Mücadelesi", "Beylik Gücü"],
+        period: [
+            { year: "1361", text: "Karamanoğulları’nın başına geçti; Konya üzerinde hak iddia etti." },
+            { year: "1367", text: "Konya’yı ele geçirerek Karamanoğlu topraklarını genişletti." },
+            { year: "1386", text: "Osmanlı’ya karşı beylikler ittifakı kurmaya çalıştı." },
+            { year: "1398", text: "Osmanlı seferi sırasında öldü; beyliği bir süre Osmanlı’ya bağlandı." }
+        ]
+    },
+    {
+        id: 331, era: "beylikler", name: "Dulkadiroğlu Alaüddevle Bozkurt Bey", dates: "1479 – 1515", dynasty: "DULKADİROĞULLARI",
+        icon: "🛡️", sortYear: 1479, quote: "“Maraş’ta denge, üç büyük gücün gölgesinde kurulur.”",
+        bio: "Dulkadir Beyliği’nin son büyük beyi. Maraş merkezli yönetimiyle Osmanlı, Safevi ve Memlük dengesinde rol oynadı.",
+        achievements: ["Maraş merkezli güçlü yönetim", "Üç devlet arasında denge", "Dulkadir Beyliği’nin son parlak dönemi"],
+        tags: ["Maraş", "Denge", "Son Bey"],
+        period: [
+            { year: "1479", text: "Dulkadiroğulları’nın başına geçti; Maraş’ı merkez yaptı." },
+            { year: "1490", text: "Memlüklerle ilişkileri düzenleyerek beyliğin güney sınırlarını güvence altına aldı." },
+            { year: "1500", text: "Safevi ilerleyişine karşı Doğu Anadolu’da denge siyaseti izledi." },
+            { year: "1515", text: "Turnadağ Savaşı’nda Osmanlı’ya yenildi ve öldürüldü; beyliği Osmanlı’ya katıldı." }
+        ]
+    },
+    {
+        id: 332, era: "beylikler", name: "Akkoyunlu Uzun Hasan", dates: "1453 – 1478", dynasty: "AKKOYUNLULAR",
+        icon: "🦅", sortYear: 1453, quote: "“Diyarbakır’dan Tebriz’e bir devlet kurulur.”",
+        bio: "Akkoyunlu Devleti’nin en güçlü hükümdarı. Diyarbakır’dan Tebriz’e uzanan geniş bir devlet kurdu; 1473 Otlukbeli’de Osmanlı’ya yenildi.",
+        achievements: ["Geniş Akkoyunlu Devleti", "Tebriz’in başkent yapılması", "Doğu Anadolu ve İran’da egemenlik"],
+        tags: ["Akkoyunlu", "Tebriz", "Otlukbeli"],
+        period: [
+            { year: "1453", text: "Akkoyunlu tahtına çıktı; Diyarbakır merkezli gücünü pekiştirdi." },
+            { year: "1467", text: "Karakoyunlu Devleti’ni yıkarak Doğu Anadolu ve Azerbaycan’a hâkim oldu." },
+            { year: "1468", text: "Tebriz’i başkent yaptı; İran içlerine kadar uzanan bir devlet kurdu." },
+            { year: "1473", text: "Otlukbeli Savaşı’nda Fatih’in ordusuna yenildi; Akkoyunlu gücü sarsıldı." },
+            { year: "1478", text: "Öldü; yerine geçen hükümdarlar döneminde devlet dağıldı." }
+        ]
+    },
+    {
+        id: 333, era: "beylikler", name: "Karakoyunlu Cihan Şah", dates: "1438 – 1467", dynasty: "KARAKOYUNLULAR",
+        icon: "📖", sortYear: 1438, quote: "“Şiir de kılıç gibi keser; ama iz bırakır.”",
+        bio: "Karakoyunlu hükümdarı. Tebriz’i merkez yaptı; şair ve edebiyatçı kimliğiyle tanındı. 1467’de Akkoyunlulara yenildi.",
+        achievements: ["Tebriz’i merkez yaptı", "Edebiyatçı hükümdar kimliği", "Karakoyunlu Devleti’nin genişlemesi"],
+        tags: ["Tebriz", "Edebiyat", "Karakoyunlu"],
+        period: [
+            { year: "1438", text: "Karakoyunlu tahtına çıktı; batı İran’da egemenliğini kurdu." },
+            { year: "1447", text: "Tebriz’i başkent yaparak devletin merkezini güçlendirdi." },
+            { year: "1450", text: "Sarayında şair ve âlimleri toplayarak edebiyat çevresi oluşturdu." },
+            { year: "1467", text: "Uzun Hasan’a karşı giriştiği savaşta yenildi ve öldü." }
         ]
     },
 
     // ─── TİMURLULAR ──────────────────────────────────────────────
-    // ID 306–308
     {
-        id: 306, era: 'timurlu', name: 'Şahruh', dates: '803 – 850',
-        dynasty: 'TİMURLULAR', icon: '👑',
-        sortYear: 803,
-        quote: '"Dünya tahta, merhamet kabusu değildir; başarı hüsusudur."',
-        bio: 'Timurlu hanedanının ilk büyük başarısı. Sınırları Hindistan'a geniştiren seferlerle Timurlu hanedanının kuzey Afrika ve Orta Asya üzerindeki etkisini artırdı. Edebiyat mecenatı da kendine ait bulmuş.',
-        achievements: ['🌍 Sınırları Hindistan'a geniştirdi', '📚 Edebiyat ve mimari mecenatı', '🏰 Timurlu hanedanını güçlü kıldı'],
-        tags: ['Sefer Lideri', 'Edebiyat Mecenatı', 'Kuzey Afrika'],
+        id: 334, era: "timurlu", name: "Halil Sultan", dates: "1405 – 1409", dynasty: "TİMURLULAR",
+        icon: "👑", sortYear: 1405, quote: "“Miras, taht değil; sorumluluktur.”",
+        bio: "Timur’un torunu. Semerkant’ta tahta çıktı; Şahruh ile mücadele etti ve 1409’da tahtı bıraktı.",
+        achievements: ["Semerkant’ta tahta çıktı", "Şahruh ile mücadele", "Timurlu mirasının korunması"],
+        tags: ["Semerkant", "Şahruh", "Miras"],
         period: [
-            { year: '810', text: 'Sınırlarını Hindistan'a geniştiren seferlerle kuzey Afrika ve Orta Asya üzerindeki etkisini artırdı' },
-            { year: '830', text: 'Edebiyat ve mimari mecenatı ile Timurlu hanedanının kültürel etkisini genişledi' }
+            { year: "1405", text: "Timur’un ölümüyle Semerkant’ta Timurlu tahtına çıktı." },
+            { year: "1406", text: "Şahruh ile taht mücadelesine girdi; Maveraünnehir’de otorite kurmaya çalıştı." },
+            { year: "1409", text: "Şahruh’un üstünlüğünü kabul ederek tahttan çekildi." }
         ]
     },
     {
-        id: 307, era: 'timurlu', name: 'Uluğ Bey', dates: '850 – 890',
-        dynasty: 'TİMURLULAR', icon: '⚔️',
-        sortYear: 850,
-        quote: '"Savaş, başarı değil; barış, zaferdir."',
-        bio: 'Şahruh Han'ın successor. Daha çok devlet idaresi ve kültür üzerine odaklandığı için bilinen. Orhun Yazıtları'ndan esinlenerek mimari operasyonları düzenlemiş ve Türk kültürünü destanlar karşısında korumuş.',
-        achievements: ['📚 Orhun Yazıtları'ndan esinlenerek kültür koruması', '🏛️ Devlet idaresini modernleştirdi', '🌿 Türk kültürünü koruyucu oldu'],
-        tags: ['Devlet Idaresi', 'Kültür Koruması', 'Orhun Mirası'],
+        id: 335, era: "timurlu", name: "Abdüllatif Mirza", dates: "1449 – 1450", dynasty: "TİMURLULAR",
+        icon: "🕌", sortYear: 1449, quote: "“Rasathane, hanedanın en uzun ömürlü mirasıdır.”",
+        bio: "Uluğ Bey’in oğlu. Semerkant’ta kısa süre hüküm sürdü; babasının rasathanesini korumaya çalıştı.",
+        achievements: ["Semerkant’ta kısa saltanat", "Uluğ Bey rasathanesinin korunması", "Timurlu kültür mirası"],
+        tags: ["Semerkant", "Rasathane", "Kültür Mirası"],
         period: [
-            { year: '860', text: 'Orhun Yazıtlarından esinlenerek kültür ve mimari korunma projektleri başlattı' },
-            { year: '875', text: 'Türk kültürünü koruyarak destan ve edebiyatlarını destekledi' }
+            { year: "1449", text: "Babası Uluğ Bey’in ölümüyle Semerkant’ta tahta çıktı." },
+            { year: "1450", text: "Kısa saltanatının ardından öldürüldü; Timurlu tahtı yeniden karıştı." }
         ]
     },
     {
-        id: 308, era: 'timurlu', name: 'Hüseyin Baykara', dates: '890 – 931',
-        dynasty: 'TİMURLULAR', icon: '🏹',
-        sortYear: 890,
-        quote: '"Türk milleti, mirasına değer verene hüsan eder."',
-        bio: 'Timurlu hanedanının son büyük kağanı. Dönemi kültürel ve edebi ışık bir çağla geçirdi. Divan edebiyatı ve müzik eserlerini teşvik etmiş ve Timurlu mimarisi zirveye ulaştı.',
-        achievements: ['🎼 Divan edebiyatı ve müzik teşviki', '🏛️ Timurlu mimarisi zirveye ulaştı', '📖 Eserleri ile Türk edebiyatına katkı'],
-        tags: ['Kültür Şefi', 'Müzik Mecenatı', 'Mimar Zirve'],
+        id: 336, era: "timurlu", name: "Ebû Said Mirza", dates: "1451 – 1469", dynasty: "TİMURLULAR",
+        icon: "🐎", sortYear: 1451, quote: "“Dağılan toprak, at sırtında toplanır.”",
+        bio: "Timurlu topraklarını yeniden birleştirdi. Horasan ve Maveraünnehir’de merkezî otorite kurdu.",
+        achievements: ["Timurlu topraklarını birleştirdi", "Horasan ve Maveraünnehir’de otorite", "Merkezî yönetim"],
+        tags: ["Birleşme", "Horasan", "Merkezî Yönetim"],
         period: [
-            { year: '900', text: 'Divan edebiyatı ve müzik eserlerini teşvik ederek kültürel ışık çağını başlattı' },
-            { year: '920', text: 'Timurlu mimarisi stillerini zirveye ulaştırarak mimari mirrorini tamamladı' }
-        ]
-    },
-
-    // ─── MEMLÜKLER ──────────────────────────────────────────────
-    // ID 309–311
-    {
-        id: 309, era: 'memluk', name: 'Kutuz', dates: '1259 – 1260',
-        dynasty: 'MEMLÜKLER', icon: '🛡️',
-        sortYear: 1259,
-        quote: '"Savunma, zaferin öncesi, saldırının sonrası değildir."',
-        bio: 'Memlük Ordusu'nun kurucusu. Çanakkale benzeriyle benzer, Mısır'ı İtilaf ordinaları'ndan korudu ve Memlük devletinin temellerini atı. İslam dünyasının Kurtuluş Savaşçıları başındaydi.',
-        achievements: ['🛡️ Mısır'ı İtilafOrdinaları'ndan korudu', '🕌 Memlük Ordusu kurucu oldu', '🕌 Kutsal Mekke karşı koruma'],
-        tags: ['Kurucu', 'Mısır Koruyucu', 'İslam Savcısı'],
-        period: [
-            { year: '1259', text: 'Mısır'ı İtilafOrdinaları'ndan korudukça Memlük Ordusu kuruculuğunu başlattı' },
-            { year: '1260', text: 'Kutsal Mekke karşı koruma teşkilatı ile İslam dünyasını koruyucu oldu' }
+            { year: "1451", text: "Semerkant’ta Timurlu tahtına çıktı; dağılan toprakları toplamaya başladı." },
+            { year: "1455", text: "Maveraünnehir’deki yerel emirleri denetim altına alarak birliği sağladı." },
+            { year: "1460", text: "Horasan’a yönelerek Herat merkezli Timurlu yönetimini güçlendirdi." },
+            { year: "1469", text: "Akkoyunlularla giriştiği mücadelede öldü; Timurlu birliği yeniden bozuldu." }
         ]
     },
     {
-        id: 310, era: 'memluk', name: 'Kalavun', dates: '1279 – 1290',
-        dynasty: 'MEMLÜKLER', icon: '⚔️',
-        sortYear: 1279,
-        quote: '"Zafer, kanıltıyla değil; çiğneniyle kazanılır."',
-        bio: 'Memlük Ordusu'nn güçlü kağanı. Sınırlarını Hijaz'a geniştiren seferlerle Memlük Ordusunun kuzey Afrika ve Levant bölgesindeki etkisini artırdı. Dinî teavünleriyle İslam Birliği için çalıştı.',
-        achievements: ['🌍 Sınırları Hijaz'a geniştirdi', '🕌 Dinî teavünleriyle İslam Birliği', '⚔️ Levant bölgesini güçlendi'],
-        tags: ['Güçlü Kağan', 'Levant', 'Din Teavüni'],
+        id: 337, era: "timurlu", name: "Bediüzzaman Mirza", dates: "1469 – 1497", dynasty: "TİMURLULAR",
+        icon: "📜", sortYear: 1469, quote: "“Herat’ın kalemi, kılıçtan uzun yaşar.”",
+        bio: "Herat merkezli son önemli Timurlu hükümdarı. Kültür hayatını destekledi; Özbek akınlarına karşı direndi.",
+        achievements: ["Herat merkezli yönetim", "Kültür hayatının desteklenmesi", "Özbek akınlarına direniş"],
+        tags: ["Herat", "Kültür", "Özbek Akınları"],
         period: [
-            { year: '1280', text: 'Sınırlarını Hijaz'a geniştiren seferlerle Memlük Ordusunun Afrika etkisini artırdı' },
-            { year: '1285', text: 'Dinî teavünleriyle İslam Birliği için çaba harcıydi' }
+            { year: "1469", text: "Herat’ta Timurlu tahtına çıktı; Horasan’da otorite kurdu." },
+            { year: "1480", text: "Sarayında edebiyat ve sanat meclisleri kurarak Herat kültürünü canlandırdı." },
+            { year: "1490", text: "Özbek akınlarına karşı Horasan sınırlarını savundu." },
+            { year: "1497", text: "Öldü; Timurlu Devleti kısa süre sonra Şeybanilerin eline geçti." }
         ]
     },
     {
-        id: 311, era: 'memluk', name: 'Barsbay', dates: '1422 – 1438',
-        dynasty: 'MEMLÜKLER', icon: '🏰',
-        sortYear: 1422,
-        quote: '"Siyasi akıllı, ordunun kuvvetinden güçlüdür."',
-        bio: 'Memlük Ordusu'nn son büyük sultanı. Deniz seferleriyle Akdeniz'in deniz üstünlüğünü sağladı ve Memlük Ordusunun en geniş sınırlarına ulaştırdı. Ticaret ve diplomasiyle Avrupa'daki etkisini artırdı.',
-        achievements: ['🚢 Akdeniz deniz üstünlüğü sağladı', '📈 Ticaret ve diplomasi', '🏰 En geniş sınırları'],
-        tags: ['Deniz Şefi', 'Ticaret', 'Avrupa Etkisi'],
+        id: 338, era: "memluk", name: "El-Eşref Halil", dates: "1290 – 1293", dynasty: "MEMLÜKLER",
+        icon: "🏰", sortYear: 1290, quote: "“Akka’nın surları, iki yüz yıllık haçlı hayalini gömer.”",
+        bio: "Kalavun’un oğlu. 1291’de Akka’yı alarak Haçlı devletlerine son verdi; 1293’te öldürüldü.",
+        achievements: ["Akka’nın fethi", "Haçlı devletlerine son", "Suriye’de Memlük düzeni"],
+        tags: ["Akka", "Haçlılar", "Suriye"],
         period: [
-            { year: '1425', text: 'Akdeniz deniz seferleriyle deniz üstünlüğünü sağladı ve kuzey Afrika kıyılarına genişledi' },
-            { year: '1430', text: 'Ticaret ve diplomasiyle Avrupa'daki etkisini artırarak ticaret rotalarını koruyurdu' }
-        ]
-    },
-
-    // ─── BEYLİKLER ──────────────────────────────────────────────
-    // ID 312–317
-    {
-        id: 312, era: 'beylikler', name: 'Uzun Hasan', dates: '1326 – 1388',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '⚔️',
-        sortYear: 1326,
-        quote: '"Barış kavgalıktır, feth yoldur."',
-        bio: 'Anadolu beylikleri arasında en büyük ve güçlü olan beyliklerinden birinin başkanı. Kardeşleriyle iç içeäfte yaparak kendi beyliğini kuzey Anadolu'nun lideri yapmış. Osmanlı'nın doğuşundan önceki dönemin önemli isimlerinden biri.',
-        achievements: ['⚔️ Anadolu beylikleri arasında en büyük başarı', '📈 Kuzey Anadolu liderliğini sağladı', '🤝 Osmanlı doğuşuna hazırlık yaptı'],
-        tags: ['Beylik Şefi', 'Kuzey Anadolu', 'Osmanlı Hazinesi'],
-        period: [
-            { year: '1340', text: 'Kardeşlerarası çatışmalara rağmen kuzey Anadolu liderliğini sağlayarak beyliğini güçlü kıldı' },
-            { year: '1360', text: 'Osmanlı doğuşuna hazırlık yaparak beylikler arası dengeni sağlamaya çalıştı' }
+            { year: "1290", text: "Babası Kalavun’un ardından Memlük tahtına çıktı." },
+            { year: "1291", text: "Akka’yı fethederek Haçlıların Doğu Akdeniz’deki son büyük kalesini aldı." },
+            { year: "1292", text: "Suriye ve Filistin’de Memlük yönetimini yeniden düzenledi." },
+            { year: "1293", text: "Saray içi suikast sonucu öldürüldü." }
         ]
     },
     {
-        id: 313, era: 'beylikler', name: 'Cihan Şah', dates: '1340 – 1395',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '👑',
-        sortYear: 1340,
-        quote: '"Dünya çaresiz olmaz, çaresiz Türk yoktur."',
-        bio: 'Anadolu beyliklerinin en kuzey kıtında kurulan beylik başkanı. Sınırlarını Karadeniz kıyılarına geniştiren seferlerle beyliklerini kuzey Anadolu'na yaylaştırdı ve Türk kuzey kuzey yayılımını sağladı.',
-        achievements: ['🌊 Karadeniz kıyılarını geniştirdi', '📈 Kuzey Anadolu yayılımını sağladı', '🤝 Beylikler ittifakını teşvik etti'],
-        tags: ['Kuvvetli Beylik', 'Kuzey Anadolu', 'Türk Yayılımı'],
+        id: 339, era: "memluk", name: "Nasır Muhammed bin Kalavun", dates: "1293 – 1341", dynasty: "MEMLÜKLER",
+        icon: "🕌", sortYear: 1293, quote: "“Nil’e kanal açan sultan, şehre ömür açar.”",
+        bio: "Memlük sultanı. Üç dönem saltanatında Mısır’ı bayındırlaştırdı; Nil kanalı ve büyük camiler yaptırdı.",
+        achievements: ["Üç dönem saltanat", "Nil kanalı projesi", "Kahire’de büyük imar"],
+        tags: ["İmar", "Nil Kanalı", "Kahire"],
         period: [
-            { year: '1350', text: 'Karadeniz kıyılarını geniştiren seferlerle beyliklerini kuzey Anadolu'na yaylaştırdı' },
-            { year: '1375', text: 'Türk kuzey kuzey yayılımını sağlayarak kuzey Anadolu demografisini değiştirdi' }
+            { year: "1293", text: "İlk kez Memlük tahtına çıktı; çocuk yaşta olduğu için devlet adamları yönetimi paylaştı." },
+            { year: "1310", text: "Üçüncü saltanatında tam yetkiyle yönetimi ele aldı; Memlük gücünü zirveye taşıdı." },
+            { year: "1320", text: "Nil Nehri’ne kanal açtırarak Kahire çevresinde tarım ve su düzenini geliştirdi." },
+            { year: "1330", text: "Cami, medrese ve hanlar yaptırarak Kahire’yi İslam dünyasının büyük merkezlerinden biri yaptı." },
+            { year: "1341", text: "Öldü; ardından Memlük tahtında hızlı değişimler başladı." }
         ]
     },
     {
-        id: 314, era: 'beylikler', name: 'Umur Bey', dates: '1346 – 1398',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '🚢',
-        sortYear: 1346,
-        quote: '"Deniz, ordunun yolu, ticareti yoludur."',
-        bio: 'Ege ve Akdeniz kıyılarında güçlü bir deniz biyareği kuran beylik başkanı. Ege Denizi'nde Osmanlı ve Venedik ile deniz mücadeleleri sürdürmüş ve beyliklerinin ticaret yollarını korumuş. Ada kingdoms kurmuş.',
-        achievements: ['🚢 Ege ve Akdeniz deniz biyareği kurdu', '🛡️ Ticaret yollarını korumuş', '🏝️ Ada kingdoms kurmuş'],
-        tags: ['Deniz Biyareği', 'Ticaret Yolları', 'Ada Kingdoms'],
+        id: 340, era: "memluk", name: "Berkuk", dates: "1382 – 1399", dynasty: "MEMLÜKLER (BURCÎ)",
+        icon: "🛡️", sortYear: 1382, quote: "“Çerkes atı, Mısır toprağında da bozkırı hatırlar.”",
+        bio: "Memlük tahtına geçen ilk Çerkes (Burcî) sultan. Timurlu tehdidine karşı Anadolu beylikleriyle ittifak aradı.",
+        achievements: ["İlk Burcî sultan", "Timurlu tehdidine karşı ittifak", "Memlük yönetiminin yeniden düzenlenmesi"],
+        tags: ["Burcî Hanedanı", "Timur Tehdidi", "İttifak"],
         period: [
-            { year: '1355', text: 'Ege ve Akdeniz deniz biyareği kurarak deniz ticaret yollarını korumuş' },
-            { year: '1380', text: 'Ada kingdoms kurarak beyliklerinin etkisini matematiksel ve deniz yollarıyla genişletti' }
+            { year: "1382", text: "Memlük tahtına geçerek Burcî (Çerkes) hanedanını başlattı." },
+            { year: "1390", text: "Timur’un doğudan yükselmesi üzerine Suriye sınırlarını güçlendirdi." },
+            { year: "1394", text: "Anadolu beylikleri ve Osmanlı ile diplomatik ilişkiler kurarak Timur’a karşı denge aradı." },
+            { year: "1399", text: "Öldü; yerine geçen sultanlar Timur tehdidiyle yüzleşti." }
         ]
     },
     {
-        id: 315, era: 'beylikler', name: 'İsfendiyar Bey', dates: '1388 – 1433',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '🏰',
-        sortYear: 1388,
-        quote: '"Siyasi acı, ordunun acısı değildir."',
-        bio: 'Karadeniz bölgesinde güçlü bir beylik başkanı. Karadeniz kıyılarını geniştiren seferlerle beyliklerini Karadeniz bölgesine yaylaştırdı ve KKelerle ittifak sağladı. Kentsel kalkınma projeleri başlattı.',
-        achievements: ['🌊 Karadeniz kıyılarını geniştiren seferlerle beyliklerini Karadeniz bölgesine yaylaştırdı', '🤝 KKelerle ittifak sağladı', '🏘️ Kentsel kalkınma projeleri başlattı'],
-        tags: ['Karadeniz Beylikleri', 'İttifak', 'Kentsel Kalkınma'],
+        id: 341, era: "memluk", name: "Kayıtbay", dates: "1468 – 1496", dynasty: "MEMLÜKLER (BURCÎ)",
+        icon: "🏛️", sortYear: 1468, quote: "“Kahire’nin taşı, sultanın adını yüzyıllarca taşır.”",
+        bio: "Memlüklerin son büyük sultanı. Osmanlı ile diplomatik denge kurdu; Kahire’de büyük imar faaliyetleri yürüttü.",
+        achievements: ["Osmanlı ile diplomatik denge", "Kahire’de büyük imar", "Memlük gücünün son parlak dönemi"],
+        tags: ["Diplomasi", "İmar", "Son Büyük Sultan"],
         period: [
-            { year: '1390', text: 'Karadeniz kıyılarını geniştiren seferlerle beyliklerini Karadeniz bölgesine yaylaştırdı' },
-            { year: '1410', text: 'Kentsel kalkınma projeleriyle kale ve kentsel altyapısını geliştirdi' }
+            { year: "1468", text: "Memlük tahtına çıktı; iç karışıklıkları bastırarak otoriteyi sağladı." },
+            { year: "1480", text: "Kahire’de cami, medrese ve çeşmeler yaptırarak şehri imar etti." },
+            { year: "1490", text: "Osmanlı ve Safevi tehditlerine karşı diplomatik denge siyaseti izledi." },
+            { year: "1496", text: "Öldü; Memlük Devleti kısa süre sonra Osmanlı ile büyük bir hesaplaşmaya girdi." }
         ]
     },
     {
-        id: 316, era: 'beylikler', name: 'Alâüddevle', dates: '1300 – 1330',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '⚖️',
-        sortYear: 1300,
-        quote: '"Adiliksiz devlet, uzun sürmez."',
-        bio: 'İç Anadolu'da poder olan beylik başkanı. Hukuki düzenlemeleri ve tsime inancınıyla bilinir; beylik içinde anayasal düzenlemeler yaparak adaleti pekiştirmiş ve toplumsal güvenliği artırmış.',
-        achievements: ['⚖️ Hukuki düzenlemeler ve anayasal ayarlar', '📜 Adaleti pekiştirecek tsime inancı', '🛡️ Toplumsal güvenliği artırdı'],
-        tags: ['Hukuki Düzenlemeler', 'Adaleti', 'Toplumsal Güvenlik'],
+        id: 342, era: "memluk", name: "Kansu Gavri", dates: "1501 – 1516", dynasty: "MEMLÜKLER (BURCÎ)",
+        icon: "⚔️", sortYear: 1501, quote: "“İki büyük gölge arasında kalan, kendi gölgesini kaybeder.”",
+        bio: "Memlük sultanı. Safevi ve Osmanlı tehditleri arasında kaldı; 1516 Mercidabık’ta Osmanlı ordusuna yenilerek öldü.",
+        achievements: ["Safevi-Osmanlı dengesi", "Memlük ordusunun son seferberliği", "Mercidabık Savunması"],
+        tags: ["Mercidabık", "Safevi", "Osmanlı"],
         period: [
-            { year: '1310', text: 'Hukuki düzenlemeler ve anayasal ayarlar ile beylik içesine kanuni düzenlemeyi uyguladı' },
-            { year: '1325', text: 'Toplumsal güvenliği artırmak için adaleti pekiştirecek tsime inancını yaylaştırdı' }
+            { year: "1501", text: "Memlük tahtına çıktı; Safevi yükselişine karşı doğu sınırlarını güçlendirdi." },
+            { year: "1514", text: "Çaldıran sonrası Osmanlı’nın doğuya yönelmesiyle diplomatik çözüm aradı." },
+            { year: "1516", text: "Mercidabık Savaşı’nda Osmanlı ordusuna yenildi ve savaş alanında öldü." }
         ]
     },
     {
-        id: 317, era: 'beylikler', name: 'Saruhan Bey', dates: '1330 – 1360',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '🏹',
-        sortYear: 1330,
-        quote: '"Sınır, Türk milletinin çizgisi ve korumasıdır."',
-        bio: 'Ege ve Batı Anadolu'da kurulmuş beylik başkanı. İzmir ve surrounding kıyıları fethederek beyliklerini Ege bölgesine yaylaştırdı. Deniz mucadelelerinde Venedik ile ittifak sağladı.',
-        achievements: ['🌊 İzmir ve surrounding kıyıları fethederek beyliklerini Ege bölgesine yaylaştırdı', '🛡️ Venedik ile deniz ittifak sağladı', '📈 Ege bölgesi genişlemesi'],
-        tags: ['Ege Beylikleri', 'Venedik Ittifakı', 'Kıyı Fethleri'],
+        id: 343, era: "memluk", name: "Tomanbay", dates: "1516 – 1517", dynasty: "MEMLÜKLER (BURCÎ)",
+        icon: "🕯️", sortYear: 1516, quote: "“Son sultan, son sur gibi ayakta ölür.”",
+        bio: "Memlük Devleti’nin son sultanı. Kahire’yi savundu; 1517’de Osmanlı’ya esir düştü ve idam edildi.",
+        achievements: ["Memlük Devleti’nin son sultanı", "Kahire savunması", "Ridaniye Savaşı"],
+        tags: ["Son Sultan", "Kahire", "Ridaniye"],
         period: [
-            { year: '1340', text: 'İzmir ve surrounding kıyıları fethederek beyliklerini Ege bölgesine yaylaştırdı' },
-            { year: '1355', text: 'Venedik ile deniz ittifak sağlayarak Ege deniz mucadelelerini güvence altına aldı' }
-        ]
-    },
-
-    // ─── SELÇUKLULAR ──────────────────────────────────────────────
-    // ID 318–319
-    {
-        id: 318, era: 'selcuklu', name: 'Berkyaruk', dates: '965 – 1025',
-        dynasty: 'BÜYÜK SELÇUKLU', icon: '🦅',
-        sortYear: 965,
-        quote: '"Mücadele, devletin kanadıdır, savunma ise direncidir."',
-        bio: 'Büyük Selçuklu Hükümdarı. Sınırlarını İran'a geniştiren seferlerle Büyük Selçuklu İmparatorluğu'nü zirveye ulaştırdı. Savaş sanatını ve Stratagem'i teşvik etmiş ve imparatorluğun ekonomik içeriğini güçlendirdi.',
-        achievements: ['🌍 Sınırları İran'a geniştirdi', '📊 Ekonomik içeriği güçlendi', '⚔️ Savaş sanatını teşvik etti'],
-        tags: ['Imparator', 'Savaş Sanatı', 'Ekonomik Güç'],
-        period: [
-            { year: '980', text: 'Sınırları İran'a geniştiren seferlerle Büyük Selçuklu İmparatorluğu\'nu zirveye ulaştırdı' },
-            { year: '1000', text: 'Savaş sanati ve stratejiyi teşvik ederek imparatorluğun ekonomik içeriğini güçlendirdi' }
+            { year: "1516", text: "Kansu Gavri’nin ölümüyle Memlük tahtına çıktı." },
+            { year: "1517", text: "Ridaniye Savaşı’nda Osmanlı ordusuna karşı koydu; Kahire’ye çekildi." },
+            { year: "1517", text: "Kahire’nin düşmesiyle esir alındı ve idam edildi; Memlük Devleti sona erdi." }
         ]
     },
     {
-        id: 319, era: 'selcuklu', name: 'Muhammed Tapar', dates: '1025 – 1035',
-        dynasty: 'BÜYÜK SELÇUKLU', icon: '👑',
-        sortYear: 1025,
-        quote: '"Sultan, tahta olsa da kanuni kanuni değildir."',
-        bio: 'Büyük Selçuklu Hükümdarı. Dönemi yeteneği ve Merkez düzenlemeleriyle ihmal edilmeden yönetmiş. Savaş ve idare deneyimleriyle imparatorluğu meşrulaştırmış ve boyları korumuş.',
-        achievements: ['📊 Deneyi ve idare deneyimleri', '🏛️ Imparatorluğu meşrulaştırmış', '🏹 Boyları korumuş'],
+        id: 344, era: "bozkir", name: "Bayan Kağan", dates: "562 – 602", dynasty: "AVAR KAĞANLIĞI",
+        icon: "🏕️", sortYear: 562, quote: "“Orta Avrupa’da çadır kuran, kışı da yönetir.”",
+        bio: "Avar Kağanlığı’nın kurucusu. Orta Avrupa’da güçlü bir bozkır devleti kurdu; Bizans ile anlaşmalar yaptı.",
+        achievements: ["Avar Kağanlığı’nı kurdu", "Orta Avrupa yerleşimi", "Bizans ile anlaşmalar"],
+        tags: ["Avar Kurucusu", "Orta Avrupa", "Bizans"],
         period: [
-            { year: '1028', text: 'Deneyim ve idare deneyimleriyle imparatorluğunu meşrulaştırdı ve merkezi yönetimi güçlü kıldı' },
-            { year: '1032', text: 'Boyları korumak ve imparatorluğun bütünlüğünü sağlamak için düzenlemeler yapıldı' }
-        ]
-    },
-
-    // ─── ANADOLU SELÇUKLULAR ──────────────────────────────────────────────
-    // ID 320–322
-    {
-        id: 320, era: 'anadoluselcuklu', name: 'I. Gıyaseddin Keyhüsrev', dates: '1088 – 1142',
-        dynasty: 'ANADOLU SELÇUKLU', icon: '🕌',
-        sortYear: 1088,
-        quote: '"Eflatun, imparatorluğun çiçeğidir, korunmazsa solaklaşır."',
-        bio: 'Anadolu Selçuklu Hükümdarı. Sınırlarını Akdeniz kıyılarına geniştiren seferlerle Anadolu'yu geniştirmiş ve medrese külliyelerini çoğaltmış. İlimDestekleriyle Türk-İslam medeniyetini desteklemiş.',
-        achievements: ['🌍 Sınırları Akdeniz kıyılarına geniştirdi', '📚 Medrese külliyelerini çoğaltmış', '🏛️ İlim destekleriyle Türk-İslam medeniyetini desteklemiş'],
-        tags: ['Sınır Genişleme', 'Medrese Destek', 'İlm Destekleri'],
-        period: [
-            { year: '1095', text: 'Sınırlarını Akdeniz kıyılarına geniştiren seferlerle Anadolu'yu geniştirmiş ve medrese külliyelerini çoğaltmış' },
-            { year: '1120', text: 'İlim destekleriyle Türk-İslam medeniyetini desteklemek için medrese külliyelerini çoğaltı' }
+            { year: "562", text: "Avar boylarını birleştirerek Avar Kağanlığı’nı kurdu." },
+            { year: "570", text: "Orta Avrupa’ya yerleşerek Tuna havzasında güçlü bir bozkır yönetimi oluşturdu." },
+            { year: "580", text: "Bizans ile anlaşma yaparak sınır ticaretini ve vergiyi düzenledi." },
+            { year: "602", text: "Öldü; Avar Kağanlığı bir süre daha Orta Avrupa’da etkili oldu." }
         ]
     },
     {
-        id: 321, era: 'anadoluselcuklu', name: 'I. İzzeddin Keykavus', dates: '1142 – 1192',
-        dynasty: 'ANADOLU SELÇUKLU', icon: '📜',
-        sortYear: 1142,
-        quote: '"Yazı, silahlardan daha güçlüdür."',
-        bio: 'Anadolu Selçuklu Hükümdarı. Yazı kültürünü ve kitaplıklarını geliştirmiş ve medrese eğitim sistemini desteklemiş. Eserleriyle Türkçe dil ve edebiyatını desteklemiş ve kültür kuyruğunu beslemiş.',
-        achievements: ['📚 Yazı kültürü ve kitaplıkları geliştirdi', '🏛️ Medrese eğitim sistemini destekledi', '🏹 Türkçe dil ve edebiyatını desteklemiş'],
-        tags: ['Yazı Kültürü', 'Kitaplık', 'Dil Destekleri'],
+        id: 345, era: "bozkir", name: "Bulan Han", dates: "740 – 786", dynasty: "HAZAR KAĞANLIĞI",
+        icon: "✡️", sortYear: 740, quote: "“Üç dinin kapısı da bir şehirde açılır.”",
+        bio: "Hazar Kağanı. 740’larda Museviliği kabul ederek Hazar sarayında yeni bir dini dönem başlattı.",
+        achievements: ["Museviliğin kabulü", "Hazar sarayında dinî dönüşüm", "Ticaret yollarının korunması"],
+        tags: ["Musevilik", "Hazar Sarayı", "Ticaret"],
         period: [
-            { year: '1150', text: 'Yazı kültürü ve kitaplıkları geliştirerek Türkçe dil ve edebiyatını desteklemiş' },
-            { year: '1175', text: 'Eserleriyle Türkçe dil ve edebiyatını destekleyerek kültür kuyruğunu besledi' }
+            { year: "740", text: "Hazar tahtına çıktı; İdil boyunda devleti güçlendirdi." },
+            { year: "750", text: "Museviliği kabul ederek Hazar yönetici sınıfında yeni bir dinî dönem başlattı." },
+            { year: "770", text: "Farklı din adamlarını sarayda tartışmaya açarak Hazar’ın dinî çoğulculuğunu korudu." },
+            { year: "786", text: "Öldü; Hazar Kağanlığı İdil ticaretinin merkezi olmayı sürdürdü." }
         ]
     },
     {
-        id: 322, era: 'anadoluselcuklu', name: 'II. Süleyman Şah', dates: '1192 – 1236',
-        dynasty: 'ANADOLUSelçuklu', icon: '⚔️',
-        sortYear: 1192,
-        quote: '"Savaş, devletin kanadı, barış iseDirencidir."',
-        bio: 'Anadolu Selçuklu Hükümdarı. Savaş başarılarıyla Anadolu'yu genişleten ve Moğol baskısına karşı direnç gösteren son büyük hükümdar. Anadolu beyliklerinin bağımsızlaşmasına zemin hazırlamış ve Türk hakimiyetinin devamını sağlamış.',
-        achievements: ['⚔️ Savaş başarılarıyla Anadolu genişledi', '🏛️ Moğol baskısına karşı direnç gösterdi', '📈 Anadolu beyliklerini Destekledi'],
+        id: 346, era: "bozkir", name: "Obadya Han", dates: "786 – 810", dynasty: "HAZAR KAĞANLIĞI",
+        icon: "📜", sortYear: 786, quote: "“Kanun, çadırın direğidir.”",
+        bio: "Hazar kağanı. Museviliği devlet kurumlarıyla güçlendirdi; sinagog ve okullar açtırdı.",
+        achievements: ["Musevi kurumlarının güçlendirilmesi", "Sinagog ve okullar", "Hazar hukuk düzeni"],
+        tags: ["Musevi Kurumları", "Sinagog", "Hukuk"],
         period: [
-            { year: '1200', text: 'Savaş başarılarıyla Anadolu'yu geniştirerek beyliklerin bağımsızlaşmasına zemin hazırladı' },
-            { year: '1220', text: 'Moğol baskısına karşı direnç göstererek Türk hakimiyetinin devamını sağlamayı sağladı' }
-        ]
-    },
-
-    // ─── GAZNELİ ──────────────────────────────────────────────
-    // ID 323
-    {
-        id: 323, era: 'gazneli', name: 'Mesud', dates: '1094 – 1152',
-        dynasty: 'GAZNELİ', icon: '💎',
-        sortYear: 1094,
-        quote: '"Zaferin hâbibi, şehit olmaktır."',
-        bio: 'Gaznevi Hükümdarı. Sınırları Mesopotami'a geniştiren seferlerle Gaznevilere güç kazandırmış ve Irak'ı denetlemiş. İslam dünyası genelinde armed forces teşkilatı ve şer-i hukuki düzenlemelerle tanınan bir hâkimdı.',
-        achievements: ['🌍 Sınırları Mesopotami'a geniştirdi', '🛡️ İslam teşkilatını güçlendirdi', '📜 Şer-i hukuki düzenlemeler'],
-        tags: ['Sınır Genişleme', 'İslam Teşkilatı', 'Hukuki Düzenlemeler'],
-        period: [
-            { year: '1100', text: 'Sınırları Mesopotami'a geniştiren seferlerle Gaznevilere güç kazandırdı ve Irak'ı denetlemiş' },
-            { year: '1130', text: 'İslam teşkilatını güçlendiren ve şer-i hukuki düzenlemelerle tanınan hâkim oldu' }
-        ]
-    },
-
-    // ─── KARAHANLİ ──────────────────────────────────────────────
-    // ID 324–325
-    {
-        id: 324, era: 'karahanli', name: 'Tamgaç Buğra Han', dates: '926 – 950',
-        dynasty: 'KARAHANLİ', icon: '🏰',
-        sortYear: 926,
-        quote: '"Devlet, tevhidle başlar ve tevhidle biter."',
-        bio: 'Karahanlı Devleti kurucusu ve ilk kağan. Ötüken'ı merkeze alarak ilk büyük Türk-Islam devleti teşkil etmiş ve Türk boylarını İslamiyet'e katmış. Türk için ilk kanuni düzenlemeler yapmış.',
-        achievements: ['🏛️ Karahanlı Devleti kurucusu ve ilk kağan', '🌍 Ötüken'ı merkeze alarak devlet kurdu', '📜 Türk için ilk kanuni düzenlemeler'],
-        tags: ['Kurucu', 'Ötüken', 'İslam Katılımı'],
-        period: [
-            { year: '930', text: 'Ötüken'ı merkeze alarak ilk büyük Türk-Islam devleti teşkil etti ve Türk boylarını İslamiyetine katmış' },
-            { year: '940', text: 'Türk için ilk kanuni düzenlemeler yaparak toplumsal düzenlemeleri完成了' }
+            { year: "786", text: "Bulan Han’ın ardından Hazar tahtına çıktı." },
+            { year: "790", text: "Sinagog ve okullar açtırarak Musevi kurumlarını devlet desteğine kavuşturdu." },
+            { year: "800", text: "Musevi hukukunu Hazar töresiyle uyumlu hâle getiren düzenlemeler yaptı." },
+            { year: "810", text: "Öldü; Hazar Kağanlığı dinî ve ticari merkez olmayı sürdürdü." }
         ]
     },
     {
-        id: 325, era: 'karahanli', name: 'Arslan Han', dates: '950 – 978',
-        dynasty: 'KARAHANLİ', icon: '⚔️',
-        sortYear: 950,
-        quote: '"Savaş, devletin kanadı, barış ise Direncidir."',
-        bio: 'Karahanlı Devleti'nin ikinci kağanı. Sınırları Transkaukasya'ya geniştiren seferlerle devlet alanını genişletmiş ve Türk hakimiyetini kuzey kuzey yaylaştırmış. İslam teşkilatını güçlendirmiş ve ticaret yollarını korumuş.',
-        achievements: ['🌍 Sınırları Transkaucasya'ya geniştirdi', '🛡️ İslam teşkilatını güçlendirdi', '📈 Ticaret yollarını korumuş'],
-        tags: ['Sınır Genişleme', 'İslam Teşkilatı', 'Ticaret Yolları'],
+        id: 347, era: "bozkir", name: "Benjamin Han", dates: "880 – 920", dynasty: "HAZAR KAĞANLIĞI",
+        icon: "🛡️", sortYear: 880, quote: "“Kuzey rüzgârı, sınırı ilk önce koklar.”",
+        bio: "Hazar kağanı. Peçenek ve Rus akınlarına karşı kuzey sınırlarını savundu.",
+        achievements: ["Kuzey sınırlarının savunması", "Peçenek seferleri", "Rus akınlarına direniş"],
+        tags: ["Kuzey Savunması", "Peçenekler", "Rus Akınları"],
         period: [
-            { year: '960', text: 'Sınırları Transkaucasya'ya geniştiren seferlerle devlet alanını genişlettmiş ve Türk hakimiyetini kuzey kuzey yaylaştırmış' },
-            { year: '970', text: 'İslam teşkilatını güçlendirerek ve ticaret yollarını korumak için projeler başlattı' }
+            { year: "880", text: "Hazar tahtına çıktı; kuzey bozkır sınırlarını güçlendirdi." },
+            { year: "890", text: "Peçenek akınlarına karşı sefer düzenleyerek İdil boyunu korudu." },
+            { year: "900", text: "Rus knezliklerinin Dinyeper üzerinden gelen akınlarına karşı savunma hattı kurdu." },
+            { year: "920", text: "Öldü; Hazar Kağanlığı baskı altında küçülmeye başladı." }
+        ]
+    },
+    {
+        id: 348, era: "bozkir", name: "Yusuf Han", dates: "920 – 960", dynasty: "HAZAR KAĞANLIĞI",
+        icon: "📖", sortYear: 920, quote: "“Uzaktaki dost, yakındaki düşmandan hayırlıdır.”",
+        bio: "Hazar kağanı. Endülüs’teki Hasdai ibn Şaprut ile mektuplaştı; Hazar Museviliğinin son büyük temsilcisi oldu.",
+        achievements: ["Hasdai ibn Şaprut ile mektuplaşma", "Hazar Museviliğinin son büyük temsili", "Uluslararası diplomasi"],
+        tags: ["Diplomasi", "Musevilik", "Endülüs"],
+        period: [
+            { year: "920", text: "Hazar tahtına çıktı; İdil boyunda devletin son güçlü dönemini yönetti." },
+            { year: "930", text: "Endülüs’teki Hasdai ibn Şaprut ile mektuplaşarak Hazar Museviliğini dünyaya tanıttı." },
+            { year: "950", text: "Rus saldırıları karşısında Hazar topraklarını savunmaya çalıştı." },
+            { year: "960", text: "Döneminin sonunda Hazar Kağanlığı zayıfladı ve tarih sahnesinden çekildi." }
+        ]
+    },
+    {
+        id: 349, era: "anadoluselcuklu", name: "I. Gıyaseddin Keyhüsrev", dates: "1192 – 1196, 1205 – 1211", dynasty: "ANADOLU SELÇUKLU",
+        icon: "🕌", sortYear: 1192, quote: "“Liman, devletin denize açılan kapısıdır.”",
+        bio: "Anadolu Selçuklu sultanı. 1205’te tahtı geri aldı; Antalya’yı fethederek tersane kurdu.",
+        achievements: ["Antalya’nın fethi", "İlk Selçuklu tersanesi", "Tahtı geri kazanma"],
+        tags: ["Antalya", "Tersane", "Liman"],
+        period: [
+            { year: "1192", text: "Anadolu Selçuklu tahtına çıktı; beyliklerle denge kurmaya çalıştı." },
+            { year: "1196", text: "Tahtı kardeşi II. Süleyman Şah’a bırakmak zorunda kaldı." },
+            { year: "1205", text: "Tahtı yeniden ele geçirerek merkezî otoriteyi güçlendirdi." },
+            { year: "1207", text: "Antalya’yı fethederek Akdeniz’e açılan ilk büyük Selçuklu limanını kazandı." },
+            { year: "1211", text: "Alaşehir yakınlarında Bizans ile giriştiği savaşta öldü." }
+        ]
+    },
+    {
+        id: 350, era: "anadoluselcuklu", name: "II. Süleyman Şah", dates: "1196 – 1204", dynasty: "ANADOLU SELÇUKLU",
+        icon: "⚔️", sortYear: 1196, quote: "“Doğu kapısı, Anadolu’nun kilididir.”",
+        bio: "Anadolu Selçuklu sultanı. Erzurum ve çevresini aldı; Gürcülerle mücadele etti.",
+        achievements: ["Erzurum ve çevresinin alınması", "Gürcülerle mücadele", "Doğu sınırlarının güçlendirilmesi"],
+        tags: ["Erzurum", "Gürcüler", "Doğu Sınırı"],
+        period: [
+            { year: "1196", text: "Kardeşi I. Gıyaseddin Keyhüsrev’in yerine Anadolu Selçuklu tahtına çıktı." },
+            { year: "1200", text: "Erzurum ve çevresini alarak doğu sınırlarını genişletti." },
+            { year: "1202", text: "Gürcü kuvvetlerine karşı sefer düzenledi; Doğu Anadolu’da denge kurdu." },
+            { year: "1204", text: "Öldü; taht yeniden I. Gıyaseddin Keyhüsrev’e geçti." }
+        ]
+    },
+    {
+        id: 351, era: "anadoluselcuklu", name: "I. İzzeddin Keykavus", dates: "1211 – 1220", dynasty: "ANADOLU SELÇUKLU",
+        icon: "⚓", sortYear: 1211, quote: "“Karadeniz’e inen sultan, iki denize söz geçirir.”",
+        bio: "Anadolu Selçuklu sultanı. Sinop’u alarak Karadeniz ticaretini açtı; ilk Selçuklu donanmasını kurdu.",
+        achievements: ["Sinop’un fethi", "Karadeniz ticareti", "İlk Selçuklu donanması"],
+        tags: ["Sinop", "Karadeniz", "Donanma"],
+        period: [
+            { year: "1211", text: "Babası I. Gıyaseddin Keyhüsrev’in ölümüyle Anadolu Selçuklu tahtına çıktı." },
+            { year: "1214", text: "Sinop’u fethederek Karadeniz’e açılan önemli bir liman kazandı." },
+            { year: "1216", text: "Sinop’ta tersane kurarak ilk düzenli Selçuklu donanmasını oluşturdu." },
+            { year: "1218", text: "Kıbrıs ve Venedik tüccarlarıyla ticaret anlaşmaları yaparak Akdeniz ticaretini canlandırdı." },
+            { year: "1220", text: "Öldü; yerine kardeşi I. Alaeddin Keykubad geçti." }
+        ]
+    },
+    {
+        id: 352, era: "anadoluselcuklu", name: "II. Gıyaseddin Keyhüsrev", dates: "1237 – 1246", dynasty: "ANADOLU SELÇUKLU",
+        icon: "🕯️", sortYear: 1237, quote: "“Dağ ne kadar yüksekse, fırtına o kadar yakındır.”",
+        bio: "Anadolu Selçuklu sultanı. 1243 Kösedağ yenilgisiyle Moğol egemenliğini kabul etmek zorunda kaldı.",
+        achievements: ["Kösedağ Savaşı", "Moğol egemenliğinin kabulü", "Babai isyanının bastırılması"],
+        tags: ["Kösedağ", "Moğollar", "Babai İsyanı"],
+        period: [
+            { year: "1237", text: "Babası I. Alaeddin Keykubad’ın ölümüyle Anadolu Selçuklu tahtına çıktı." },
+            { year: "1240", text: "Babai isyanını bastırarak iç düzeni sağlamaya çalıştı." },
+            { year: "1243", text: "Kösedağ Savaşı’nda Moğol ordusuna yenildi; Anadolu Moğol egemenliğine girdi." },
+            { year: "1246", text: "Öldü; Anadolu Selçuklu Devleti Moğol vesayeti altında yönetildi." }
+        ]
+    },
+    {
+        id: 353, era: "anadoluselcuklu", name: "II. İzzeddin Keykavus", dates: "1246 – 1262", dynasty: "ANADOLU SELÇUKLU",
+        icon: "🛡️", sortYear: 1246, quote: "“Kardeş kavgası, kapıdaki düşmandan pahalıdır.”",
+        bio: "Anadolu Selçuklu sultanı. Kardeşleriyle taht mücadelesi yaşadı; Moğol baskısı altında yönetimi sürdürdü.",
+        achievements: ["Taht mücadelesi", "Moğol baskısı altında yönetim", "Anadolu birliğini koruma çabası"],
+        tags: ["Taht Mücadelesi", "Moğol Baskısı", "Anadolu"],
+        period: [
+            { year: "1246", text: "Kardeşleriyle birlikte Anadolu Selçuklu tahtına ortak oldu." },
+            { year: "1254", text: "Kardeşi IV. Kılıçarslan ile taht mücadelesine girdi; devlet üçe bölündü." },
+            { year: "1256", text: "Moğol hanına vergi ödeyerek yönetimini sürdürmeye çalıştı." },
+            { year: "1262", text: "Moğol baskısı ve iç mücadele sonucu tahtı kaybederek sürgüne gitti." }
+        ]
+    },
+    {
+        id: 354, era: "anadoluselcuklu", name: "IV. Kılıçarslan", dates: "1248 – 1265", dynasty: "ANADOLU SELÇUKLU",
+        icon: "👑", sortYear: 1248, quote: "“Çocuk taht, gölge sultan demektir.”",
+        bio: "Çocuk yaşta tahta çıkan Anadolu Selçuklu sultanı. Saltanatı Moğol valilerinin gölgesinde geçti.",
+        achievements: ["Çocuk yaşta tahta çıkış", "Moğol vesayeti dönemi", "Pervane yönetimi"],
+        tags: ["Çocuk Sultan", "Moğol Vesayeti", "Pervane"],
+        period: [
+            { year: "1248", text: "Çocuk yaşta Anadolu Selçuklu tahtına çıktı." },
+            { year: "1250", text: "Devlet yönetimi Moğol valileri ve Selçuklu vezirlerinin eline geçti." },
+            { year: "1260", text: "Pervane Muineddin Süleyman’ın etkisi altında kaldı; Moğol vergileri arttı." },
+            { year: "1265", text: "Öldü; Anadolu Selçuklu Devleti Moğol egemenliğinde küçüldü." }
+        ]
+    },
+    {
+        id: 355, era: "anadoluselcuklu", name: "III. Gıyaseddin Keyhüsrev", dates: "1265 – 1284", dynasty: "ANADOLU SELÇUKLU",
+        icon: "📜", sortYear: 1265, quote: "“Vezir idam edilir, devlet yarası kalır.”",
+        bio: "Anadolu Selçuklu sultanı. Pervane Muineddin’in idamı ve Moğol baskısı döneminde hüküm sürdü.",
+        achievements: ["Pervane dönemi", "Moğol baskısı altında yönetim", "Memlük ile ilişkiler"],
+        tags: ["Pervane", "Moğol Baskısı", "Memlükler"],
+        period: [
+            { year: "1265", text: "Anadolu Selçuklu tahtına çıktı; Moğol vesayeti altında yönetimi devraldı." },
+            { year: "1277", text: "Memlük Sultanı Baybars’ın Anadolu seferi sırasında Moğol yanında kalmak zorunda kaldı." },
+            { year: "1280", text: "Moğol baskısı ve ağır vergiler altında Anadolu’da beylikler güçlendi." },
+            { year: "1284", text: "Öldü; Anadolu Selçuklu Devleti fiilen beyliklere bölündü." }
+        ]
+    },
+    {
+        id: 356, era: "anadoluselcuklu", name: "II. Mesud", dates: "1284 – 1296, 1303 – 1308", dynasty: "ANADOLU SELÇUKLU",
+        icon: "🕯️", sortYear: 1284, quote: "“Son kale de bir gün kapısını açar.”",
+        bio: "Anadolu Selçuklu Devleti’nin son etkili sultanı. Moğollar ve beylikler arasında denge kurmaya çalıştı.",
+        achievements: ["Son etkili Selçuklu sultanı", "Moğol-beylik dengesi", "Devletin son dönemi"],
+        tags: ["Son Sultan", "Denge", "Beylikler"],
+        period: [
+            { year: "1284", text: "Anadolu Selçuklu tahtına çıktı; Moğol hanlarının onayıyla yönetimi sürdürdü." },
+            { year: "1290", text: "Beyliklerin güçlenmesi karşısında merkezî otoriteyi korumaya çalıştı." },
+            { year: "1303", text: "İkinci saltanat döneminde Anadolu’daki son Selçuklu egemenliğini sürdürdü." },
+            { year: "1308", text: "Öldü; Anadolu Selçuklu Devleti resmen sona erdi." }
         ]
     }
 ];
-    // ─── ILA GİDER ──────────────────────────────────────────────
-    // ID 326–331
-    {
-        id: 326, era: 'bozkir', name: 'Örküt Khan', dates: 'MÖ 600 – MÖ 560',
-        dynasty: 'BOZKİR KAĞANLIĞI', icon: '🛡️',
-        sortYear: -600,
-        quote: '"Kalkan gibi sağlam, ordu gibi dağınık olmayan."',
-        bio: 'Bozkır kağanlığının kuzey kuşak hanı. Sınırlarını strengthen ederek bozkır bölgesindeki Türk teşkilatını güçlendirdi ve kuzey bozkır güvenliğini artırdı.',
-        achievements: ['🛡️ Kuzey bozkır güvenliğini artırdı', '🏛️ Teşkilat güçlendirmesi', '🌅 Borders stabilization'],
-        tags: ['Kuzey Güvenlik', 'Teşkilat', 'Sınır Stabilitesi'],
-        period: [
-            { year: 'MÖ 610', text: 'Bozkır bölgesindeki Türk teşkilatını güçlendirdi' },
-            { year: 'MÖ 570', text: 'Kuzey bozkır güvenliğini artırdı' }
-        ]
-    },
-    {
-        id: 327, era: 'timurlu', name: 'Ilkhan Bey', dates: '870 – 910',
-        dynasty: 'TİMURLULAR', icon: '📜',
-        sortYear: 870,
-        quote: '"Edebiyat, zaferin ruhudur."',
-        bio: 'Timurlu hanedanının orta dönem kağanı. Edebiyat ve poesía teşvik etmiş ve Timurlu mimarisi stillerini geliştirmiş. Kültür ve sanat alanında dönemin en önemli patronlarından biriydi.',
-        achievements: ['📜 Edebiyat ve poesia teşvik', '🏛️ Timurlu mimarisi stilleri', '🎨 Kültür ve sanat patronu'],
-        tags: ['Edebiyat', 'Poesía', 'Mimar Stil'],
-        period: [
-            { year: '880', text: 'Edebiyat ve poésie teşvik ederek kültür alanı genişlettildi' },
-            { year: '900', text: 'Timurlu mimarisi stillerini geliştirerek sanat patronage yapt' }
-        ]
-    },
-    {
-        id: 328, era: 'memluk', name: 'Selim Sultan', dates: '1400 – 1420',
-        dynasty: 'MEMLÜKLER', icon: '🛡️',
-        sortYear: 1400,
-        quote: '"Siyasi determinasyon, ordu güçünden çok fazladır."',
-        bio: 'Memlük Ordusu'nun Orta dönem sultanı. Sınırları Sudan'a geniştiren seferlerle Memlük Ordusunun Afrika etkisini artırdı. Ticaret rota korumasıyla Avrupa-Mısır ticaretini desteklemiştir.',
-        achievements: ['🌍 Sınırları Sudan'a geniştirdi', '🛡️ Afrika etkisi artırdı', '📈 Ticaret rota koruması'],
-        tags: ['Afrika', 'Ticaret Rota', 'Sınır Genişleme'],
-        period: [
-            { year: '1410', text: 'Sınırları Sudan'a geniştiren seferlerle Afrika etkisini artırdı' },
-            { year: '1415', text: 'Ticaret rota korumasıyla Avrupa-Mısır ticaretini destekledi' }
-        ]
-    },
-    {
-        id: 329, era: 'beylikler', name: 'Kara Şehzade', dates: '1360 – 1400',
-        dynasty: 'BEYLİKLER DÖNEMİ', icon: '⚔️',
-        sortYear: 1360,
-        quote: '"Kara gök, Türk kara günüdür."',
-        bio: 'Doğu Anadolu beyliklerinin başkanı. Kardeşlerarası çatışmalara rağmen beyliklerini karadeniz kuzeyine geniştiren seferlerle genişlemiş. Kentsel kalkınma ve kale inşaatı projeleriyle tanınır.',
-        achievements: ['🌅 Karadeniz kuzeyine geniştirme', '🏰 Kale inşaatı projeleri', '🏛️ Kentsel kalkınma'],
-        tags: ['Doğu Anadolu', 'Kale İnşaatı', 'Kentsel Kalkınma'],
-        period: [
-            { year: '1370', text: 'Karadeniz kuzeyine geniştirerek beyliklerini kuzey kuzey yaylaştırdı' },
-            { year: '1385', text: 'Kentsel kalkınma ve kale inşaatı projeleriyle tanın' }
-        ]
-    },
-    {
-        id: 330, era: 'selcuklu', name: 'II. Muhammed', dates: '1080 – 1105',
-        dynasty: 'BÜYÜK SELÇUKLU', icon: '👑',
-        sortYear: 1080,
-        quote: '"Imparator, merhametle hüküm eder; fezdir değil."',
-        bio: 'Büyük Selçuklu Hükümdarı. Sınırları Yemen'a geniştiren seferlerle imparatorluğu genişletmiş. Dini tevhid politikaları ve kanuni düzenlemelerle tanınan hâkimdi.',
-        achievements: ['🌍 Sınırları Yemen'a geniştirdi', '📜 Dini tevhid politikaları', '🏛️ Kanuni düzenlemeler'],
-        tags: ['Sınır Genişleme', 'Dini Politikalar', 'Kanuni Düzenlemeler'],
-        period: [
-            { year: '1090', text: 'Sınırları Yemen'a geniştiren seferlerle imparatorluğun sınırlarını geniştirdi' },
-            { year: '1095', text: 'Dini tevhid politikaları ve kanuni düzenlemelerle tanınan hâkim oldu' }
-        ]
-    },
-    {
-        id: 331, era: 'anadoluselcuklu', name: 'III. Gıyaseddin', dates: '1170 – 1200',
-        dynasty: 'ANADOLU SELÇUKLU', icon: '🕌',
-        sortYear: 1170,
-        quote: '"Eflatun, miras; korunursa değer, solaklaşarsa unutulur."',
-        bio: 'Anadolu Selçuklu Hükümdarı. Sınırları Hopa kıyılarına geniştiren seferlerle imparatorluğun son dönemlerini yönetmiş. Medrese eğitimlerini çoğaltmış ve son yearsında beylikler arası dengeni sağlamaya çalışmış.',
-        achievements: ['🌍 Sınırları Hopa kıyılarına geniştiren seferlerle imparatorluğun son dönemlerini yönetmiş', '📚 Medrese eğitimlerini çoğaltmış', '🤝 Beylikler arası denge sağlamaya çalışmış'],
-        period: [
-            { year: '1180', text: 'Sınırları Hopa kıyılarına geniştiren seferlerle imparatorluğun son dönemlerini yönetmiş' },
-            { year: '1190', text: 'Medrese eğitimlerini çoğaltmış ve beylikler arası denge sağlamaya çalışmış' }
-        ]
-    }

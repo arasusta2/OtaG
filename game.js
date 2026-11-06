@@ -39,6 +39,16 @@ class TavlaGame {
             "6-3": "Şeş-i se", "6-4": "Şeş-i cihar", "6-5": "Şeş-beş!"
         };
 
+        const tavlaBotNames = (window.pickBotNames ? window.pickBotNames(3) : ["Bilgisayar", "Kahveci Rıza", "Seyirci Nuri"]);
+        this.opponentName = tavlaBotNames[0];
+        this.teaName = tavlaBotNames[1];
+        this.spectatorName = tavlaBotNames[2];
+        this.banterNameMap = {
+            "Bilgisayar": this.opponentName,
+            "Kahveci Rıza": this.teaName,
+            "Seyirci Nuri": this.spectatorName
+        };
+
         this.bindEvents();
         this.resetGame();
     }
@@ -399,7 +409,7 @@ class TavlaGame {
             this.selectedPoint = null;
             this.validMoves = [];
             this.render();
-            this.updateHUD("🤖 Rakip (Bilgisayar) düşünüyor ve zar atıyor...");
+            this.updateHUD(`🤖 Rakip (${this.opponentName}) düşünüyor ve zar atıyor...`);
             setTimeout(() => this.runAiTurn(), 800);
         } else {
             this.turn = 'white';
@@ -503,10 +513,22 @@ class TavlaGame {
         }
     }
 
+    resolveBanterName(name) {
+        return (this.banterNameMap && this.banterNameMap[name]) || name;
+    }
+
     say(text) {
         const message = (text || '').trim();
         if (!message) return;
         this.lastPlayerActionAt = Date.now();
+        if (/^1283$/i.test(message)) {
+            this.suppressBanterUntil = Date.now() + 6000;
+            this.showChatBubble(`Siz: "${message}"`, 'player');
+            setTimeout(() => this.showChatBubble(`${this.opponentName}: "Kalbimizde!"`, 'bot'), 600);
+            setTimeout(() => this.showChatBubble(`${this.spectatorName}: "Kalbimizde!"`, 'bot'), 1600);
+            if (window.turkishSound) window.turkishSound.playOkeyWin();
+            return;
+        }
         this.showChatBubble(`Siz: "${message}"`, 'player');
         if (window.turkishSound) window.turkishSound.playClick();
 
@@ -523,7 +545,7 @@ class TavlaGame {
                 ...((window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla && window.KIRAATHANE_BANTER.tavla.retorts) || [])
             ];
             const reply = replies[Math.floor(Math.random() * replies.length)];
-            this.showChatBubble(`Bilgisayar: "${reply}"`, 'bot');
+            this.showChatBubble(`${this.opponentName}: "${reply}"`, 'bot');
             if (window.turkishSound) window.turkishSound.playCheckerMove();
         }, 1250);
     }
@@ -532,7 +554,7 @@ class TavlaGame {
         if (this.banterTimer) clearInterval(this.banterTimer);
         const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla;
         if (!data) return;
-        this.banterTimer = setInterval(() => this.maybeBanter(), 17000);
+        this.banterTimer = setInterval(() => this.maybeBanter(), 10000);
     }
 
     stopBanterLoop() {
@@ -544,24 +566,25 @@ class TavlaGame {
 
     maybeBanter() {
         if (this.gameOver) return;
+        if (Date.now() < (this.suppressBanterUntil || 0)) return;
         const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.tavla;
         if (!data) return;
         const idle = Date.now() - (this.lastPlayerActionAt || Date.now());
-        if (idle > 26000 && Date.now() - (this.lastDirectedAt || 0) > 30000 && Math.random() < 0.6) {
+        if (idle > 8000 && Date.now() - (this.lastDirectedAt || 0) > 11000 && Math.random() < 0.78) {
             const lines = data.toPlayer || [];
             if (!lines.length) return;
             const item = lines[Math.floor(Math.random() * lines.length)];
             this.lastDirectedAt = Date.now();
-            this.showChatBubble(`${item.speaker}: "${item.line}"`, 'bot');
+            this.showChatBubble(`${this.resolveBanterName(item.speaker)}: "${item.line}"`, 'bot');
             return;
         }
         const pairs = data.crossTalk || [];
         if (!pairs.length) return;
         const pair = pairs[Math.floor(Math.random() * pairs.length)];
-        this.showChatBubble(`${pair.from}: "${pair.line}"`, 'bot');
+        this.showChatBubble(`${this.resolveBanterName(pair.from)}: "${pair.line}"`, 'bot');
         if (pair.reply) {
             setTimeout(() => {
-                if (!this.gameOver) this.showChatBubble(`${pair.to}: "${pair.reply}"`, 'bot');
+                if (!this.gameOver) this.showChatBubble(`${this.resolveBanterName(pair.to)}: "${pair.reply}"`, 'bot');
             }, 1500);
         }
     }
@@ -1242,10 +1265,17 @@ class OkeyGame {
         };
 
         // Rakipler (Gerçek el tutan yapay zekalar)
+        const okeyBotNames = (window.pickBotNames ? window.pickBotNames(3) : ["Ali Dayı", "Mehmet Usta", "Hasan Amca"]);
+        this.botNames = { ali: okeyBotNames[0], mehmet: okeyBotNames[1], hasan: okeyBotNames[2] };
+        this.banterNameMap = {
+            "Ali Dayı": okeyBotNames[0],
+            "Mehmet Usta": okeyBotNames[1],
+            "Hasan Amca": okeyBotNames[2]
+        };
         this.bots = [
-            { id: 'ali', name: "Ali Dayı", avatar: "🧔", hand: [] },
-            { id: 'mehmet', name: "Mehmet Usta", avatar: "👴", hand: [] },
-            { id: 'hasan', name: "Hasan Amca", avatar: "🧓", hand: [] }
+            { id: 'ali', name: okeyBotNames[0], avatar: "🧔", hand: [] },
+            { id: 'mehmet', name: okeyBotNames[1], avatar: "👴", hand: [] },
+            { id: 'hasan', name: okeyBotNames[2], avatar: "🧓", hand: [] }
         ];
 
         this.turn = 0; // 0: Oyuncu, 1: Ali Dayı, 2: Mehmet Usta, 3: Hasan Amca
@@ -1273,6 +1303,7 @@ class OkeyGame {
         this.loadMatchState();
 
         this.initElements();
+        this.refreshBotNameLabels();
     }
 
     initElements() {
@@ -1447,6 +1478,22 @@ class OkeyGame {
                 this.setStatus('Laf atmak için önce kutuya bir şey yazın.');
                 return;
             }
+            if (/^1283$/i.test(text)) {
+                this.lastPlayerActionAt = Date.now();
+                if (this.playerBubbleEl) {
+                    this.playerBubbleEl.textContent = `Siz: "${text}"`;
+                    this.playerBubbleEl.classList.add('show');
+                    setTimeout(() => this.playerBubbleEl.classList.remove('show'), 3200);
+                }
+                this.suppressBanterUntil = Date.now() + 6000;
+                this.setStatus('Masa hep bir ağızdan: "Kalbimizde!" 💛');
+                this.bots.forEach((bot) => {
+                    setTimeout(() => this.showBotLine(bot.name, 'Kalbimizde!', 4200), 400);
+                });
+                if (window.turkishSound) window.turkishSound.playOkeyWin();
+                customChatInput.value = '';
+                return;
+            }
             this.playerSay(text);
             customChatInput.value = '';
         };
@@ -1538,7 +1585,7 @@ class OkeyGame {
         const note = document.getElementById('okeyModeNote');
         if (note) {
             if (isTeam) {
-                note.textContent = '101 Eşli: Mehmet Usta ortağınız, Ali Dayı ve Hasan Amca rakip takım. Açılış 101 puan / 7 çift; takım puanları 1010 hedefine kadar birikir.';
+                note.textContent = `101 Eşli: ${this.botNames.mehmet} ortağınız, ${this.botNames.ali} ve ${this.botNames.hasan} rakip takım. Açılış 101 puan / 7 çift; takım puanları 1010 hedefine kadar birikir.`;
             } else if (is101) {
                 note.textContent = '101 Okey: 21 taşla perleri kur; açılış 101 puan veya 7 çift. Bitişte kalan 21 taşın tamamı per olmalı; el açılırken perler animasyonla serilir.';
             } else {
@@ -1685,9 +1732,9 @@ class OkeyGame {
                     "Laf yetiştireceğine taşını oyna koçum!",
                     "Biz bu masalarda saç ağarttık, lafla okey bitmez!",
                     "Sen önce önündeki çayı bitir de konuş!",
-                    "Hasan Amca'nı hafife alma, bu el bende bilesin!",
+                    `${this.bots[2].name} hafife alınmaz, bu el bende bilesin!`,
                     "Taşın konuşsun, dilin değil usta!",
-                    "Ali Dayı'ya racon kesilmez, taş kesilir!",
+                    `${this.bots[0].name} masada racon kesmez, taş kesilir!`,
                     "İddialı laflar bunlar, masada göreceğiz!",
                     ...((window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey && window.KIRAATHANE_BANTER.okey.retorts) || [])
                 ];
@@ -1705,7 +1752,7 @@ class OkeyGame {
         if (this.banterTimer) clearInterval(this.banterTimer);
         const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey;
         if (!data) return;
-        this.banterTimer = setInterval(() => this.maybeBanter(), 17000);
+        this.banterTimer = setInterval(() => this.maybeBanter(), 10000);
     }
 
     stopBanterLoop() {
@@ -1717,10 +1764,11 @@ class OkeyGame {
 
     maybeBanter() {
         if (this.gameOver) return;
+        if (Date.now() < (this.suppressBanterUntil || 0)) return;
         const data = window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.okey;
         if (!data) return;
         const idle = Date.now() - (this.lastPlayerActionAt || Date.now());
-        if (idle > 26000 && Date.now() - (this.lastDirectedAt || 0) > 30000 && Math.random() < 0.62) {
+        if (idle > 7000 && Date.now() - (this.lastDirectedAt || 0) > 10000 && Math.random() < 0.82) {
             const lines = data.toPlayer || [];
             if (!lines.length) return;
             const item = lines[Math.floor(Math.random() * lines.length)];
@@ -1741,6 +1789,11 @@ class OkeyGame {
 
     showBotLine(name, text, duration = 2800) {
         if (!name || !text) return;
+        name = (this.banterNameMap && this.banterNameMap[name]) || name;
+        text = String(text)
+            .split("Ali Dayı").join(this.bots[0].name)
+            .split("Mehmet Usta").join(this.bots[1].name)
+            .split("Hasan Amca").join(this.bots[2].name);
         const index = this.bots.findIndex(bot => bot.name === name);
         const bubbles = [this.botRightBubble, this.botTopBubble, this.botLeftBubble];
         const bubble = bubbles[index] || this.botTopBubble;
@@ -1853,10 +1906,10 @@ class OkeyGame {
         this.updateAllUI();
         this.renderScoreboard();
         this.setStatus(isTeam
-            ? 'Eşli 101 başladı! Ortağınız Mehmet Usta. 22 taşınız var; “Eli Aç (Eşli 101)” ile perleri açıp takımınıza puan kazandırın.'
+            ? `Eşli 101 başladı! Ortağınız ${this.botNames.mehmet}. 22 taşınız var; “Eli Aç (Eşli 101)” ile perleri açıp takımınıza puan kazandırın.`
             : (is101
                 ? '101 Okey başladı! 22 taşınız var. Perleri kurup “Eli Aç (101)” ile açabilir veya bir taş atabilirsiniz.'
-                : "Oyun başladı! Sıra sizde: Desteden veya Hasan Amca'nın attığı taşa tıklayarak taş çekin."));
+                : `Oyun başladı! Sıra sizde: Desteden veya ${this.botNames.hasan} tarafından atılan taşa tıklayarak taş çekin.`));
         if (window.turkishSound) window.turkishSound.playTileDraw();
         this.startBanterLoop();
     }
@@ -2119,6 +2172,26 @@ class OkeyGame {
         this.saveMatchState();
     }
 
+    refreshBotNameLabels() {
+        const setText = (root, selector, text) => {
+            const el = root && root.querySelector(selector);
+            if (el) el.textContent = text;
+        };
+        setText(this.botTopContainer, '.bot-name', this.bots[1].name);
+        setText(this.botLeftContainer, '.bot-name', this.bots[2].name);
+        setText(this.botRightContainer, '.bot-name', this.bots[0].name);
+        setText(document.getElementById('zoneDiscardMehmet'), '.discard-zone-label', this.bots[1].name);
+        setText(document.getElementById('zoneDiscardAli'), '.discard-zone-label', this.bots[0].name);
+        const hasanZone = document.getElementById('zoneDiscardHasan');
+        const hasanLabel = hasanZone && hasanZone.querySelector('.discard-zone-label span');
+        if (hasanLabel) hasanLabel.textContent = this.bots[2].name;
+        if (this.botTopBubble && !this.botTopBubble.classList.contains('show')) this.botTopBubble.textContent = `${this.bots[1].name}: "Çaylar benden!"`;
+        if (this.botLeftBubble && !this.botLeftBubble.classList.contains('show')) this.botLeftBubble.textContent = `${this.bots[2].name}: "Attım gitti!"`;
+        if (this.botRightBubble && !this.botRightBubble.classList.contains('show')) this.botRightBubble.textContent = `${this.bots[0].name}: "Gözüm okeyde!"`;
+        const modalDesc = document.getElementById('okeyModalDesc');
+        if (modalDesc) modalDesc.textContent = `Masanın şampiyonu oldunuz! ${this.bots[0].name}, ${this.bots[1].name} ve ${this.bots[2].name} çayları ısmarlıyor! ☕🎉`;
+    }
+
     renderScoreboard() {
         if (!this.scoreCardsEl && !this.scoreHistoryEl) return;
         const isTeam = this.isTeamMode();
@@ -2129,15 +2202,15 @@ class OkeyGame {
         let cards = [];
         if (isTeam) {
             cards = [
-                { key: 'biz', name: 'Biz', sub: 'Siz + Mehmet Usta', value: this.teamScores.biz, icon: '🤝' },
-                { key: 'onlar', name: 'Onlar', sub: 'Ali Dayı + Hasan Amca', value: this.teamScores.onlar, icon: '🛡️' }
+                { key: 'biz', name: 'Biz', sub: `Siz + ${this.botNames.mehmet}`, value: this.teamScores.biz, icon: '🤝' },
+                { key: 'onlar', name: 'Onlar', sub: `${this.botNames.ali} + ${this.botNames.hasan}`, value: this.teamScores.onlar, icon: '🛡️' }
             ];
         } else {
             cards = [
                 { key: 'player', name: 'Siz', sub: 'Güney', value: this.matchScores.player, icon: '🏹' },
-                { key: 'ali', name: 'Ali Dayı', sub: 'Doğu', value: this.matchScores.ali, icon: '🧔' },
-                { key: 'mehmet', name: 'Mehmet Usta', sub: 'Kuzey', value: this.matchScores.mehmet, icon: '👴' },
-                { key: 'hasan', name: 'Hasan Amca', sub: 'Batı', value: this.matchScores.hasan, icon: '🧓' }
+                { key: 'ali', name: this.botNames.ali, sub: 'Doğu', value: this.matchScores.ali, icon: '🧔' },
+                { key: 'mehmet', name: this.botNames.mehmet, sub: 'Kuzey', value: this.matchScores.mehmet, icon: '👴' },
+                { key: 'hasan', name: this.botNames.hasan, sub: 'Batı', value: this.matchScores.hasan, icon: '🧓' }
             ];
         }
 
@@ -2247,7 +2320,7 @@ class OkeyGame {
         if (this.botTopAvatarBox) this.botTopAvatarBox.classList.toggle('active-turn', this.turn === 2);
         if (this.botLeftAvatarBox) this.botLeftAvatarBox.classList.toggle('active-turn', this.turn === 3);
 
-        const names = ["SİZDE", "Ali Dayı'da", "Mehmet Usta'da", "Hasan Amca'da"];
+        const names = ["SİZDE", `${this.botNames.ali} oynuyor`, `${this.botNames.mehmet} oynuyor`, `${this.botNames.hasan} oynuyor`];
         if (this.turnLabelEl) {
             this.turnLabelEl.textContent = `Sıra: ${names[this.turn]}`;
         }
@@ -2451,7 +2524,7 @@ class OkeyGame {
             return;
         }
         if (this.discards.hasan.length === 0) {
-            this.setStatus("Solunuzda (Hasan Amca) henüz atılmış taş yok!");
+            this.setStatus(`Solunuzda (${this.botNames.hasan}) henüz atılmış taş yok!`);
             return;
         }
 

@@ -1,0 +1,288 @@
+/* ========================================================
+   OTAĞ — ARAYÜZ TAZELEME: SARAY REVAKI (v3.1)
+   style.css'in üzerine binen görsel katman.
+   Lacivert gece + varak altın + turkuaz vurgu kimliğini korur.
+   ======================================================== */
+
+/* ── 1. Zemin: çini esintili ışık ve ince altın tarama ───────── */
+body {
+    background-color: #060a14;
+    background-image:
+        radial-gradient(ellipse at 12% 6%, rgba(212, 175, 55, 0.12) 0%, transparent 44%),
+        radial-gradient(ellipse at 88% 10%, rgba(2, 128, 144, 0.14) 0%, transparent 46%),
+        radial-gradient(ellipse at 50% 102%, rgba(193, 18, 31, 0.11) 0%, transparent 55%),
+        repeating-linear-gradient(45deg, rgba(212, 175, 55, 0.028) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(-45deg, rgba(212, 175, 55, 0.028) 0 1px, transparent 1px 24px);
+    background-attachment: fixed;
+}
+
+body.light-theme {
+    background-color: #f6f1e6;
+    background-image:
+        radial-gradient(ellipse at 12% 6%, rgba(155, 120, 17, 0.10) 0%, transparent 44%),
+        radial-gradient(ellipse at 88% 10%, rgba(2, 128, 144, 0.08) 0%, transparent 46%),
+        radial-gradient(ellipse at 50% 102%, rgba(166, 16, 27, 0.06) 0%, transparent 55%),
+        repeating-linear-gradient(45deg, rgba(155, 120, 17, 0.05) 0 1px, transparent 1px 24px),
+        repeating-linear-gradient(-45deg, rgba(155, 120, 17, 0.05) 0 1px, transparent 1px 24px);
+}
+
+/* İnce, altın tonda kaydırma çubuğu */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--gold-dark) transparent;
+}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--gold-dark), #4a3a0a);
+    border: 2px solid var(--bg-base);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, var(--gold), var(--gold-dark)); }
+
+/* ── 2. Başlık: saray sancağı ───────────────────────────────── */
+.portal-header {
+    position: relative;
+    overflow: hidden;
+    padding: 24px 32px;
+    border-radius: 24px;
+    background:
+        radial-gradient(ellipse at 0% 0%, rgba(212, 175, 55, 0.10), transparent 55%),
+        linear-gradient(135deg, rgba(20, 32, 60, 0.96), rgba(9, 15, 29, 0.97));
+}
+body.light-theme .portal-header {
+    background:
+        radial-gradient(ellipse at 0% 0%, rgba(155, 120, 17, 0.10), transparent 55%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.97), rgba(246, 241, 230, 0.98));
+}
+.portal-header::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), #fff6cf, var(--gold), transparent);
+    opacity: 0.9;
+}
+.portal-header::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+}
+
+.logo-emblem-img {
+    border-radius: 12px;
+    transition: transform var(--transition-smooth), filter var(--transition-smooth);
+}
+.logo-box:hover .logo-emblem-img {
+    transform: translateY(-2px) scale(1.04);
+    filter: drop-shadow(0 0 16px rgba(212, 175, 55, 0.55));
+}
+
+.logo-text h1 {
+    letter-spacing: 8px;
+    text-shadow: 0 2px 22px rgba(212, 175, 55, 0.22);
+    animation-duration: 9s;
+}
+.logo-text p {
+    margin-top: 4px;
+    font-size: 0.64rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.9;
+    max-width: 46ch;
+}
+
+/* ── 3. Navigasyon: revak kemerli sekme şeridi ──────────────── */
+.portal-nav {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 18px;
+    border: 1px solid var(--border-gold);
+    background: linear-gradient(180deg, rgba(14, 23, 44, 0.92), rgba(8, 13, 25, 0.94));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+body.light-theme .portal-nav {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 241, 230, 0.96));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 24px rgba(100, 80, 50, 0.10);
+}
+.nav-btn {
+    border-radius: 12px;
+    border: 1px solid transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    transition: color var(--transition-fast), background var(--transition-fast),
+                border-color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.nav-btn:hover {
+    color: var(--gold-light);
+    background: rgba(212, 175, 55, 0.08);
+    border-color: rgba(212, 175, 55, 0.24);
+    transform: translateY(-1px);
+}
+.nav-btn.active {
+    color: #1b1300;
+    background: linear-gradient(135deg, #f7ebba, var(--gold) 55%, #b8912a);
+    border-color: rgba(255, 246, 207, 0.8);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+body.light-theme .nav-btn.active {
+    color: #fffdf5;
+    background: linear-gradient(135deg, var(--gold), #7c5f0c);
+    border-color: rgba(155, 120, 17, 0.5);
+}
+
+/* ── 4. Kartlar: çift çerçeve ve revak köşeleri ─────────────── */
+.seljuk-card {
+    position: relative;
+    border-radius: 24px;
+    border: 1px solid var(--border-gold);
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(212, 175, 55, 0.06), transparent 50%),
+        linear-gradient(160deg, rgba(16, 26, 48, 0.96), rgba(8, 13, 26, 0.97));
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.5), 0 0 1px rgba(212, 175, 55, 0.3);
+    transition: transform var(--transition-smooth), border-color var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+body.light-theme .seljuk-card {
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(155, 120, 17, 0.06), transparent 50%),
+        linear-gradient(160deg, rgba(255, 255, 255, 0.98), rgba(249, 245, 237, 0.98));
+    box-shadow: 0 16px 40px rgba(100, 80, 50, 0.12);
+}
+.seljuk-card::before {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(212, 175, 55, 0.14);
+    border-radius: 18px;
+    pointer-events: none;
+}
+body.light-theme .seljuk-card::before { border-color: rgba(155, 120, 17, 0.16); }
+.seljuk-card:hover {
+    border-color: var(--border-gold-bright);
+    transform: translateY(-2px);
+    box-shadow: 0 30px 65px rgba(0, 0, 0, 0.55), 0 0 42px rgba(212, 175, 55, 0.10);
+}
+
+.card-title {
+    letter-spacing: 0.02em;
+}
+.card-title::after {
+    content: '';
+    display: block;
+    width: 72px;
+    height: 2px;
+    margin-top: 10px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--gold), rgba(212, 175, 55, 0));
+}
+body.light-theme .card-title::after { background: linear-gradient(90deg, var(--gold), transparent); }
+.card-desc { line-height: 1.65; }
+
+/* ── 5. Düğmeler: varak parıltısı ───────────────────────────── */
+.btn-ottoman {
+    position: relative;
+    overflow: hidden;
+    border-radius: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast),
+                border-color var(--transition-fast), background var(--transition-fast);
+}
+.btn-ottoman::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -130%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.30), transparent);
+    transform: skewX(-18deg);
+    transition: left 0.55s ease;
+    pointer-events: none;
+}
+.btn-ottoman:hover::after { left: 140%; }
+.btn-ottoman:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--border-gold-bright);
+}
+.btn-ottoman:active { transform: translateY(0) scale(0.99); }
+
+.okey-mode-btn {
+    border-radius: 999px;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+.okey-mode-btn:hover { transform: translateY(-1px); }
+.okey-mode-btn.active { box-shadow: 0 6px 18px rgba(212, 175, 55, 0.22); }
+
+/* ── 6. Sohbet kutuları ve odak halkaları ───────────────────── */
+#okeyCustomChatInput,
+#tavlaChatInput,
+#mangalaChatInput {
+    border-radius: 11px;
+    border: 1px solid var(--border-gold);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--text-main);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+body.light-theme #okeyCustomChatInput,
+body.light-theme #tavlaChatInput,
+body.light-theme #mangalaChatInput {
+    background: #ffffff;
+}
+#okeyCustomChatInput:focus,
+#tavlaChatInput:focus,
+#mangalaChatInput:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: rgba(0, 0, 0, 0.48);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.16);
+}
+body.light-theme #okeyCustomChatInput:focus,
+body.light-theme #tavlaChatInput:focus,
+body.light-theme #mangalaChatInput:focus {
+    background: #ffffff;
+}
+
+:where(button, input, textarea, select, a, [tabindex]):focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 8px;
+}
+
+/* ── 7. Bölüm geçişi ────────────────────────────────────────── */
+.app-section.active {
+    animation: otagSectionRise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@keyframes otagSectionRise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 8. Mobil uyum ──────────────────────────────────────────── */
+@media (max-width: 720px) {
+    .portal-wrapper { padding: 14px 12px 64px; gap: 16px; }
+    .portal-header { padding: 16px; border-radius: 18px; }
+    .logo-text h1 { font-size: 1.7rem; letter-spacing: 5px; }
+    .logo-text p { font-size: 0.6rem; letter-spacing: 0.04em; }
+    .portal-nav { border-radius: 14px; padding: 6px; gap: 5px; }
+    .nav-btn { font-size: 0.78rem; padding: 8px 10px; }
+    .seljuk-card { border-radius: 18px; }
+    .seljuk-card::before { inset: 7px; border-radius: 14px; }
+    .card-title::after { width: 54px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .app-section.active { animation: none; }
+    .btn-ottoman::after { display: none; }
+    .seljuk-card:hover,
+    .btn-ottoman:hover,
+    .nav-btn:hover,
+    .okey-mode-btn:hover { transform: none; }
+}

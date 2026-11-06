@@ -5170,3 +5170,127 @@ body.light-theme .tavla-chat-bubble.bot { color: #6d0b13; }
 .tavla-chat-row {
     display: flex;
 }
+
+/* === EASTER EGGS === */
+.easter-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(4, 8, 18, 0.84);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+.easter-overlay.show { opacity: 1; visibility: visible; }
+
+.easter-card {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    padding: 34px 28px 28px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-gold-bright);
+    background: linear-gradient(160deg, rgba(14, 23, 44, 0.98), rgba(8, 13, 26, 0.99));
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.75), 0 0 45px var(--gold-glow);
+    text-align: center;
+    overflow: hidden;
+    transform: translateY(14px) scale(0.96);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.easter-overlay.show .easter-card { transform: none; }
+
+.easter-emblem {
+    font-size: 3.2rem;
+    line-height: 1;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 0 18px var(--gold-glow));
+}
+.easter-title {
+    font-family: var(--font-heading);
+    color: var(--gold);
+    font-size: 1.55rem;
+    letter-spacing: 0.06em;
+    margin: 0 0 8px;
+}
+.easter-sub {
+    color: var(--text-main);
+    font-size: 0.98rem;
+    margin: 0 0 16px;
+}
+.easter-quote {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold);
+    border-radius: var(--radius-sm);
+    background: rgba(212, 175, 55, 0.09);
+    color: var(--gold-light);
+    font-style: italic;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    text-align: left;
+}
+.easter-note {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0 0 20px;
+}
+.easter-close {
+    position: relative;
+    z-index: 2;
+    padding: 10px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    cursor: pointer;
+}
+.easter-sparkles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.easter-spark {
+    position: absolute;
+    top: -34px;
+    font-size: 1.3rem;
+    animation-name: easterFall;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    opacity: 0.92;
+}
+@keyframes easterFall {
+    to { transform: translateY(620px) rotate(300deg); opacity: 0; }
+}
+
+.easter-overlay.kirmizi .easter-card {
+    border-color: rgba(255, 92, 92, 0.65);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.75), 0 0 45px var(--kirmizi-glow);
+}
+.easter-overlay.kirmizi .easter-title { color: #ff8a8a; }
+.easter-overlay.kirmizi .easter-quote { border-left-color: var(--kirmizi); background: rgba(193, 18, 31, 0.12); }
+.easter-overlay.turkuaz .easter-card {
+    border-color: rgba(0, 229, 255, 0.45);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.75), 0 0 45px rgba(2, 128, 144, 0.45);
+}
+.easter-overlay.turkuaz .easter-title { color: var(--turkuaz-bright); }
+.easter-overlay.turkuaz .easter-quote { border-left-color: var(--turkuaz); background: rgba(2, 128, 144, 0.14); }
+
+.logo-box.easter-spin .logo-emblem-img { animation: easterEmblemSpin 0.9s ease; }
+@keyframes easterEmblemSpin {
+    0% { transform: rotate(0) scale(1); }
+    50% { transform: rotate(180deg) scale(1.14); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+@media (max-width: 520px) {
+    .easter-card { padding: 26px 18px 22px; }
+    .easter-title { font-size: 1.22rem; }
+    .easter-emblem { font-size: 2.6rem; }
+    .easter-quote { font-size: 0.86rem; }
+    .easter-note { font-size: 0.84rem; }
+}

@@ -395,6 +395,13 @@ function initTavlaTable() {
 function initMangala() {
     window.mangalaInstance = new window.MangalaGame('mangalaContainer');
 
+    const mangalaBotNames = (window.pickBotNames ? window.pickBotNames(2) : ["Bilge Vezir", "Çırak"]);
+    const mangalaNameMap = { "Bilge Vezir": mangalaBotNames[0], "Çırak": mangalaBotNames[1] };
+    const resolveMangalaName = (name) => mangalaNameMap[name] || name;
+    window.mangalaBotNames = mangalaBotNames;
+    const mangalaAiAvatar = document.querySelector('#mangalaContainer .ai-bar .mangala-avatar');
+    if (mangalaAiAvatar) mangalaAiAvatar.textContent = `🧙‍♂️ ${mangalaBotNames[0]} (Yapay Zeka)`;
+
     const modal = document.getElementById('mangalaRulesModal');
     const openRules = () => {
         if (modal) modal.classList.add('show');
@@ -431,6 +438,7 @@ function initMangala() {
     const mangalaData = (window.KIRAATHANE_BANTER && window.KIRAATHANE_BANTER.mangala) || {};
     let mangalaLastAction = Date.now();
     let mangalaLastDirected = 0;
+    let mangalaSuppressUntil = 0;
 
     const showMangalaBubble = (text, who = 'bot') => {
         if (!mangalaBubble || !text) return;
@@ -445,6 +453,16 @@ function initMangala() {
             showToast('Laf atmak için önce bir şey yaz.', '💬');
             return;
         }
+        if (/^1283$/i.test(text)) {
+            mangalaLastAction = Date.now();
+            mangalaSuppressUntil = Date.now() + 8000;
+            showMangalaBubble(`Siz: "${text}"`, 'player');
+            mangalaChatInput.value = '';
+            setTimeout(() => showMangalaBubble(`${mangalaBotNames[0]}: "Kalbimizde!"`, 'bot'), 500);
+            setTimeout(() => showMangalaBubble(`${mangalaBotNames[1]}: "Kalbimizde!"`, 'bot'), 1500);
+            if (window.turkishSound) window.turkishSound.playOkeyWin();
+            return;
+        }
         mangalaLastAction = Date.now();
         showMangalaBubble(`Siz: "${text}"`, 'player');
         mangalaChatInput.value = '';
@@ -454,7 +472,7 @@ function initMangala() {
             const replies = mangalaData.toPlayer || [];
             if (!replies.length) return;
             const reply = replies[Math.floor(Math.random() * replies.length)];
-            showMangalaBubble(`${reply.speaker}: "${reply.line}"`, 'bot');
+            showMangalaBubble(`${resolveMangalaName(reply.speaker)}: "${reply.line}"`, 'bot');
         }, 1300);
     };
 
@@ -480,24 +498,25 @@ function initMangala() {
 
     const mangalaBanterTimer = setInterval(() => {
         if (!window.mangalaInstance || window.mangalaInstance.gameOver) return;
+        if (Date.now() < mangalaSuppressUntil) return;
         const idle = Date.now() - mangalaLastAction;
         const pairs = mangalaData.crossTalk || [];
         const directed = mangalaData.toPlayer || [];
-        if (idle > 26000 && Date.now() - mangalaLastDirected > 30000 && directed.length && Math.random() < 0.6) {
+        if (idle > 8000 && Date.now() - mangalaLastDirected > 11000 && directed.length && Math.random() < 0.8) {
             const item = directed[Math.floor(Math.random() * directed.length)];
             mangalaLastDirected = Date.now();
-            showMangalaBubble(`${item.speaker}: "${item.line}"`, 'bot');
+            showMangalaBubble(`${resolveMangalaName(item.speaker)}: "${item.line}"`, 'bot');
             return;
         }
         if (!pairs.length) return;
         const pair = pairs[Math.floor(Math.random() * pairs.length)];
-        showMangalaBubble(`${pair.from}: "${pair.line}"`, 'bot');
+        showMangalaBubble(`${resolveMangalaName(pair.from)}: "${pair.line}"`, 'bot');
         setTimeout(() => {
             if (window.mangalaInstance && !window.mangalaInstance.gameOver) {
-                showMangalaBubble(`${pair.to}: "${pair.reply}"`, 'bot');
+                showMangalaBubble(`${resolveMangalaName(pair.to)}: "${pair.reply}"`, 'bot');
             }
         }, 1500);
-    }, 17000);
+    }, 10000);
     window.mangalaBanterTimer = mangalaBanterTimer;
 }
 
@@ -1614,6 +1633,8 @@ function initRulers() {
         ]
     };
     rulersData.forEach(r => { if (!r.period && periodNotes[r.id]) r.period = periodNotes[r.id]; });
+    const extraPeriods = window.TURKISH_RULER_PERIODS || {};
+    rulersData.forEach(r => { if (!r.period && extraPeriods[r.id]) r.period = extraPeriods[r.id]; });
 
     const rulerGrid = document.getElementById('rulerGrid');
     const rulerTimeline = document.getElementById('rulerTimeline');
