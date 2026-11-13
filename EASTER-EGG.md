@@ -20,7 +20,7 @@ Dosyalar: `easter-eggs.js` (motor) · `bot-names-data.js` (200 isim) · `style.c
 | 8 | `arma` | Logo kutusuna 2,5 saniye içinde 7 kez tıklamak | Komik | Arma Parlatıldı |
 | 9 | `okey` | Klavyeden `okey` yazmak | Komik | Okey Benden |
 | 10 | `zafer` | Klavyeden `zafer` yazmak | Komik | Kıraathane Şampiyonu |
-| 11 | `kalbimizde` | Klavyeden `1283` yazmak (veya oyun sohbetine `1283` göndermek) | Duygusal | 1283 — Kalbimizde |
+| 11 | `kalbimizde` | Klavyeden `1283` yazmak (veya oyun sohbetine `1283` göndermek) | Duygusal | 1283 — İçimizde |
 | 12 | `osmanli` | Klavyeden `osmanlı` / `osmanli` yazmak | Ciddi / gurur | Söğüt’ten Doğan Devlet |
 | 13 | `gokturk` | Klavyeden `göktürk` / `gokturk` yazmak | Ciddi / gurur | Ötüken’den Ses |
 | 14 | `simit` | Klavyeden `simit` yazmak | Komik | Çayın Yanına Simit |
@@ -47,7 +47,7 @@ Dosyalar: `easter-eggs.js` (motor) · `bot-names-data.js` (200 isim) · `style.c
 Okey, tavla ve mangala sohbet kutularından birine **yalnızca `1283`** yazıp gönderdiğinizde:
 
 1. Sizin mesajınız balonda görünür.
-2. Masadaki botlar sırayla **“Kalbimizde!”** der.
+2. Masadaki botlar sırayla **“İçimizde!”** der.
 3. Kısa bir tebrik sesi (`playOkeyWin`) çalar.
 
 | Oyun | Giriş | Bot sayısı | Davranış |
@@ -199,9 +199,9 @@ OTAG_EASTER_EGGS.ids.length         // 20 olmalı
 - [ ] Konami kodu “1453 — Sur Yıkan”ı açıyor
 - [ ] Logoya 7 kez tıklayınca “Arma Parlatıldı” açılıyor
 - [ ] 60 saniye dokunmayınca “Bir Dakika Sessizlik” bir kez açılıyor
-- [ ] Okey sohbetine `1283` yazınca 3 bot “Kalbimizde!” diyor
-- [ ] Tavla sohbetine `1283` yazınca rakip ve seyirci “Kalbimizde!” diyor
-- [ ] Mangala sohbetine `1283` yazınca 2 bot “Kalbimizde!” diyor
+- [ ] Okey sohbetine `1283` yazınca 3 bot “İçimizde!” diyor
+- [ ] Tavla sohbetine `1283` yazınca rakip ve seyirci “İçimizde!” diyor
+- [ ] Mangala sohbetine `1283` yazınca 2 bot “İçimizde!” diyor
 - [ ] Okey/tavla/mangala bot isimleri sayfa yenilendikçe değişiyor ve aynı masada tekrar etmiyor
 - [ ] Sohbet kutusuna normal metin yazarken easter egg tetiklenmiyor
 - [ ] `Escape`, arka plan ve “Mekâna Dön” katmanı kapatıyor

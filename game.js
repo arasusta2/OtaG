@@ -524,8 +524,8 @@ class TavlaGame {
         if (/^1283$/i.test(message)) {
             this.suppressBanterUntil = Date.now() + 6000;
             this.showChatBubble(`Siz: "${message}"`, 'player');
-            setTimeout(() => this.showChatBubble(`${this.opponentName}: "Kalbimizde!"`, 'bot'), 600);
-            setTimeout(() => this.showChatBubble(`${this.spectatorName}: "Kalbimizde!"`, 'bot'), 1600);
+            setTimeout(() => this.showChatBubble(`${this.opponentName}: "İçimizde!"`, 'bot'), 600);
+            setTimeout(() => this.showChatBubble(`${this.spectatorName}: "İçimizde!"`, 'bot'), 1600);
             if (window.turkishSound) window.turkishSound.playOkeyWin();
             return;
         }
@@ -1486,9 +1486,9 @@ class OkeyGame {
                     setTimeout(() => this.playerBubbleEl.classList.remove('show'), 3200);
                 }
                 this.suppressBanterUntil = Date.now() + 6000;
-                this.setStatus('Masa hep bir ağızdan: "Kalbimizde!" 💛');
+                this.setStatus('Masa hep bir ağızdan: "İçimizde!" 💛');
                 this.bots.forEach((bot) => {
-                    setTimeout(() => this.showBotLine(bot.name, 'Kalbimizde!', 4200), 400);
+                    setTimeout(() => this.showBotLine(bot.name, 'İçimizde!', 4200), 400);
                 });
                 if (window.turkishSound) window.turkishSound.playOkeyWin();
                 customChatInput.value = '';

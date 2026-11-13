@@ -4,6 +4,65 @@ Bu dosya, OTAĞ portalında yapılan çalışmaların sürüm sürüm kaydıdır
 
 ---
 
+## v3.4 — Osmanlıca sözlük ve aydınlık tema bildirimi
+
+**Yeni bölüm: 📜 Osmanlıca Sözlük**
+- 693 kelime; Latin harfli okunuş (â, î, û uzun ünlüleri korunur), bugünkü Türkçe karşılık ve köken etiketi.
+- Arapça, Farsça, Türkçe, Rumca, Ermenice, İtalyanca, Fransızca ve Slavca kökenlerini anlatan sekiz bilgi kartı ve sayaçlı köken filtresi.
+- Türkçe karakter ve uzun ünlü duyarsız arama (vezir → vezîr, hukumet → hükûmet); temizle düğmesi, sonuç sayacı ve boş durum mesajı.
+- Liste kendi içinde kaydırılıyor; mobilde kelime ve köken üstte, anlam altta.
+- Sözlük, diğer ağır sekmeler gibi ilk açılışta değil, sekme ilk açıldığında yükleniyor; açılış süresi etkilenmiyor.
+
+**Başlık kısayolları**
+- Saatin hemen altına “📖 Günün sözü” ve “🕰️ Günün olayı” bağlantıları eklendi.
+- Tıklanınca ilgili bölüm (Atasözleri / Türk Tarihi) açılıyor, günün kartına yumuşak kaydırılıyor ve altın hale ile kısa süre vurgulanıyor.
+
+**Düzeltme**
+- Saray (aydınlık) temasında bildirim metni beyaz yerine koyu lacivert (#121826) oldu; açık zemin ve altın çerçeveyle okunur kontrast sağlandı.
+
+---
+
+## v3.3 — Baştan aşağı görsel rafinasyon ve performans turu
+
+**Performans**
+- `PageLogo.png` 1698×926 / 1,39 MB iken 320×175 / ~12 KB'a indirildi (%99 küçülme); orijinal `PageLogo-source.png` olarak saklandı.
+- Arka plan canvas'ı cihaz piksel oranına göre (en fazla 2×) çiziliyor; sekme arka plandayken animasyon duruyor, yeniden boyutlandırma tek karede birleştiriliyor.
+- Hareket azaltma tercihinde canvas tek kare çizip duruyor; tema değişiminde yeniden çiziliyor.
+- Logoya `width`/`height`, `decoding="async"` ve yüksek yükleme önceliği eklendi; yerleşim kayması (CLS) engellendi.
+- Oyun sekmeleri (Tavla, Mangala, Kemankeş, Ebru) artık açılışta değil, ilk açıldıklarında başlatılıyor; açılışta gereksiz tahta ve canvas kurulumu yapılmıyor. İlk sekme olan Okey hemen kurulmaya devam ediyor.
+
+**Görsel**
+- Başlıkta yumuşak kırmızı-altın hale, dengeli tipografi ve ince altın alt çizgi.
+- Bölüm başlıkları ve açıklamalarında dengeli satır kırma, okunabilir satır uzunluğu ve daha ferah başlık aralığı.
+- Alt bilgide ❖ ayraçlı ince altın çizgi ve sadeleştirilmiş tipografi.
+- Seçim rengi, klavye odak halkaları ve dokunma vurgusu tüm sitede tutarlı hale getirildi.
+- Mobilde başlık halesi ve alt bilgi ölçüleri uyarlandı; azaltılmış hareket tercihinde logo parıltısı kapanıyor.
+
+**Erişilebilirlik**
+- Aktif bölüm düğmeleri `aria-current` ile işaretleniyor; sekme değişiminde eski işaret kaldırılıyor.
+- Tüm etkileşimli öğelerde görünür altın odak halkası.
+
+---
+
+## v3.2 — Detay katmanı: tarih araması, günün olayı ve favoriler
+
+**Türk Tarihi**
+- Zaman tüneli **18 dönem ve 648 olaya** çıkarıldı; Ön Türklerden günümüze ve kültür-medeniyet başlıklarına uzanan yeni dönemler eklendi.
+- Dönem düğmelerinde olay sayısı rozetleri; yıl, olay, kişi ve yer adlarında canlı arama ve eşleşme vurgusu.
+- Arama sonucuna tıklayınca ilgili döneme atlama; “🎲 Rastgele olay” düğmesi ve hedef olayı vurgulayan animasyon.
+- Tarihe göre değişen “📅 Günün olayı” kartı ve “Dönemine git” bağlantısı.
+
+**Atasözleri**
+- Tarihe göre seçilen “Günün sözü” şeridi.
+- Tarayıcıda saklanan favoriler: yıldızla ekleme/çıkarma, favori sayacı ve “⭐ Favoriler” filtresi.
+
+**Arayüz**
+- Başlıkta Türkiye saatine göre canlı tarih ve saat şeridi.
+- Alt bilgide tarih olayı, hükümdar, atasözü, hikmet ve easter egg sayılarını gösteren istatistik rozetleri.
+- Yeni bileşenler için gece ve Saray Gündüzü temalarına uyumlu stiller, mobil düzen ve azaltılmış hareket desteği.
+
+---
+
 ## v3.1 — Saray Revakı arayüzü ve 7 yeni easter egg
 
 **Arayüz**
@@ -30,7 +89,7 @@ Bu dosya, OTAĞ portalında yapılan çalışmaların sürüm sürüm kaydıdır
 - Toplam **20** egg; Türkçe ve ASCII yazım varyantları birlikte desteklendi.
 
 **Sohbet**
-- Okey, tavla ve mangala sohbetine `1283` yazıldığında botların **"Kalbimizde!"** demesi sağlandı.
+- Okey, tavla ve mangala sohbetine `1283` yazıldığında botların **"İçimizde!"** demesi sağlandı.
 - Okeyde üç bot aynı anda, tavlada rakip ve seyirci, mangalada iki bot sırayla cevap veriyor.
 - Cevabın hemen ardından araya giren kıraathane muhabbetinin balonları ezmemesi için 6–8 saniyelik sohbet molası eklendi.
 

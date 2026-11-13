@@ -6,19 +6,38 @@ document.addEventListener('DOMContentLoaded', () => {
     initTabs();
     initNavDragScroll();
     initScrollTools();
-    initOkeyTable();
-    initTavlaTable();
-    initMangala();
-    initKemankesAndEbru();
+    ensureTabInitialized('tab-okey');
     initInstruments();
     initGokturkTranslator();
     initAnatoliaAtlas();
     initRulers();
+    initHeaderDate();
+    initHeaderDailyLinks();
+    initFooterStats();
     initTurkishTimeline();
     initAtasozleri();
     initDailyWisdom();
     initHikmetQuiz();
 });
+
+/* Oyun sekmeleri yalnızca ilk kez açıldığında başlatılır.
+   Böylece açılışta oyun tahtaları ve canvas'ları kurulmaz. */
+const TAB_INITIALIZERS = {
+    'tab-okey': { key: 'okey', run: () => initOkeyTable() },
+    'tab-tavla': { key: 'tavla', run: () => initTavlaTable() },
+    'tab-mangala': { key: 'mangala', run: () => initMangala() },
+    'tab-kemankes': { key: 'kemankes-ebru', run: () => initKemankesAndEbru() },
+    'tab-ebru': { key: 'kemankes-ebru', run: () => initKemankesAndEbru() },
+    'tab-sozluk': { key: 'sozluk', run: () => initSozluk() }
+};
+const initializedTabs = new Set();
+
+function ensureTabInitialized(tabId) {
+    const entry = TAB_INITIALIZERS[tabId];
+    if (!entry || initializedTabs.has(entry.key)) return;
+    initializedTabs.add(entry.key);
+    entry.run();
+}
 
 // Toast Bildirimi
 function showToast(message, icon = '🇹🇷') {
@@ -66,29 +85,26 @@ function initTurkishBackground() {
     const canvas = document.getElementById('bgCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
+    if (!ctx) return;
 
-    window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    });
-
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const stars = [];
     const count = 35;
+    let width = 0;
+    let height = 0;
+    let frame = null;
+    let resizeFrame = null;
 
-    for (let i = 0; i < count; i++) {
-        stars.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            size: Math.random() * 24 + 12,
-            angle: Math.random() * Math.PI * 2,
-            vRot: (Math.random() - 0.5) * 0.006,
-            vx: (Math.random() - 0.5) * 0.35,
-            vy: (Math.random() - 0.5) * 0.35,
-            alpha: Math.random() * 0.12 + 0.05
-        });
-    }
+    const resize = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
 
     function drawSeljukStar(cx, cy, r, angle) {
         ctx.save();
@@ -103,30 +119,90 @@ function initTurkishBackground() {
         ctx.restore();
     }
 
-    function draw() {
+    const paint = () => {
         ctx.clearRect(0, 0, width, height);
-
+        const isLight = document.body.classList.contains('light-theme');
         for (const s of stars) {
-            s.x += s.vx;
-            s.y += s.vy;
-            s.angle += s.vRot;
-
-            if (s.x < -60) s.x = width + 60;
-            if (s.x > width + 60) s.x = -60;
-            if (s.y < -60) s.y = height + 60;
-            if (s.y > height + 60) s.y = -60;
-
-            const isLight = document.body.classList.contains('light-theme');
             ctx.strokeStyle = isLight
                 ? `rgba(155, 120, 17, ${s.alpha * 1.2})`
                 : `rgba(212, 175, 55, ${s.alpha})`;
             ctx.lineWidth = 1.3;
             drawSeljukStar(s.x, s.y, s.size, s.angle);
         }
+    };
 
-        requestAnimationFrame(draw);
+    const step = () => {
+        for (const s of stars) {
+            s.x += s.vx;
+            s.y += s.vy;
+            s.angle += s.vRot;
+            if (s.x < -60) s.x = width + 60;
+            if (s.x > width + 60) s.x = -60;
+            if (s.y < -60) s.y = height + 60;
+            if (s.y > height + 60) s.y = -60;
+        }
+        paint();
+        frame = requestAnimationFrame(step);
+    };
+
+    const stop = () => {
+        if (frame !== null) {
+            cancelAnimationFrame(frame);
+            frame = null;
+        }
+    };
+
+    const start = () => {
+        if (reduceMotion.matches) {
+            paint();
+            return;
+        }
+        if (frame === null) step();
+    };
+
+    resize();
+    for (let i = 0; i < count; i++) {
+        stars.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            size: Math.random() * 24 + 12,
+            angle: Math.random() * Math.PI * 2,
+            vRot: (Math.random() - 0.5) * 0.006,
+            vx: (Math.random() - 0.5) * 0.35,
+            vy: (Math.random() - 0.5) * 0.35,
+            alpha: Math.random() * 0.12 + 0.05
+        });
     }
-    draw();
+
+    window.addEventListener('resize', () => {
+        if (resizeFrame !== null) return;
+        resizeFrame = requestAnimationFrame(() => {
+            resizeFrame = null;
+            resize();
+            if (frame === null) paint();
+        });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stop();
+        } else {
+            start();
+        }
+    });
+
+    if (reduceMotion.addEventListener) {
+        reduceMotion.addEventListener('change', () => {
+            stop();
+            start();
+        });
+    }
+
+    new MutationObserver(() => {
+        if (frame === null) paint();
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    start();
 }
 
 /* ========================================================
@@ -188,12 +264,17 @@ function initTabs() {
             const target = btn.dataset.tab;
             if (window.turkishSound) window.turkishSound.playClick();
 
-            navButtons.forEach(b => b.classList.remove('active'));
+            navButtons.forEach(b => {
+                b.classList.remove('active');
+                b.removeAttribute('aria-current');
+            });
             sections.forEach(s => s.classList.remove('active'));
 
             btn.classList.add('active');
+            btn.setAttribute('aria-current', 'true');
             const targetSection = document.getElementById(target);
             if (targetSection) targetSection.classList.add('active');
+            ensureTabInitialized(target);
 
             if (target === 'tab-tavla' && window.tavlaInstance) {
                 setTimeout(() => window.tavlaInstance.render(), 40);
@@ -458,8 +539,8 @@ function initMangala() {
             mangalaSuppressUntil = Date.now() + 8000;
             showMangalaBubble(`Siz: "${text}"`, 'player');
             mangalaChatInput.value = '';
-            setTimeout(() => showMangalaBubble(`${mangalaBotNames[0]}: "Kalbimizde!"`, 'bot'), 500);
-            setTimeout(() => showMangalaBubble(`${mangalaBotNames[1]}: "Kalbimizde!"`, 'bot'), 1500);
+            setTimeout(() => showMangalaBubble(`${mangalaBotNames[0]}: "İçimizde!"`, 'bot'), 500);
+            setTimeout(() => showMangalaBubble(`${mangalaBotNames[1]}: "İçimizde!"`, 'bot'), 1500);
             if (window.turkishSound) window.turkishSound.playOkeyWin();
             return;
         }
@@ -1859,6 +1940,114 @@ function initRulers() {
 /* ========================================================
    11. TÜRK ATASÖZLERİ & DEYİMLER MODÜLÜ
    ======================================================== */
+function initSozluk() {
+    const data = window.OTTOMAN_SOZLUK;
+    const listEl = document.getElementById('sozlukList');
+    if (!data || !Array.isArray(data.entries) || !listEl) return;
+
+    const languages = new Map((data.languages || []).map(([code, name, note]) => [code, { name, note }]));
+    const originCounts = new Map();
+    data.entries.forEach(([, , origin]) => originCounts.set(origin, (originCounts.get(origin) || 0) + 1));
+
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+    const fold = (value) => String(value).toLocaleLowerCase('tr-TR')
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/ı/g, 'i')
+        .replace(/ş/g, 's')
+        .replace(/ğ/g, 'g')
+        .replace(/ç/g, 'c')
+        .replace(/ö/g, 'o')
+        .replace(/ü/g, 'u');
+
+    const entries = data.entries
+        .map(([word, meaning, origin]) => ({ word, meaning, origin, key: fold(word) }))
+        .sort((a, b) => a.key.localeCompare(b.key, 'tr'));
+
+    const countEl = document.getElementById('sozlukCount');
+    if (countEl) countEl.textContent = `${entries.length} kelime · ${originCounts.size} köken`;
+
+    const langsEl = document.getElementById('sozlukLangs');
+    if (langsEl) {
+        langsEl.innerHTML = (data.languages || []).map(([, name, note]) =>
+            `<article class="sozluk-lang"><strong>${escapeHtml(name)}</strong><p>${escapeHtml(note)}</p></article>`
+        ).join('');
+    }
+
+    const filtersEl = document.getElementById('sozlukFilters');
+    const listCountEl = document.getElementById('sozlukSearchCount');
+    const emptyEl = document.getElementById('sozlukEmpty');
+    const searchEl = document.getElementById('sozlukSearch');
+    const clearEl = document.getElementById('sozlukClear');
+
+    let activeOrigin = 'all';
+    let query = '';
+    let renderTimer = null;
+
+    const filterDefs = [['all', 'Tümü', entries.length]];
+    (data.languages || []).forEach(([code, name]) => {
+        if (originCounts.has(code)) filterDefs.push([code, name, originCounts.get(code)]);
+    });
+    if (filtersEl) {
+        filtersEl.innerHTML = filterDefs.map(([code, label, count]) =>
+            `<button class="atsozu-cat-btn${code === 'all' ? ' active' : ''}" type="button" data-origin="${code}">${escapeHtml(label)} <span class="sozluk-filter-count">${count}</span></button>`
+        ).join('');
+    }
+
+    const render = () => {
+        const rows = [];
+        entries.forEach((entry) => {
+            if (activeOrigin !== 'all' && entry.origin !== activeOrigin) return;
+            if (query && !entry.key.includes(query) && !fold(entry.meaning).includes(query)) return;
+            const originName = (languages.get(entry.origin) || {}).name || entry.origin;
+            rows.push(`<li class="sozluk-row">
+                <span class="sozluk-word">${escapeHtml(entry.word)}</span>
+                <span class="sozluk-origin" data-origin="${escapeHtml(entry.origin)}">${escapeHtml(originName)}</span>
+                <span class="sozluk-meaning">${escapeHtml(entry.meaning)}</span>
+            </li>`);
+        });
+        listEl.innerHTML = rows.join('');
+        if (emptyEl) emptyEl.hidden = rows.length > 0;
+        if (listCountEl) listCountEl.textContent = query
+            ? `${rows.length} sonuç`
+            : (activeOrigin === 'all' ? '' : `${rows.length} kelime`);
+    };
+
+    if (filtersEl) {
+        filtersEl.addEventListener('click', (event) => {
+            const btn = event.target.closest('button[data-origin]');
+            if (!btn) return;
+            activeOrigin = btn.dataset.origin;
+            filtersEl.querySelectorAll('button[data-origin]').forEach(b => b.classList.toggle('active', b === btn));
+            render();
+            if (window.turkishSound) window.turkishSound.playClick();
+        });
+    }
+
+    if (searchEl) {
+        searchEl.addEventListener('input', () => {
+            query = fold(searchEl.value.trim());
+            if (clearEl) clearEl.hidden = !searchEl.value.trim();
+            if (renderTimer) clearTimeout(renderTimer);
+            renderTimer = setTimeout(render, 80);
+        });
+    }
+
+    if (clearEl && searchEl) {
+        clearEl.addEventListener('click', () => {
+            searchEl.value = '';
+            query = '';
+            clearEl.hidden = true;
+            if (renderTimer) clearTimeout(renderTimer);
+            render();
+            searchEl.focus();
+        });
+    }
+
+    render();
+}
 function initAtasozleri() {
     const atsozuData = window.atasozleriData || [];
 
@@ -1871,8 +2060,18 @@ function initAtasozleri() {
     const searchInput = document.getElementById('atsozuSearch');
     const copyButton = document.getElementById('btnCopyAtsozu');
     const countEl = document.getElementById('atsozuCount');
+    const favButton = document.getElementById('btnFavAtsozu');
+    const favCountEl = document.getElementById('atsozuFavCount');
+    const dailyEl = document.getElementById('atsozuDaily');
     let currentCategory = 'all';
     let lastItem = null;
+    let favorites = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem('otag_atasozu_favorileri') || '[]');
+        favorites = Array.isArray(stored) ? stored.filter(item => typeof item === 'string') : [];
+    } catch (error) {
+        favorites = [];
+    }
     const catLabels = {
         all: '🌟 Tümü', sabir: '⏳ Sabır & Metanet', emek: '💪 Emek & Alın Teri',
         birlik: '🤝 Birlik & Dayanışma', bilgi: '📚 İlim & Hikmet',
@@ -1884,14 +2083,30 @@ function initAtasozleri() {
     if (filters) {
         const categories = [...new Set(atsozuData.map(item => item.cat).filter(Boolean))];
         filters.innerHTML = `<button class="atsozu-cat-btn active" data-cat="all">${catLabels.all}</button>` +
+            `<button class="atsozu-cat-btn" data-cat="fav">⭐ Favoriler <span id="favChipCount">(${favorites.length})</span></button>` +
             categories.map(cat => `<button class="atsozu-cat-btn" data-cat="${cat}">${catLabels[cat] || `📖 ${cat}`}</button>`).join('');
     }
     const catButtons = document.querySelectorAll('.atsozu-cat-btn');
     if (countEl) countEl.textContent = `${atsozuData.length} atasözü ve deyim`;
 
+    const isFavorite = (item) => !!item && favorites.includes(item.text);
+
+    function updateFavUI(item) {
+        const active = isFavorite(item);
+        if (favButton) {
+            favButton.classList.toggle('is-fav', active);
+            favButton.setAttribute('aria-pressed', active ? 'true' : 'false');
+            favButton.textContent = active ? '★ Favorilerde' : '☆ Favorilere ekle';
+        }
+        if (favCountEl) favCountEl.textContent = favorites.length ? `${favorites.length} favori` : '';
+        const chipCount = document.getElementById('favChipCount');
+        if (chipCount) chipCount.textContent = `(${favorites.length})`;
+    }
+
     function displayProverb(item) {
         if (!item || !textEl || !meaningEl || !catEl) return;
         lastItem = item;
+        updateFavUI(item);
         if (card) {
             card.classList.add('switching');
             setTimeout(() => {
@@ -1906,7 +2121,8 @@ function initAtasozleri() {
     function getPool() {
         const query = (searchInput && searchInput.value || '').trim().toLocaleLowerCase('tr-TR');
         return atsozuData.filter(item =>
-            (currentCategory === 'all' || item.cat === currentCategory) &&
+            (currentCategory === 'all'
+                || (currentCategory === 'fav' ? isFavorite(item) : item.cat === currentCategory)) &&
             (!query || `${item.text} ${item.meaning || ''}`.toLocaleLowerCase('tr-TR').includes(query))
         );
     }
@@ -1920,6 +2136,25 @@ function initAtasozleri() {
         const candidates = pool.length > 1 ? pool.filter(item => item !== lastItem) : pool;
         displayProverb(candidates[Math.floor(Math.random() * candidates.length)]);
         if (countEl) countEl.textContent = `${pool.length} eşleşme · arşivde ${atsozuData.length} söz`;
+    }
+
+    if (favButton) {
+        favButton.addEventListener('click', () => {
+            if (!lastItem) return;
+            const index = favorites.indexOf(lastItem.text);
+            if (index === -1) {
+                favorites.push(lastItem.text);
+                showToast('Atasözü favorilere eklendi.', '⭐');
+            } else {
+                favorites.splice(index, 1);
+                showToast('Atasözü favorilerden çıkarıldı.', '☆');
+            }
+            try {
+                localStorage.setItem('otag_atasozu_favorileri', JSON.stringify(favorites));
+            } catch (error) { /* depolama kapalıysa sessiz geç */ }
+            updateFavUI(lastItem);
+            if (currentCategory === 'fav') showRandom();
+        });
     }
 
     if (btnNew) {
@@ -1952,7 +2187,18 @@ function initAtasozleri() {
             .then(() => showToast('Atasözü panoya kopyalandı.', '📋'))
             .catch(() => showToast('Kopyalama desteklenmedi; sözü seçip kopyalayabilirsiniz.', '📋'));
     });
-    if (atsozuData.length) displayProverb(atsozuData[0]);
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 0);
+    const dayOfYear = Math.floor((now - startOfYear) / 86400000);
+    const dailyItem = atsozuData.length ? atsozuData[(dayOfYear * 13 + now.getFullYear()) % atsozuData.length] : null;
+    if (dailyEl && dailyItem) {
+        dailyEl.textContent = `📅 Günün sözü: “${dailyItem.text}”`;
+        dailyEl.addEventListener('click', () => {
+            displayProverb(dailyItem);
+            showToast('Günün sözü gösteriliyor.', '📅');
+        });
+    }
+    displayProverb(dailyItem || atsozuData[0]);
 }
 
 /* ========================================================
@@ -2085,6 +2331,81 @@ function initHikmetQuiz() {
 /* ========================================================
    TÜRK TARİHİ ZAMAN TÜNELİ
    ======================================================== */
+function initHeaderDate() {
+    const dateEl = document.getElementById('headerDateText');
+    const clockEl = document.getElementById('headerClockText');
+    if (!dateEl || !clockEl) return;
+
+    const render = () => {
+        const now = new Date();
+        try {
+            const dayText = now.toLocaleDateString('tr-TR', {
+                day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Istanbul'
+            });
+            const weekdayText = now.toLocaleDateString('tr-TR', { weekday: 'long', timeZone: 'Europe/Istanbul' });
+            dateEl.textContent = `${dayText}, ${weekdayText}`;
+            clockEl.textContent = now.toLocaleTimeString('tr-TR', {
+                hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Istanbul'
+            });
+        } catch (error) {
+            dateEl.textContent = now.toLocaleDateString('tr-TR');
+            clockEl.textContent = now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+        }
+    };
+
+    render();
+    setInterval(render, 20000);
+}
+
+function initHeaderDailyLinks() {
+    const links = document.querySelectorAll('.header-daily-link');
+    if (!links.length) return;
+
+    const goToDaily = (link) => {
+        const navButton = document.querySelector(`.nav-btn[data-tab="${link.dataset.dailyTarget}"]`);
+        if (navButton) navButton.click();
+
+        const target = document.getElementById(link.dataset.dailyFocus);
+        if (!target) return;
+
+        window.setTimeout(() => {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            target.classList.remove('daily-flash');
+            void target.offsetWidth;
+            target.classList.add('daily-flash');
+            window.setTimeout(() => target.classList.remove('daily-flash'), 1600);
+        }, 180);
+    };
+
+    links.forEach((link) => link.addEventListener('click', () => goToDaily(link)));
+}
+
+function initFooterStats() {
+    const el = document.getElementById('footerStats');
+    if (!el) return;
+
+    const eras = window.TURKISH_HISTORY_TIMELINE || [];
+    const events = eras.reduce((sum, era) => sum + (era.events || []).length, 0);
+    const rulers = (window.TURKISH_RULERS_DATA || []).length + (window.TURKISH_RULERS_EXTRA || []).length;
+    const proverbs = (window.atasozleriData || []).length;
+    const wisdom = (window.hikmetData || []).length;
+    const eggs = window.OTAG_EASTER_EGGS && Array.isArray(window.OTAG_EASTER_EGGS.ids)
+        ? window.OTAG_EASTER_EGGS.ids.length
+        : 0;
+
+    const stats = [
+        ['🕰️', events, 'tarih olayı'],
+        ['🏛️', rulers, 'hükümdar'],
+        ['📖', proverbs, 'atasözü'],
+        ['🌟', wisdom, 'hikmet'],
+        ['🥚', eggs, 'gizli sürpriz']
+    ].filter(item => item[1] > 0);
+
+    el.innerHTML = stats.map(([icon, value, label]) =>
+        `<span class="footer-stat"><span aria-hidden="true">${icon}</span> <strong>${value}</strong> ${label}</span>`
+    ).join('');
+}
+
 function initTurkishTimeline() {
     const nav = document.getElementById('tarihEraNav');
     const eventsEl = document.getElementById('tarihEvents');
@@ -2093,6 +2414,11 @@ function initTurkishTimeline() {
     const summaryEl = document.getElementById('tarihSummary');
     const countEl = document.getElementById('tarihCount');
     const eventCountEl = document.getElementById('tarihEventCount');
+    const searchInput = document.getElementById('tarihSearch');
+    const clearButton = document.getElementById('tarihSearchClear');
+    const randomButton = document.getElementById('btnTarihRandom');
+    const searchCountEl = document.getElementById('tarihSearchCount');
+    const dailyEl = document.getElementById('tarihDaily');
     if (!nav || !eventsEl) return;
 
     const eras = window.TURKISH_HISTORY_TIMELINE || [];
@@ -2101,29 +2427,182 @@ function initTurkishTimeline() {
         return;
     }
 
-    const totalEvents = eras.reduce((sum, era) => sum + (era.events || []).length, 0);
+    const allEvents = [];
+    eras.forEach((era, eraIndex) => {
+        (era.events || []).forEach((event, eventIndex) => {
+            allEvents.push({ era, eraIndex, event, eventIndex });
+        });
+    });
+
+    const totalEvents = allEvents.length;
     if (countEl) countEl.textContent = `${eras.length} dönem · ${totalEvents} olay`;
 
-    const renderEra = (index) => {
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+    const normalize = (value) => String(value).toLocaleLowerCase('tr-TR');
+
+    const highlight = (value, query) => {
+        const raw = String(value);
+        const needle = normalize(query || '');
+        if (!needle) return escapeHtml(raw);
+        const haystack = normalize(raw);
+        let result = '';
+        let cursor = 0;
+        let found = haystack.indexOf(needle);
+        while (found !== -1) {
+            result += escapeHtml(raw.slice(cursor, found));
+            result += `<mark class="tarih-mark">${escapeHtml(raw.slice(found, found + needle.length))}</mark>`;
+            cursor = found + needle.length;
+            found = haystack.indexOf(needle, cursor);
+        }
+        return result + escapeHtml(raw.slice(cursor));
+    };
+
+    let activeIndex = 0;
+
+    const eventCard = (entry, options = {}) => {
+        const query = options.query || '';
+        const renderText = (text) => query ? highlight(text, query) : escapeHtml(text);
+        return `
+            <article class="tarih-event${options.clickable ? ' is-clickable' : ''}" style="--event-index:${entry.eventIndex}" data-era="${entry.eraIndex}" data-event="${entry.eventIndex}">
+                <span class="tarih-event-year">${renderText(entry.event.year)}</span>
+                <div class="tarih-event-body">
+                    <h4>${renderText(entry.event.title)}</h4>
+                    <p>${renderText(entry.event.text)}</p>
+                    ${options.showEra ? `<span class="tarih-event-era">${escapeHtml(entry.era.label)} · ${escapeHtml(entry.era.period)}</span>` : ''}
+                </div>
+            </article>
+        `;
+    };
+
+    const setSearchChrome = () => {
+        const hasValue = !!(searchInput && searchInput.value.trim());
+        if (clearButton) clearButton.hidden = !hasValue;
+        if (!hasValue && searchCountEl) searchCountEl.textContent = '';
+    };
+
+    const clearSearch = () => {
+        if (searchInput) searchInput.value = '';
+        setSearchChrome();
+    };
+
+    const renderEra = (index, options = {}) => {
         const era = eras[index];
         if (!era) return;
+        activeIndex = index;
         nav.querySelectorAll('.tarih-era-btn').forEach((btn, i) => {
-            btn.classList.toggle('active', i === index);
-            btn.setAttribute('aria-selected', i === index ? 'true' : 'false');
+            const isActive = i === index;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
         if (titleEl) titleEl.textContent = era.title;
         if (periodEl) periodEl.textContent = era.period;
         if (summaryEl) summaryEl.textContent = era.summary;
         if (eventCountEl) eventCountEl.textContent = `${era.events.length} olay`;
-        eventsEl.innerHTML = era.events.map((event, eventIndex) => `
-            <article class="tarih-event" style="--event-index:${eventIndex}">
-                <span class="tarih-event-year">${event.year}</span>
-                <div class="tarih-event-body">
-                    <h4>${event.title}</h4>
-                    <p>${event.text}</p>
+        eventsEl.innerHTML = era.events.map((event, eventIndex) =>
+            eventCard({ era, eraIndex: index, event, eventIndex })
+        ).join('');
+
+        if (typeof options.focusEvent === 'number') {
+            const target = eventsEl.querySelector(`.tarih-event[data-event="${options.focusEvent}"]`);
+            if (target) {
+                target.classList.add('is-target');
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => target.classList.remove('is-target'), 4000);
+            }
+        }
+    };
+
+    const runSearch = () => {
+        const query = searchInput ? searchInput.value.trim() : '';
+        setSearchChrome();
+        if (query.length < 2) {
+            if (searchCountEl) searchCountEl.textContent = '';
+            renderEra(activeIndex);
+            return;
+        }
+
+        const needle = normalize(query);
+        const matches = allEvents.filter(({ era, event }) =>
+            normalize(`${event.year} ${event.title} ${event.text} ${era.title} ${era.label}`).includes(needle)
+        );
+
+        nav.querySelectorAll('.tarih-era-btn').forEach(btn => {
+            btn.classList.remove('active');
+            btn.setAttribute('aria-selected', 'false');
+        });
+
+        if (titleEl) titleEl.textContent = `“${query}” için arama`;
+        if (periodEl) periodEl.textContent = matches.length ? `${matches.length} eşleşme` : 'Sonuç bulunamadı';
+        if (summaryEl) {
+            summaryEl.textContent = matches.length
+                ? 'Tüm dönemlerde yıl, olay, kişi ve yer adları tarandı. Bir olaya tıklayarak dönemine gidebilirsiniz.'
+                : 'Başka bir kelime deneyin: Attila, Malazgirt, Lozan, kurgan…';
+        }
+        if (eventCountEl) eventCountEl.textContent = `${matches.length} sonuç`;
+        if (searchCountEl) searchCountEl.textContent = matches.length ? `${matches.length} eşleşme` : '';
+
+        const shown = matches.slice(0, 200);
+        eventsEl.innerHTML = shown.map(entry => eventCard(entry, { query, showEra: true, clickable: true })).join('');
+        if (matches.length > shown.length) {
+            eventsEl.insertAdjacentHTML('beforeend',
+                `<div class="tarih-empty">İlk ${shown.length} sonuç gösteriliyor; aramayı daraltarak tümünü görebilirsiniz.</div>`);
+        }
+
+        eventsEl.querySelectorAll('.tarih-event').forEach(cardEl => {
+            cardEl.addEventListener('click', () => {
+                const eraIndex = Number(cardEl.dataset.era);
+                const eventIndex = Number(cardEl.dataset.event);
+                clearSearch();
+                renderEra(eraIndex, { focusEvent: eventIndex });
+            });
+        });
+    };
+
+    const showRandomEvent = () => {
+        const pick = allEvents[Math.floor(Math.random() * allEvents.length)];
+        if (!pick) return;
+        clearSearch();
+        renderEra(pick.eraIndex, { focusEvent: pick.eventIndex });
+        if (window.turkishSound) window.turkishSound.playClick();
+        showToast(`Rastgele olay: ${pick.event.title}`, '🎲');
+    };
+
+    const renderDaily = () => {
+        if (!dailyEl || !allEvents.length) return;
+        const now = new Date();
+        const startOfYear = new Date(now.getFullYear(), 0, 0);
+        const dayOfYear = Math.floor((now - startOfYear) / 86400000);
+        const pick = allEvents[(dayOfYear * 37 + now.getFullYear()) % allEvents.length];
+        if (!pick) return;
+
+        dailyEl.hidden = false;
+        dailyEl.innerHTML = `
+            <div class="tarih-daily-head">
+                <span class="tarih-daily-label">📅 Günün olayı</span>
+                <span class="tarih-daily-date">${escapeHtml(now.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' }))}</span>
+            </div>
+            <div class="tarih-daily-body">
+                <span class="tarih-daily-year">${escapeHtml(pick.event.year)}</span>
+                <div>
+                    <h4>${escapeHtml(pick.event.title)}</h4>
+                    <p>${escapeHtml(pick.event.text)}</p>
                 </div>
-            </article>
-        `).join('');
+            </div>
+            <div class="tarih-daily-foot">
+                <span>${escapeHtml(pick.era.label)} · ${escapeHtml(pick.era.period)}</span>
+                <button type="button" class="tarih-daily-go" id="tarihDailyGo">Dönemine git →</button>
+            </div>
+        `;
+        const goButton = document.getElementById('tarihDailyGo');
+        if (goButton) {
+            goButton.addEventListener('click', () => {
+                clearSearch();
+                renderEra(pick.eraIndex, { focusEvent: pick.eventIndex });
+                if (window.turkishSound) window.turkishSound.playClick();
+            });
+        }
     };
 
     eras.forEach((era, index) => {
@@ -2132,13 +2611,34 @@ function initTurkishTimeline() {
         button.className = 'tarih-era-btn' + (index === 0 ? ' active' : '');
         button.setAttribute('role', 'tab');
         button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-        button.innerHTML = `<span>${era.label}</span><small>${era.period}</small>`;
+        button.innerHTML = `<span>${escapeHtml(era.label)}</span><small>${escapeHtml(era.period)}</small><em class="tarih-era-count">${(era.events || []).length}</em>`;
         button.addEventListener('click', () => {
+            clearSearch();
             renderEra(index);
             if (window.turkishSound) window.turkishSound.playClick();
         });
         nav.appendChild(button);
     });
 
+    if (searchInput) {
+        searchInput.addEventListener('input', runSearch);
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                clearSearch();
+                renderEra(activeIndex);
+                searchInput.blur();
+            }
+        });
+    }
+    if (clearButton) {
+        clearButton.addEventListener('click', () => {
+            clearSearch();
+            renderEra(activeIndex);
+            if (searchInput) searchInput.focus();
+        });
+    }
+    if (randomButton) randomButton.addEventListener('click', showRandomEvent);
+
+    renderDaily();
     renderEra(0);
 }

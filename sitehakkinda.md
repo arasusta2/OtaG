@@ -11,21 +11,22 @@
 
 ## 1. Ne Sunuyor?
 
-Portal üç ana oyun ve sekiz kültür aracını tek sayfada sekme mantığıyla sunar:
+Portal üç ana oyun ve dokuz kültür aracını tek sayfada sekme mantığıyla sunar:
 
 | Bölüm | Ne yapar |
 |-------|----------|
 | 🀄 Kıraathane Okeyi | Klasik (14 taş), 101 Okey (21 taş) ve eşli 101 modları; per açma, ıskarta, skor geçmişi, çay/kahve siparişi ve rakip sohbeti |
 | 🎲 Şark Tavlası | Yapay zekâ rakibe karşı tavla; zar, pul toplama, hamle ipuçları ve laf atma |
 | 🪨 Mangala | Köçürme/mangala tahtası; kolay–normal–zor seviyeler, hamle ipucu, kurallar ve sonuç ekranı |
-| 🕰️ Türk Tarihi | 8 dönem ve 52 olayla kronolojik zaman tüneli |
+| 🕰️ Türk Tarihi | 18 dönem ve 648 olaylık kronolojik zaman tüneli; arama, rastgele olay ve günün olayı kartı |
 | 🏹 Kemankeş Okçuluğu | Puta, hareketli hedef, menzil, uçan kuş avı ve fırtına talimleri |
 | 🎨 Ebruzen Teknesi | Damla, serpme, biz, tarak ve gelgit araçlarıyla ebru; geri al ve PNG indirme |
 | 🎵 Meşkhane | Kemençe, tambur, ud, kaval, zurna, davul ve def ile hazır repertuvar |
 | 📜 Göktürkçe Çevirici | Latin harflerinden tamgaya, tamgadan yaklaşık Latin okumaya dönüşüm |
 | 🗺️ Anadolu Atlası | Bölge künyeleri, rotalar, el sanatları, müzik ve festival bilgileri |
 | 🏛️ Türk Hükümdarları | 139 hükümdar kartı; dönem notları ve üç–beş olaylı saltanat özetleri |
-| 📖 Atasözleri | 244 atasözü/deyim, anlamları, kategori ve metin araması; Hikmet Avı oyunu |
+| 📖 Atasözleri | 244 atasözü/deyim, anlamları, kategori ve metin araması; favoriler, günün sözü ve Hikmet Avı oyunu |
+| 📜 Osmanlıca Sözlük | 693 kelime; Latin okunuş, bugünkü karşılık, sekiz köken kartı, köken filtresi ve Türkçe karakter duyarsız arama |
 
 ---
 
@@ -44,8 +45,9 @@ Portal üç ana oyun ve sekiz kültür aracını tek sayfada sekme mantığıyla
 - Saf HTML, CSS ve JavaScript; framework yok.
 - **Canvas 2D:** arka plan efektleri ve oyun tahtaları.
 - **Web Audio API:** `audio.js` içindeki ses efektleri ve ambiyans.
-- **localStorage:** tema tercihi, okey turnuva/maç durumu ve bazı oyun ayarları.
+- **localStorage:** tema tercihi, okey turnuva/maç durumu, atasözü favorileri ve bazı oyun ayarları.
 - **Google Fonts:** Cinzel, Marcellus, Plus Jakarta Sans ve Amiri.
+- **Görsel varlıklar:** `PageLogo.png` 320×175 optimize arma (~12 KB); yüksek çözünürlüklü kaynak `PageLogo-source.png` olarak saklanır ve sayfada yüklenmez.
 - Veriler JavaScript dosyalarında sabit veri olarak tutulur; sunucu tarafı veya veritabanı yoktur.
 
 ### Dosya Haritası
@@ -59,7 +61,7 @@ game.js                  → OkeyGame ve TavlaGame motorları, bot sohbetleri
 audio.js                 → ses efektleri ve ambiyans
 banter-data.js           → okey/tavla/mangala sohbet replikleri
 bot-names-data.js        → 200 isimlik bot havuzu ve rastgele seçici
-history-data.js          → Türk tarihi zaman tüneli (8 dönem, 52 olay)
+history-data.js          → Türk tarihi zaman tüneli (18 dönem, 648 olay)
 rulers-data.js           → temel hükümdar verisi
 rulers-extra-data.js     → 56 ek hükümdar (ID 301–356)
 rulers-period-data.js    → hükümdar dönem notları (1. dosya)
@@ -76,11 +78,12 @@ EASTER-EGG.md            → ayrıntılı easter egg rehberi
 
 | İçerik | Sayı |
 |--------|------|
-| Bölüm / sekme | 11 |
+| Bölüm / sekme | 12 |
 | Okey modu | 3 (klasik, 101, eşli 101) |
 | Hükümdar | 139 (tamamında dönem notu) |
-| Tarih olayı | 52 olay / 8 dönem |
+| Tarih olayı | 18 dönem ve 648 olay |
 | Atasözü ve deyim | 244 |
+| Sözlük kelimesi | 693 |
 | Hikmet damlası | 254 |
 | Bot ismi havuzu | 200 tekil isim |
 | Easter egg | 27 |

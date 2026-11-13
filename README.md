@@ -8,7 +8,11 @@ Bu paket, mevcut statik OTAĞ uygulamasının güncellenmiş dosyalarını içer
 
 ## Eklenenler
 
-- 244 benzersiz atasözü/deyim ve anlamı; kategori ve metin/anlam araması
+- Optimize edilmiş logo (1698×926 / 1,4 MB → 320×175 / ~12 KB) ve cihaz pikseline duyarlı, arka planda duran arka plan canvas'ı
+- 18 dönem ve 648 olaylık Türk Tarihi zaman tüneli
+- Başlıkta saatin altında “Günün sözü” ve “Günün olayı” kısayolları; tıklayınca ilgili bölümdeki günün kartına götürür
+- 693 kelimelik Osmanlıca sözlük: Latin okunuş, bugünkü karşılık, köken kartları ve Arapça–Farsça–Türkçe–Rumca–Ermenice–İtalyanca–Fransızca–Slavca köken filtreleri; Türkçe karakter duyarsız arama
+- 244 benzersiz atasözü/deyim ve anlamı; kategori ve metin/anlam araması, günün sözü ve tarayıcıda saklanan favoriler
 - 254 benzersiz hikmet damlası; kaynak/kişi bilgisi gösterimi ve tekrar etmeyen karıştırılmış sıra
 - Puan, seri ve yerel rekor takibi bulunan Hikmet Avı anlam oyunu
 - Ebru teknesinde damla, serpme, biz, tarak, gelgit ve motif araçları; fırça/yayılım ayarı, geri al ve PNG indirme

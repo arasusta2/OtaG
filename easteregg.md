@@ -20,7 +20,7 @@ Motor: `easter-eggs.js` · Stil: `style.css` sonundaki `/* === EASTER EGGS === *
 | 8 | `arma` | Logo kutusuna 2,5 saniyede 7 kez tıklamak | Komik | Arma Parlatıldı |
 | 9 | `okey` | `okey` yazmak | Komik | Okey Benden |
 | 10 | `zafer` | `zafer` yazmak | Komik | Kıraathane Şampiyonu |
-| 11 | `kalbimizde` | `1283` yazmak veya oyun sohbetine `1283` göndermek | Duygusal | 1283 — Kalbimizde |
+| 11 | `kalbimizde` | `1283` yazmak veya oyun sohbetine `1283` göndermek | Duygusal | 1283 — İçimizde |
 | 12 | `osmanli` | `osmanlı` / `osmanli` yazmak | Ciddi / gurur | Söğüt’ten Doğan Devlet |
 | 13 | `gokturk` | `göktürk` / `gokturk` yazmak | Ciddi / gurur | Ötüken’den Ses |
 | 14 | `simit` | `simit` yazmak | Komik | Çayın Yanına Simit |
@@ -47,7 +47,7 @@ Motor: `easter-eggs.js` · Stil: `style.css` sonundaki `/* === EASTER EGGS === *
 Okey, tavla veya mangala sohbet kutusuna **yalnızca `1283`** yazıp gönderince:
 
 1. Oyuncunun mesajı balonda görünür.
-2. Masadaki botlar **"Kalbimizde!"** der.
+2. Masadaki botlar **"İçimizde!"** der.
 3. Kısa bir tebrik sesi çalar.
 4. Araya giren kıraathane muhabbeti 6–8 saniye susturulur ki cevaplar okunabilsin.
 

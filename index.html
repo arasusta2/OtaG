@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Marcellus&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=20261104h">
-    <link rel="stylesheet" href="theme-refresh.css?v=20261104i">
+    <link rel="stylesheet" href="theme-refresh.css?v=20261113d">
 </head>
 <body>
 
@@ -23,10 +23,20 @@
         <!-- Başlık & Saray Sancağı -->
         <header class="portal-header">
             <div class="logo-box">
-                <img class="logo-emblem-img" src="PageLogo.png" alt="OTAĞ çadır arması">
+                <img class="logo-emblem-img" src="PageLogo.png?v=20261113b" alt="OTAĞ çadır arması" width="78" height="54" decoding="async" fetchpriority="high">
                 <div class="logo-text">
                     <h1>OTAĞ</h1>
                     <p>Türk Kültür, Sanat, Tarih ve Kıraathane Portalı</p>
+                </div>
+            </div>
+
+            <div class="header-dateline" aria-label="Bugünün tarihi ve saat">
+                <span id="headerDateText">Tarih yükleniyor…</span>
+                <strong id="headerClockText">--:--</strong>
+                <div class="header-daily" role="group" aria-label="Günün sözü ve günün olayı">
+                    <button type="button" class="header-daily-link" data-daily-target="tab-atsozu" data-daily-focus="atsozuDaily" title="Günün atasözüne git">📖 Günün sözü</button>
+                    <span class="header-daily-sep" aria-hidden="true">·</span>
+                    <button type="button" class="header-daily-link" data-daily-target="tab-tarih" data-daily-focus="tarihDaily" title="Günün tarih olayına git">🕰️ Günün olayı</button>
                 </div>
             </div>
 
@@ -39,7 +49,7 @@
 
         <!-- Navigasyon Çubuğu -->
         <nav class="portal-nav" aria-label="Uygulama bölümleri">
-            <button class="nav-btn active" data-tab="tab-okey">🀄 Kıraathane Okeyi</button>
+            <button class="nav-btn active" data-tab="tab-okey" aria-current="true">🀄 Kıraathane Okeyi</button>
             <button class="nav-btn" data-tab="tab-tavla">🎲 Şark Tavlası</button>
             <button class="nav-btn" data-tab="tab-mangala">🪨 Mangala</button>
             <button class="nav-btn" data-tab="tab-tarih">🕰️ Türk Tarihi</button>
@@ -50,6 +60,7 @@
             <button class="nav-btn" data-tab="tab-atlas">🗺️ Anadolu Atlası</button>
             <button class="nav-btn" data-tab="tab-rulers">🏛️ Türk Hükümdarları</button>
             <button class="nav-btn" data-tab="tab-atsozu">📖 Atasözleri</button>
+            <button class="nav-btn" data-tab="tab-sozluk">📜 Osmanlıca Sözlük</button>
         </nav>
 
         <!-- 1. KIRAATHANE OKEY SALONU -->
@@ -396,7 +407,17 @@
                         <h2 class="card-title">🕰️ Türk Tarihi Zaman Tüneli</h2>
                         <p class="card-desc">Bozkırın ilk devletlerinden Cumhuriyet’e uzanan süreci dönem dönem okuyun. Her dönem; siyasi olaylar, kurumlar, savaşlar ve kültürel mirasla birlikte anlatılır.</p>
                     </div>
-                    <div class="tarih-count-badge" id="tarihCount">8 dönem yükleniyor…</div>
+                    <div class="tarih-count-badge" id="tarihCount">Dönemler yükleniyor…</div>
+                </div>
+
+                <div class="tarih-toolbar">
+                    <div class="tarih-search">
+                        <span aria-hidden="true">🔍</span>
+                        <input id="tarihSearch" type="search" placeholder="Yıl, olay, kişi veya yer ara… (648 olay)" autocomplete="off" aria-label="Türk tarihi olaylarında ara">
+                        <button id="tarihSearchClear" class="tarih-search-clear" type="button" hidden aria-label="Aramayı temizle">✕</button>
+                    </div>
+                    <button id="btnTarihRandom" class="btn-ottoman" type="button">🎲 Rastgele olay</button>
+                    <span id="tarihSearchCount" class="tarih-search-count" aria-live="polite"></span>
                 </div>
 
                 <div class="tarih-era-nav" id="tarihEraNav" role="tablist" aria-label="Türk tarihi dönemleri"></div>
@@ -406,6 +427,8 @@
                     <h3 id="tarihTitle">Bozkırın İlk Büyük Türk İmparatorluğu</h3>
                     <p id="tarihSummary">Dönem seçildiğinde tarihî olaylar burada görünecek.</p>
                 </div>
+
+                <div class="tarih-daily" id="tarihDaily" hidden></div>
 
                 <div class="tarih-events" id="tarihEvents"></div>
 
@@ -848,6 +871,7 @@
                 <h2 class="card-title" style="justify-content:center;">📖 Türk Atasözleri & Deyimler Hazinesi</h2>
                 <p class="card-desc">Anlamları ve konu başlıklarıyla genişletilmiş atasözü arşivi.</p>
                 <p id="atsozuCount" class="content-count-badge">Atasözü arşivi yükleniyor…</p>
+                <button id="atsozuDaily" class="atsozu-daily" type="button">📅 Günün sözü yükleniyor…</button>
                 <div class="atsozu-search-row">
                     <input id="atsozuSearch" type="search" class="ruler-search-input" placeholder="Söz veya anlam içinde ara…">
                     <button id="btnCopyAtsozu" class="btn-ottoman">📋 Sözü kopyala</button>
@@ -866,6 +890,10 @@
                     <div class="atsozu-text" id="atsozuText">"Damlaya damlaya göl olur."</div>
                     <div class="atsozu-meaning" id="atsozuMeaning">Küçük birikimlerin zamanla büyük sonuçlar doğuracağını ve tasarrufun önemini anlatır.</div>
                     <div class="atsozu-category" id="atsozuCategory">💪 Emek & Alın Teri</div>
+                    <div class="atsozu-card-actions">
+                        <button id="btnFavAtsozu" class="atsozu-fav-btn" type="button" aria-pressed="false">☆ Favorilere ekle</button>
+                        <span id="atsozuFavCount" class="atsozu-fav-count"></span>
+                    </div>
                 </div>
                 <div style="margin-top:20px;">
                     <button id="btnNewAtsozu" class="btn-action-turk">🎲 Yeni Atasözü Getir</button>
@@ -893,6 +921,29 @@
             </div>
         </section>
 
+        <!-- OSMANLICA SÖZLÜK -->
+        <section id="tab-sozluk" class="app-section">
+            <div class="seljuk-card sozluk-card">
+                <h2 class="card-title">📜 Osmanlıca Sözlük</h2>
+                <p class="card-desc">Osmanlı Türkçesinde kullanılan kelimeler; Latin harfleriyle okunuşları, bugünkü Türkçe karşılıkları ve kökenleriyle.</p>
+                <p id="sozlukCount" class="content-count-badge">Sözlük yükleniyor…</p>
+
+                <div class="sozluk-intro">
+                    <p>Osmanlı Türkçesi, Arap harfleriyle yazılan ve Türkçe iskelet üzerine Arapça–Farsça kelimelerle örülmüş bir yazı dilidir. Sarayda ve divanda Farsça, ilimde ve hukukta Arapça ağırlıklıydı; halk dilinde Rumca, Ermenice ve Slavca sözler de yaşadı. Tanzimat’tan sonra İtalyanca ve Fransızcadan yeni kelimeler girdi. Aşağıdaki kelimeler Latin harfleriyle okunuşlarıyla (â, î, û uzun ünlüleri korunarak) ve bugünkü karşılıklarıyla verilmiştir.</p>
+                </div>
+                <div class="sozluk-langs" id="sozlukLangs"></div>
+
+                <div class="atsozu-search-row sozluk-search-row">
+                    <input id="sozlukSearch" type="search" class="ruler-search-input" placeholder="Kelime, okunuş veya anlam ara… (örn. vezir, hükûmet, kalem)" autocomplete="off">
+                    <button id="sozlukClear" class="btn-ottoman" type="button" hidden>Temizle</button>
+                </div>
+                <div class="atsozu-filters-row sozluk-filters" id="sozlukFilters" role="group" aria-label="Köken filtresi"></div>
+                <p id="sozlukSearchCount" class="sozluk-search-count" aria-live="polite"></p>
+                <ul id="sozlukList" class="sozluk-list" aria-live="polite"></ul>
+                <p id="sozlukEmpty" class="sozluk-empty" hidden>Aradığın kelime bulunamadı. Farklı bir yazım veya köken filtresi dene.</p>
+            </div>
+        </section>
+
         <!-- Bilgelik Damlası -->
         <div class="seljuk-card wisdom-card">
             <h3 class="wisdom-title">🌟 Hikmet Damlası</h3>
@@ -905,6 +956,7 @@
         </div>
 
         <footer class="portal-footer">
+            <div class="footer-stats" id="footerStats" aria-label="İçerik özeti"></div>
             <p>OTAĞ — Kadim Türk Kültür, Sanat, Tarih ve Kıraathane Portalı &copy; 2026</p>
         </footer>
     </div>
@@ -1005,13 +1057,14 @@
     <script src="rulers-extra-data.js?v=20261104h"></script>
     <script src="rulers-period-data.js?v=20261104h"></script>
     <script src="rulers-period-data-2.js?v=20261104h"></script>
-    <script src="history-data.js?v=20261104h"></script>
+    <script src="history-data.js?v=20261104k"></script>
+    <script src="sozluk-data.js?v=20261113b"></script>
     <script src="banter-data.js?v=20261104h"></script>
     <script src="bot-names-data.js?v=20261104h"></script>
-    <script src="game.js?v=20261104h"></script>
+    <script src="game.js?v=20261104j"></script>
     <script src="wisdom-data.js"></script>
     <script src="otag-extra-data.js"></script>
-    <script src="app.js?v=20261104h"></script>
-    <script src="easter-eggs.js?v=20261104i"></script>
+    <script src="app.js?v=20261113e"></script>
+    <script src="easter-eggs.js?v=20261104j"></script>
 </body>
 </html>

@@ -286,3 +286,565 @@ body.light-theme #mangalaChatInput:focus {
     .nav-btn:hover,
     .okey-mode-btn:hover { transform: none; }
 }
+
+/* ── 9. Detay katmanı: tarih şeridi, arama, günün olayı ─────── */
+.header-dateline {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    padding: 8px 16px;
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    border-radius: 14px;
+    background: linear-gradient(150deg, rgba(212, 175, 55, 0.12), rgba(2, 128, 144, 0.06));
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+    line-height: 1.35;
+    text-align: right;
+}
+.header-dateline strong {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-light);
+    font-variant-numeric: tabular-nums;
+}
+body.light-theme .header-dateline {
+    background: linear-gradient(150deg, rgba(155, 120, 17, 0.1), rgba(2, 128, 144, 0.05));
+}
+
+.tarih-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 18px 0 4px;
+}
+.tarih-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 300px;
+    max-width: 540px;
+    padding: 0 14px;
+    border: 1px solid rgba(212, 175, 55, 0.34);
+    border-radius: 999px;
+    background: rgba(6, 10, 20, 0.55);
+    color: var(--text-dim);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.tarih-search:focus-within {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.14), 0 0 18px rgba(212, 175, 55, 0.12);
+}
+.tarih-search input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--text-main);
+    font: inherit;
+    font-size: 0.9rem;
+}
+.tarih-search input::placeholder { color: var(--text-dim); }
+.tarih-search input::-webkit-search-cancel-button { display: none; }
+.tarih-search-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 50%;
+    background: transparent;
+    color: var(--gold-light);
+    font-size: 0.7rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.tarih-search-clear[hidden] { display: none; }
+.tarih-search-clear:hover { background: var(--gold); color: #080d1a; }
+body.light-theme .tarih-search { background: rgba(255, 255, 255, 0.75); }
+
+.tarih-search-count {
+    min-height: 1.2em;
+    color: var(--gold-light);
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+}
+
+.tarih-era-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.tarih-era-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.16);
+    color: var(--gold-light);
+    font-size: 0.7rem;
+    font-style: normal;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tarih-era-btn.active .tarih-era-count,
+.tarih-era-btn:hover .tarih-era-count {
+    background: rgba(8, 13, 26, 0.18);
+    color: #080d1a;
+}
+
+.tarih-daily {
+    position: relative;
+    margin: 6px 0 22px;
+    padding: 16px 20px;
+    border: 1px solid rgba(212, 175, 55, 0.32);
+    border-left: 4px solid var(--gold);
+    border-radius: 16px;
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(2, 128, 144, 0.14), transparent 58%),
+        linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(255, 255, 255, 0.02));
+}
+body.light-theme .tarih-daily {
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(2, 128, 144, 0.08), transparent 58%),
+        linear-gradient(135deg, rgba(155, 120, 17, 0.07), rgba(255, 255, 255, 0.72));
+}
+.tarih-daily-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+.tarih-daily-label {
+    font-family: var(--font-heading);
+    font-size: 0.76rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--gold);
+}
+.tarih-daily-date { color: var(--text-dim); font-size: 0.76rem; }
+.tarih-daily-body {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+.tarih-daily-year {
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(212, 175, 55, 0.14);
+    border: 1px solid rgba(212, 175, 55, 0.28);
+    color: var(--gold-light);
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+.tarih-daily-body h4 { font-size: 1rem; color: var(--text-main); margin-bottom: 4px; }
+.tarih-daily-body p { font-size: 0.86rem; color: var(--text-muted); line-height: 1.65; }
+.tarih-daily-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 0.76rem;
+    color: var(--text-dim);
+}
+.tarih-daily-go {
+    padding: 6px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--gold-light);
+    font-size: 0.76rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.tarih-daily-go:hover { background: var(--gold); color: #080d1a; border-color: var(--gold); }
+
+.tarih-event {
+    transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+}
+.tarih-event:hover {
+    border-color: rgba(212, 175, 55, 0.36);
+    background: rgba(212, 175, 55, 0.05);
+    transform: translateX(2px);
+}
+.tarih-event { scroll-margin: 40px; }
+.tarih-event.is-clickable { cursor: pointer; }
+.tarih-event.is-target {
+    animation: tarihTargetPulse 4s ease-out forwards;
+}
+@keyframes tarihTargetPulse {
+    0% { border-color: var(--gold); background: rgba(212, 175, 55, 0.22); box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.25); }
+    60% { border-color: rgba(212, 175, 55, 0.55); background: rgba(212, 175, 55, 0.1); }
+    100% { box-shadow: none; }
+}
+.tarih-event-era {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(2, 128, 144, 0.14);
+    border: 1px solid rgba(2, 128, 144, 0.32);
+    color: #7fd6dc;
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+}
+body.light-theme .tarih-event-era { color: #06626b; }
+.tarih-mark {
+    padding: 0 2px;
+    border-radius: 3px;
+    background: rgba(212, 175, 55, 0.85);
+    color: #0a1020;
+    font-weight: 600;
+}
+
+/* ── 10. Atasözü favorileri & günün sözü ───────────────────── */
+.atsozu-daily {
+    display: inline-block;
+    max-width: 100%;
+    margin: 6px auto 0;
+    padding: 7px 16px;
+    border: 1px dashed rgba(212, 175, 55, 0.4);
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.06);
+    color: var(--gold-light);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.atsozu-daily:hover { background: rgba(212, 175, 55, 0.14); border-style: solid; }
+.atsozu-card-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+.atsozu-fav-btn {
+    padding: 6px 14px;
+    border: 1px solid rgba(212, 175, 55, 0.36);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--gold-light);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.atsozu-fav-btn:hover { background: rgba(212, 175, 55, 0.14); }
+.atsozu-fav-btn.is-fav {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #080d1a;
+    font-weight: 700;
+}
+.atsozu-fav-count { color: var(--text-dim); font-size: 0.76rem; }
+
+/* ── 11. Alt bilgi istatistikleri ───────────────────────────── */
+.footer-stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-bottom: 12px;
+}
+.footer-stat {
+    padding: 5px 13px;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: 999px;
+    background: rgba(212, 175, 55, 0.05);
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    letter-spacing: 0.02em;
+}
+.footer-stat strong {
+    color: var(--gold-light);
+
+    color: var(--gold-light);
+    font-family: var(--font-heading);
+    font-size: 0.88rem;
+}
+
+@media (max-width: 720px) {
+    .header-dateline { align-items: center; text-align: center; width: 100%; }
+    .tarih-toolbar { gap: 8px; }
+    .tarih-search { flex: 1 1 100%; max-width: none; }
+    .tarih-daily { padding: 14px; }
+    .tarih-daily-body { flex-direction: column; gap: 8px; }
+    .tarih-event:hover { transform: none; }
+}
+
+@media (max-width: 900px) {
+    .header-dateline { align-items: flex-start; text-align: left; width: auto; }
+}
+
+/* ── 12. Baştan aşağı rafinasyon ───────────────────────────── */
+::selection { background: rgba(212, 175, 55, 0.85); color: #0a1020; }
+:where(a, button, [role="button"], input, select, textarea):focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+}
+button, .nav-btn, .btn-ottoman { -webkit-tap-highlight-color: transparent; }
+
+/* Başlık: yumuşak hale, dengeli tipografi */
+.portal-header {
+    padding: clamp(18px, 2.2vw, 30px) clamp(18px, 3vw, 38px);
+}
+.portal-header::after { opacity: 0.55; }
+.logo-box { position: relative; }
+.logo-box::before {
+    content: '';
+    position: absolute;
+    left: -18px;
+    top: 50%;
+    width: 132px;
+    height: 132px;
+    transform: translateY(-50%);
+    background: radial-gradient(circle, rgba(193, 18, 31, 0.3), rgba(212, 175, 55, 0.08) 48%, transparent 72%);
+    filter: blur(9px);
+    pointer-events: none;
+    z-index: 0;
+}
+.logo-box > * { position: relative; z-index: 1; }
+.logo-text h1 { text-wrap: balance; }
+.logo-text p { max-width: 52ch; }
+
+/* Navigasyon ve başlık ritmi */
+.portal-nav { scroll-behavior: smooth; }
+.nav-btn { white-space: nowrap; }
+.card-header-row { margin-bottom: clamp(16px, 2vw, 22px); }
+.card-title { letter-spacing: 0.015em; text-wrap: balance; }
+.card-desc { max-width: 74ch; line-height: 1.65; text-wrap: pretty; }
+.tarih-event-body p, .atsozu-meaning, .wisdom-text { text-wrap: pretty; }
+
+/* Alt bilgi: ince altın ayraç ve sade tipografi */
+.portal-footer {
+    position: relative;
+    margin-top: 34px;
+    padding: 28px 12px 4px;
+    border-top: 1px solid rgba(212, 175, 55, 0.16);
+}
+.portal-footer::before {
+    content: '❖';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0 12px;
+    background: #060a14;
+    color: var(--gold);
+    font-size: 0.68rem;
+    line-height: 1.4;
+    letter-spacing: 0.28em;
+}
+body.light-theme .portal-footer::before { background: #f6f1e6; }
+.portal-footer p { letter-spacing: 0.05em; font-size: 0.78rem; }
+.footer-stats { margin-bottom: 16px; }
+
+/* Okuma ilerlemesi ve yukarı düğmesi */
+.scroll-progress span {
+    box-shadow: 0 0 10px rgba(94, 234, 212, 0.4), 0 0 18px rgba(212, 175, 55, 0.3);
+}
+.back-to-top {
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+}
+
+@media (max-width: 720px) {
+    .portal-footer { padding-inline: 6px; }
+    .logo-box::before { left: -10px; width: 104px; height: 104px; }
+    .card-desc { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-text h1 { animation: none; background-position: center; }
+    .logo-box:hover .logo-emblem-img { transform: none; }
+    .scroll-progress span { transition: none; }
+}
+
+/* Bildirim: saray gündüzü modunda koyu mürekkep metin */
+body.light-theme .toast-msg {
+    color: #121826;
+    border-color: rgba(155, 120, 17, 0.5);
+    box-shadow: 0 10px 30px rgba(50, 38, 12, 0.22), 0 0 18px var(--gold-glow);
+}
+body.light-theme .toast-msg strong { color: #121826; }
+
+/* ── 13. Osmanlıca sözlük ──────────────────────────────────── */
+.sozluk-card { text-align: left; }
+.sozluk-intro {
+    margin: 18px 0 16px;
+    padding: 14px 18px;
+    border-left: 2px solid var(--gold);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: rgba(212, 175, 55, 0.05);
+    text-align: left;
+}
+.sozluk-intro p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.7;
+    color: var(--text-muted);
+}
+.sozluk-langs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.sozluk-lang {
+    padding: 12px 14px;
+    border: 1px solid rgba(212, 175, 55, 0.16);
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.025);
+}
+.sozluk-lang strong {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+}
+.sozluk-lang p {
+    margin: 5px 0 0;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+}
+.sozluk-search-row { max-width: 640px; margin-inline: auto; }
+.sozluk-filters { justify-content: center; }
+.sozluk-filter-count {
+    display: inline-block;
+    margin-left: 2px;
+    font-size: 0.66rem;
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+}
+.sozluk-search-count {
+    min-height: 1.1em;
+    margin: 10px 0 0;
+    text-align: center;
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+.sozluk-list {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0 6px 0 0;
+    display: grid;
+    gap: 0;
+    max-height: min(64vh, 680px);
+    overflow-y: auto;
+    text-align: left;
+    border-top: 1px solid rgba(212, 175, 55, 0.12);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(212, 175, 55, 0.35) transparent;
+}
+.sozluk-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 0.9fr) auto 1.6fr;
+    align-items: baseline;
+    gap: 14px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.08);
+    transition: background 0.2s ease;
+}
+.sozluk-row:hover { background: rgba(212, 175, 55, 0.055); }
+.sozluk-word {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--gold-light);
+    overflow-wrap: anywhere;
+}
+.sozluk-origin {
+    justify-self: start;
+    padding: 2px 9px;
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    border-radius: 999px;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.sozluk-meaning {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.sozluk-empty {
+    margin: 20px 0 4px;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+}
+body.light-theme .sozluk-intro { background: rgba(155, 120, 17, 0.07); }
+body.light-theme .sozluk-lang { background: rgba(255, 255, 255, 0.65); border-color: rgba(155, 120, 17, 0.2); }
+body.light-theme .sozluk-row:hover { background: rgba(155, 120, 17, 0.06); }
+
+@media (max-width: 720px) {
+    .sozluk-row { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; padding: 10px 8px; }
+    .sozluk-meaning { grid-column: 1 / -1; }
+    .sozluk-list { max-height: 68vh; padding-right: 2px; }
+}
+
+/* ── 14. Başlıkta günün sözü / günün olayı kısayolları ────── */
+.header-daily {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+}
+.header-daily-link {
+    appearance: none;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    padding: 1px 0;
+    font-family: inherit;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.header-daily-link:hover,
+.header-daily-link:focus-visible {
+    color: var(--gold-light);
+    border-bottom-color: rgba(212, 175, 55, 0.6);
+}
+.header-daily-sep {
+    color: rgba(212, 175, 55, 0.45);
+    font-size: 0.7rem;
+}
+@keyframes otagDailyFlash {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+    30%, 65% { box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.6), 0 0 26px rgba(212, 175, 55, 0.32); }
+}
+.daily-flash {
+    animation: otagDailyFlash 1.5s ease;
+    border-radius: 12px;
+}
+@media (max-width: 720px) {
+    .header-daily { justify-content: center; }
+}

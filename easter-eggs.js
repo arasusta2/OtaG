@@ -111,10 +111,10 @@
     Object.assign(EGGS, {
         kalbimizde: {
             emoji: '💛',
-            title: '1283 — KALBİMİZDE',
+            title: '1283 — İÇİMİZDE',
             sub: 'Bu sayı bir tarih değil, bir bağ.',
-            quote: '“Kalbimizde!” — Kıraathane masası',
-            note: 'Okey, tavla ve mangala sohbetine 1283 yaz; masadaki botlar hep bir ağızdan cevap verir.',
+            quote: '“İçimizde!” — Kıraathane masası',
+            note: 'Yurttaşlarım! Az zamanda çok ve büyük işler yaptık. Bu işlerin en büyüğü, temeli, Türk kahramanlığı ve yüksek Türk kültürü olan Türkiye Cumhuriyeti\'dir. Bundaki muvaffakiyeti, Türk milletinin ve onun değerli ordusunun bir ve beraber olarak, azimkârane yürümesine borçluyuz.',
             variant: 'kirmizi',
             burst: ['💛', '🇹🇷', '🀄'],
             sound: 'playOkeyWin'
